@@ -1,0 +1,42 @@
+# Render.com deployment config
+# Deploy both services from the same repo
+
+services:
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
+  - type: web
+    name: hexaware-macro-api
+    runtime: docker
+    dockerfilePath: docker/Dockerfile.api
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # set manually in Render dashboard
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FRED_API_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+    healthCheckPath: /health
+
+  # ── Streamlit UI ─────────────────────────────────────────────────────────────
+  - type: web
+    name: hexaware-macro-ui
+    runtime: docker
+    dockerfilePath: docker/Dockerfile.streamlit
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FRED_API_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
