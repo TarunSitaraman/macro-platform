@@ -2,11 +2,13 @@
 
 import asyncio
 
+import altair as alt
+import pandas as pd
 import streamlit as st
 
 from src.agents.summarizer import SummarizerAgent
 from src.config import INDICATOR_CATALOGUE, PHASE1_COUNTRIES
-from src.database import SessionLocal
+from src.database import GoldRecord, SessionLocal
 
 st.title("📝 Summary Engine")
 st.caption("AI-generated macroeconomic narratives with full data citation")
@@ -14,51 +16,197 @@ st.caption("AI-generated macroeconomic narratives with full data citation")
 # ── Generate ───────────────────────────────────────────────────────────────────
 st.subheader("Generate Summary")
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    summary_type = st.selectbox(
-        "Summary Type",
-        ["COUNTRY_SNAPSHOT", "INDICATOR_BRIEF", "SECTOR_ANALYSIS"],
-        format_func=lambda x: {
-            "COUNTRY_SNAPSHOT": "🌍 Country Snapshot",
-            "INDICATOR_BRIEF": "📈 Indicator Brief",
-            "SECTOR_ANALYSIS": "🏭 Sector Analysis",
-        }[x],
+summary_type = st.selectbox(
+    "Summary Type",
+    ["COUNTRY_SNAPSHOT", "INDICATOR_BRIEF", "SECTOR_ANALYSIS"],
+    format_func=lambda x: {
+        "COUNTRY_SNAPSHOT": "🌍 Country Snapshot — narrative for one or more countries",
+        "INDICATOR_BRIEF":  "📈 Indicator Brief — deep-dive on one indicator across countries",
+        "SECTOR_ANALYSIS":  "🏭 Sector Analysis — cross-indicator theme for selected countries",
+    }[x],
+)
+
+st.markdown("---")
+
+# ── Dynamic sub-options per type ───────────────────────────────────────────────
+if summary_type == "COUNTRY_SNAPSHOT":
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        countries_sel = st.multiselect(
+            "Countries (up to 5)",
+            PHASE1_COUNTRIES,
+            default=["USA"],
+            max_selections=5,
+        )
+    with col2:
+        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024)
+
+    ind_focus = st.multiselect(
+        "Focus Indicators (leave blank for all)",
+        list(INDICATOR_CATALOGUE.keys()),
+        default=[],
+        format_func=lambda x: INDICATOR_CATALOGUE[x]["name"],
     )
-with col2:
-    country_sel = st.selectbox("Country", PHASE1_COUNTRIES)
-with col3:
-    if summary_type == "INDICATOR_BRIEF":
-        ind_sel = st.selectbox("Indicator", list(INDICATOR_CATALOGUE.keys()))
-    else:
-        ind_sel = None
+    indicators_sel = ind_focus or None
+
+elif summary_type == "INDICATOR_BRIEF":
+    col1, col2 = st.columns([2, 2])
+    with col1:
+        ind_sel = st.selectbox(
+            "Indicator",
+            list(INDICATOR_CATALOGUE.keys()),
+            format_func=lambda x: INDICATOR_CATALOGUE[x]["name"],
+        )
+    with col2:
+        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024)
+
+    countries_sel = st.multiselect(
+        "Countries to compare (leave blank for all 20)",
+        PHASE1_COUNTRIES,
+        default=["USA", "CHN", "DEU", "IND", "GBR"],
+    )
+    indicators_sel = None
+
+else:  # SECTOR_ANALYSIS
+    col1, col2 = st.columns([2, 2])
+    with col1:
+        countries_sel = st.multiselect(
+            "Countries (up to 5)",
+            PHASE1_COUNTRIES,
+            default=["USA"],
+            max_selections=5,
+        )
+    with col2:
+        sector_theme = st.selectbox(
+            "Sector Theme",
+            list(SummarizerAgent.SECTOR_INDICATORS.keys()),
+        )
+    year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024, key="sector_year")
+    indicators_sel = None
+
+st.markdown("---")
 
 if st.button("✨ Generate Summary", type="primary"):
+    if not countries_sel and summary_type != "INDICATOR_BRIEF":
+        st.warning("Select at least one country.")
+        st.stop()
+
     with st.spinner("Generating AI summary..."):
         db = SessionLocal()
         try:
             agent = SummarizerAgent(db)
             if summary_type == "COUNTRY_SNAPSHOT":
-                summary = asyncio.run(agent.generate_country_snapshot(country_sel))
+                summary = asyncio.run(
+                    agent.generate_country_snapshot(
+                        countries=countries_sel,
+                        year_from=int(year_from),
+                        indicators=indicators_sel,
+                    )
+                )
             elif summary_type == "INDICATOR_BRIEF":
-                summary = asyncio.run(agent.generate_indicator_brief(ind_sel))
+                summary = asyncio.run(
+                    agent.generate_indicator_brief(
+                        indicator_code=ind_sel,
+                        countries=countries_sel or None,
+                        year_from=int(year_from),
+                    )
+                )
             else:
-                summary = asyncio.run(agent.generate_sector_analysis(country_sel))
+                summary = asyncio.run(
+                    agent.generate_sector_analysis(
+                        countries=countries_sel,
+                        sector_theme=sector_theme,
+                    )
+                )
+
+            # Load chart data while session is open
+            chart_query = db.query(GoldRecord)
+            if summary_type == "INDICATOR_BRIEF":
+                chart_query = chart_query.filter(
+                    GoldRecord.indicator_code == ind_sel,
+                    GoldRecord.period >= str(year_from),
+                )
+                if countries_sel:
+                    chart_query = chart_query.filter(GoldRecord.country_code.in_(countries_sel))
+            else:
+                chart_query = chart_query.filter(
+                    GoldRecord.country_code.in_(countries_sel),
+                    GoldRecord.period >= str(year_from),
+                )
+                ind_for_chart = indicators_sel or (
+                    list(SummarizerAgent.SECTOR_INDICATORS.get(sector_theme, []))
+                    if summary_type == "SECTOR_ANALYSIS"
+                    else list(INDICATOR_CATALOGUE.keys())
+                )
+                chart_query = chart_query.filter(GoldRecord.indicator_code.in_(ind_for_chart))
+
+            chart_rows = chart_query.order_by(GoldRecord.period).limit(500).all()
+            chart_data = [
+                {
+                    "Indicator": r.indicator_code,
+                    "Country": r.country_code,
+                    "Period": r.period,
+                    "Value": r.value,
+                    "Unit": r.standard_unit,
+                    "Forecast": r.is_forecast,
+                }
+                for r in chart_rows
+            ]
         finally:
             db.close()
 
     st.success(f"Summary generated using `{summary.model_used}`")
-    st.markdown("---")
     st.markdown(summary.content)
     st.caption(f"Generated: {summary.generated_at.strftime('%Y-%m-%d %H:%M UTC')}")
-
-    # Download
     st.download_button(
-        "⬇ Download Summary",
+        "⬇ Download as Markdown",
         summary.content.encode("utf-8"),
         f"summary_{summary.country_code}_{summary.summary_type}.md",
         "text/markdown",
     )
+
+    # ── Charts ─────────────────────────────────────────────────────────────────
+    if chart_data:
+        st.markdown("---")
+        st.subheader("📊 Data Used in This Summary")
+        df = pd.DataFrame(chart_data)
+
+        indicators_in_data = df["Indicator"].unique().tolist()
+        for ind in indicators_in_data:
+            ind_df = df[df["Indicator"] == ind]
+            if ind_df.empty:
+                continue
+            meta = INDICATOR_CATALOGUE.get(ind, {})
+            unit = ind_df["Unit"].iloc[0]
+
+            highlight = alt.selection_point(fields=["Country"], bind="legend")
+            base = alt.Chart(ind_df).encode(
+                x=alt.X("Period:O", axis=alt.Axis(labelAngle=-45, title="Year")),
+                y=alt.Y("Value:Q", title=unit),
+                color=alt.Color("Country:N", legend=alt.Legend(orient="bottom", columns=5)),
+                opacity=alt.condition(highlight, alt.value(1.0), alt.value(0.15)),
+                tooltip=[
+                    alt.Tooltip("Country:N"),
+                    alt.Tooltip("Period:O", title="Year"),
+                    alt.Tooltip("Value:Q", format=".2f"),
+                ],
+            ).add_params(highlight)
+
+            lines = base.mark_line().encode(
+                strokeDash=alt.condition(
+                    "datum.Forecast", alt.value([6, 4]), alt.value([1, 0])
+                )
+            )
+            points = base.mark_point(filled=True, size=50)
+
+            chart = (lines + points).properties(
+                height=300,
+                title=alt.TitleParams(
+                    meta.get("name", ind) + f"  ({unit})", anchor="start", fontSize=13
+                ),
+            ).interactive()
+
+            st.altair_chart(chart, use_container_width=True)
 
 st.divider()
 

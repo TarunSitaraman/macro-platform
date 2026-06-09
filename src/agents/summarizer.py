@@ -57,36 +57,50 @@ class SummarizerAgent:
             ids.append(str(r.record_id))
         return "\n".join(lines), ids
 
+    SECTOR_INDICATORS = {
+        "Monetary Conditions":   ["CPI_INFLATION", "GDP_GROWTH"],
+        "Fiscal Position":       ["GOVT_DEBT_PCT_GDP", "GDP_CURRENT_USD"],
+        "External Balance":      ["CURRENT_ACCOUNT_PCT_GDP", "GDP_GROWTH"],
+        "Labour Market":         ["UNEMPLOYMENT_RATE", "GDP_GROWTH"],
+        "Full Macro Overview":   ["GDP_GROWTH", "CPI_INFLATION", "UNEMPLOYMENT_RATE",
+                                  "CURRENT_ACCOUNT_PCT_GDP", "GOVT_DEBT_PCT_GDP"],
+    }
+
     async def generate_country_snapshot(
-        self, country_code: str, year_from: int = 2018
+        self,
+        countries: list[str],
+        year_from: int = 2018,
+        indicators: Optional[list[str]] = None,
     ) -> Summary:
-        records = (
-            self.db.query(GoldRecord)
-            .filter(
-                GoldRecord.country_code == country_code,
-                GoldRecord.period >= str(year_from),
-            )
-            .order_by(GoldRecord.period.desc())
-            .limit(60)
-            .all()
+        query = self.db.query(GoldRecord).filter(
+            GoldRecord.country_code.in_(countries),
+            GoldRecord.period >= str(year_from),
         )
+        if indicators:
+            query = query.filter(GoldRecord.indicator_code.in_(indicators))
+        records = query.order_by(GoldRecord.period.desc()).limit(120).all()
+        label = ", ".join(countries) if len(countries) > 1 else countries[0]
+        country_key = countries[0] if len(countries) == 1 else "MULTI"
         return await self._generate(
-            country_code=country_code,
+            country_code=country_key,
             summary_type="COUNTRY_SNAPSHOT",
             records=records,
-            context_label=country_code,
+            context_label=label,
         )
 
     async def generate_indicator_brief(
-        self, indicator_code: str, countries: Optional[list[str]] = None
+        self,
+        indicator_code: str,
+        countries: Optional[list[str]] = None,
+        year_from: int = 2018,
     ) -> Summary:
         query = self.db.query(GoldRecord).filter(
             GoldRecord.indicator_code == indicator_code,
+            GoldRecord.period >= str(year_from),
         )
         if countries:
             query = query.filter(GoldRecord.country_code.in_(countries))
-        records = query.order_by(GoldRecord.period.desc()).limit(60).all()
-
+        records = query.order_by(GoldRecord.period.desc()).limit(120).all()
         return await self._generate(
             country_code="MULTI",
             summary_type="INDICATOR_BRIEF",
@@ -95,26 +109,30 @@ class SummarizerAgent:
         )
 
     async def generate_sector_analysis(
-        self, country_code: str, context_label: str = "Monetary Conditions"
+        self,
+        countries: list[str],
+        sector_theme: str = "Full Macro Overview",
     ) -> Summary:
+        ind_codes = self.SECTOR_INDICATORS.get(
+            sector_theme, self.SECTOR_INDICATORS["Full Macro Overview"]
+        )
         records = (
             self.db.query(GoldRecord)
             .filter(
-                GoldRecord.country_code == country_code,
-                GoldRecord.indicator_code.in_([
-                    "GDP_GROWTH", "CPI_INFLATION", "UNEMPLOYMENT_RATE",
-                    "CURRENT_ACCOUNT_PCT_GDP", "GOVT_DEBT_PCT_GDP",
-                ]),
+                GoldRecord.country_code.in_(countries),
+                GoldRecord.indicator_code.in_(ind_codes),
             )
             .order_by(GoldRecord.period.desc())
-            .limit(60)
+            .limit(120)
             .all()
         )
+        label = f"{sector_theme} — {', '.join(countries)}"
+        country_key = countries[0] if len(countries) == 1 else "MULTI"
         return await self._generate(
-            country_code=country_code,
+            country_code=country_key,
             summary_type="SECTOR_ANALYSIS",
             records=records,
-            context_label=context_label,
+            context_label=label,
         )
 
     async def _generate(
@@ -153,6 +171,8 @@ class SummarizerAgent:
         )
         self.db.add(summary)
         self.db.commit()
+        self.db.refresh(summary)
+        self.db.expunge(summary)  # detach cleanly so attributes stay readable after session closes
         logger.info("Summary generated: %s / %s / model=%s", summary_type, country_code, model_used)
         return summary
 
