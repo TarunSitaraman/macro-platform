@@ -117,12 +117,30 @@ class LLMClient:
         for attempt in range(3):
             resp = await http.post("/chat/completions", json=payload)
             if resp.status_code == 429 and attempt < 2:
-                await asyncio.sleep(2 ** attempt)
+                # Free-tier rate limits need a real cooldown, not just 1-2 s
+                await asyncio.sleep(5 * (attempt + 1))
                 continue
+            if resp.status_code == 413:
+                # Payload too large — truncate the last user message by half and retry once
+                if attempt == 0:
+                    payload["messages"] = self._truncate_messages(payload["messages"])
+                    continue
+                resp.raise_for_status()
             resp.raise_for_status()
             break
         data = resp.json()
         return data["choices"][0]["message"]["content"]
+
+    @staticmethod
+    def _truncate_messages(messages: list[dict], keep_ratio: float = 0.5) -> list[dict]:
+        """Shorten the last user message to fit within a smaller model's context window."""
+        result = list(messages)
+        for i in range(len(result) - 1, -1, -1):
+            if result[i].get("role") == "user" and isinstance(result[i].get("content"), str):
+                original = result[i]["content"]
+                result[i] = {**result[i], "content": original[: int(len(original) * keep_ratio)]}
+                break
+        return result
 
     async def extract_json(
         self,
