@@ -1,6 +1,5 @@
 """Dynamic crawler agent — Crawl4AI + LLM extraction for HTML sources."""
 
-import json
 import logging
 from typing import Optional
 
@@ -12,7 +11,8 @@ settings = get_settings()
 
 EXTRACTION_SYSTEM = """You are a macroeconomic data extraction specialist.
 Extract ALL macroeconomic indicator values from the provided text.
-Return ONLY a JSON array of objects. Each object must have these exact keys:
+Return a JSON object with a single key "records" whose value is an array of objects.
+Each object must have these exact keys:
   indicator_code: one of GDP_CURRENT_USD, GDP_GROWTH, CPI_INFLATION, UNEMPLOYMENT_RATE, CURRENT_ACCOUNT_PCT_GDP, GOVT_DEBT_PCT_GDP
   country_code: ISO3 country code (e.g. USA, GBR, CHN)
   period: year string e.g. "2024" or "2024-Q1"
@@ -21,7 +21,10 @@ Return ONLY a JSON array of objects. Each object must have these exact keys:
   is_forecast: true if labeled as forecast/projection/estimate, else false
   confidence: float 0-1 indicating extraction confidence
 
-If no indicator data is found, return an empty array [].
+Example response format:
+{"records": [{"indicator_code": "GDP_GROWTH", "country_code": "USA", "period": "2024", "raw_value": "2.8", "raw_unit": "%", "is_forecast": false, "confidence": 0.95}]}
+
+If no indicator data is found, return {"records": []}.
 Do not invent values. Only extract what is explicitly stated in the text."""
 
 
@@ -59,7 +62,7 @@ class DynamicCrawlerAgent:
             async with AsyncWebCrawler(config=browser_cfg) as crawler:
                 result = await crawler.arun(url=url, config=run_cfg)
                 if result.success:
-                    return result.markdown.fit_markdown or result.markdown.raw_markdown
+                    return result.markdown.raw_markdown or result.markdown.fit_markdown
                 logger.error("Crawl4AI failed for %s: %s", url, result.error_message)
                 return None
         except ImportError:
@@ -88,8 +91,8 @@ class DynamicCrawlerAgent:
         self, markdown: str, source_url: str, extra_prompt: Optional[str]
     ) -> list[dict]:
         """Pass page content to LLM for structured extraction."""
-        # Trim to first 12k chars to stay within context limits
-        content = markdown[:12000]
+        # Trim to first 24k chars — data often appears mid-article
+        content = markdown[:24000]
         prompt = f"Source URL: {source_url}\n\n"
         if extra_prompt:
             prompt += f"Additional context: {extra_prompt}\n\n"
@@ -102,9 +105,18 @@ class DynamicCrawlerAgent:
                 system=EXTRACTION_SYSTEM,
                 tier="medium",
             )
-            records = result if isinstance(result, list) else result.get("data", [])
-            # Filter out low-confidence extractions
-            valid = [r for r in records if isinstance(r, dict) and float(r.get("confidence", 0)) >= 0.6]
+            # Unwrap regardless of key name used by the model
+            if isinstance(result, list):
+                records = result
+            elif isinstance(result, dict):
+                records = next(
+                    (v for v in result.values() if isinstance(v, list)),
+                    [],
+                )
+            else:
+                records = []
+            # Drop clearly low-confidence extractions (threshold lowered to 0.4)
+            valid = [r for r in records if isinstance(r, dict) and float(r.get("confidence", 1)) >= 0.4]
             logger.info(
                 "Extracted %d/%d records from %s using %s",
                 len(valid), len(records), source_url, model_used,
