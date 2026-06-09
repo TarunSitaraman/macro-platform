@@ -1,13 +1,8 @@
 """Data Explorer — filter, visualise, and inspect gold records."""
 
+import altair as alt
 import pandas as pd
 import streamlit as st
-
-try:
-    import plotly.express as px
-    HAS_PLOTLY = True
-except ImportError:
-    HAS_PLOTLY = False
 
 from src.config import INDICATOR_CATALOGUE, PHASE1_COUNTRIES
 from src.database import GoldRecord, SessionLocal
@@ -84,21 +79,46 @@ df = pd.DataFrame(data)
 st.success(f"Found {len(df):,} records")
 
 # ── Chart ───────────────────────────────────────────────────────────────────────
-if HAS_PLOTLY and len(ind_sel) == 1 and not df.empty:
-    st.subheader(f"📈 {ind_sel[0]} over Time")
-    fig = px.line(
-        df,
-        x="Period",
-        y="Value",
-        color="Country",
-        title=f"{INDICATOR_CATALOGUE.get(ind_sel[0], {}).get('name', ind_sel[0])} ({df['Unit'].iloc[0]})",
-        markers=True,
-        line_dash="Forecast",
-    )
-    fig.update_layout(height=450)
-    st.plotly_chart(fig, use_container_width=True)
-elif not HAS_PLOTLY:
-    st.info("Install plotly for interactive charts: `pip install plotly`")
+if not df.empty and ind_sel:
+    for ind in ind_sel:
+        ind_df = df[df["Indicator"] == ind].copy()
+        if ind_df.empty:
+            continue
+
+        meta = INDICATOR_CATALOGUE.get(ind, {})
+        unit = ind_df["Unit"].iloc[0]
+        title = f"{meta.get('name', ind)}  ({unit})"
+
+        highlight = alt.selection_point(fields=["Country"], bind="legend")
+
+        base = alt.Chart(ind_df).encode(
+            x=alt.X("Period:O", axis=alt.Axis(labelAngle=-45, title="Year")),
+            y=alt.Y("Value:Q", title=unit),
+            color=alt.Color("Country:N", legend=alt.Legend(orient="bottom", columns=5)),
+            opacity=alt.condition(highlight, alt.value(1.0), alt.value(0.15)),
+            tooltip=[
+                alt.Tooltip("Country:N"),
+                alt.Tooltip("Period:O", title="Year"),
+                alt.Tooltip("Value:Q", format=".2f"),
+                alt.Tooltip("Source:N"),
+                alt.Tooltip("DQ Score:Q", format=".1f"),
+            ],
+        ).add_params(highlight)
+
+        lines = base.mark_line().encode(
+            strokeDash=alt.condition(
+                "datum.Forecast", alt.value([6, 4]), alt.value([1, 0])
+            )
+        )
+        points = base.mark_point(filled=True, size=55)
+
+        chart = (lines + points).properties(
+            height=380,
+            title=alt.TitleParams(title, anchor="start", fontSize=14),
+        ).interactive()
+
+        st.subheader(f"📈 {meta.get('name', ind)}")
+        st.altair_chart(chart, use_container_width=True)
 
 # ── Table ───────────────────────────────────────────────────────────────────────
 st.subheader("Data Table")
