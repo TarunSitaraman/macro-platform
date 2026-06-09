@@ -21,6 +21,14 @@ class Settings(BaseSettings):
     openrouter_base_url: str = Field(
         "https://openrouter.ai/api/v1", env="OPENROUTER_BASE_URL"
     )
+    # Cerebras — free tier, llama-3.3-70b at 1000+ tok/s, more generous limits than Groq
+    # Sign up at: https://cloud.cerebras.ai
+    cerebras_api_key: str = Field("", env="CEREBRAS_API_KEY")
+    cerebras_base_url: str = Field("https://api.cerebras.ai/v1", env="CEREBRAS_BASE_URL")
+    # Together AI — $25 free credit on signup, wide model selection
+    # Sign up at: https://api.together.xyz
+    together_api_key: str = Field("", env="TOGETHER_API_KEY")
+    together_base_url: str = Field("https://api.together.xyz/v1", env="TOGETHER_BASE_URL")
 
     # Embeddings (Jina AI — free tier 1M tokens/month)
     jina_api_key: str = Field(..., env="JINA_API_KEY")
@@ -74,7 +82,9 @@ MODEL_ROUTES: dict[str, dict] = {
     # Intent classification, simple field extraction, JSON normalization
     "simple": {
         "candidates": [
+            {"provider": "cerebras",   "model": "llama-3.3-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
+            {"provider": "together",   "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
@@ -85,7 +95,9 @@ MODEL_ROUTES: dict[str, dict] = {
     # Structured extraction, DQ rationale
     "medium": {
         "candidates": [
+            {"provider": "cerebras",   "model": "llama-3.3-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
+            {"provider": "together",   "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
@@ -97,7 +109,9 @@ MODEL_ROUTES: dict[str, dict] = {
     # Summaries, RAG chat, complex reasoning
     "complex": {
         "candidates": [
+            {"provider": "cerebras",   "model": "llama-3.3-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
+            {"provider": "together",   "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
