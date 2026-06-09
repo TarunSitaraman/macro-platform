@@ -41,12 +41,16 @@ def _make_headers(provider: str) -> dict[str, str]:
 
 
 def _base_url(provider: str) -> str:
-    return {
+    url = {
         "groq":       settings.groq_base_url,
         "gemini":     settings.gemini_base_url,
         "openrouter": settings.openrouter_base_url,
         "cerebras":   settings.cerebras_base_url,
     }[provider]
+    # httpx URL merging: relative path ("chat/completions") appends correctly only
+    # when the base_url ends with "/". Without it, httpx replaces the last path segment,
+    # so "https://api.cerebras.ai/v1" + "/chat/completions" → ".../chat/completions" (drops /v1).
+    return url if url.endswith("/") else url + "/"
 
 
 def _has_key(provider: str) -> bool:
@@ -164,7 +168,7 @@ class LLMClient:
             timeout=60.0,
         ) as http:
             for attempt in range(2):
-                resp = await http.post("/chat/completions", json=payload)
+                resp = await http.post("chat/completions", json=payload)
 
                 if resp.status_code == 429:
                     # Raise immediately so the caller can set cooldown and move to next provider
