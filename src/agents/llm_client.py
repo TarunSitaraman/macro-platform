@@ -120,6 +120,14 @@ class LLMClient:
                 logger.warning("LLM failed — %s", msg)
                 failures.append(msg)
                 last_exc = exc
+            except httpx.ConnectError as exc:
+                # Host unreachable — cool down the entire provider so remaining
+                # candidates on the same host aren't tried one by one
+                _provider_cooldown[provider] = time.monotonic() + _COOLDOWN_SECS
+                msg = f"{provider}/{model}: ConnectError — host unreachable, cooling down"
+                logger.warning("LLM failed — %s", msg)
+                failures.append(msg)
+                last_exc = exc
             except Exception as exc:
                 error_str = str(exc) or type(exc).__name__
                 msg = f"{provider}/{model}: {error_str}"
