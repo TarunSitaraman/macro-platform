@@ -173,8 +173,13 @@ class LLMClient:
             for attempt in range(2):
                 resp = await http.post(full_url, json=payload)
 
+                if resp.status_code not in (200, 413):
+                    logger.warning(
+                        "LLM non-200 from %s model=%s status=%s body=%s",
+                        provider, model, resp.status_code, resp.text[:300],
+                    )
+
                 if resp.status_code == 429:
-                    # Raise immediately so the caller can set cooldown and move to next provider
                     resp.raise_for_status()
 
                 if resp.status_code == 413 and attempt == 0:

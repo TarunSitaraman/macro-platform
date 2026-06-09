@@ -79,6 +79,7 @@ MODEL_ROUTES: dict[str, dict] = {
     "simple": {
         "candidates": [
             {"provider": "cerebras",   "model": "llama3.3-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
@@ -91,6 +92,7 @@ MODEL_ROUTES: dict[str, dict] = {
     "medium": {
         "candidates": [
             {"provider": "cerebras",   "model": "llama3.3-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
@@ -104,6 +106,7 @@ MODEL_ROUTES: dict[str, dict] = {
     "complex": {
         "candidates": [
             {"provider": "cerebras",   "model": "llama3.3-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-70b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
