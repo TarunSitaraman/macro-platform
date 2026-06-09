@@ -1,5 +1,6 @@
 """Multi-provider LLM client: Gemini (primary) → OpenRouter (fallback)."""
 
+import asyncio
 import json
 import logging
 from typing import Any, Optional
@@ -113,8 +114,13 @@ class LLMClient:
         if response_format:
             payload["response_format"] = response_format
 
-        resp = await http.post("/chat/completions", json=payload)
-        resp.raise_for_status()
+        for attempt in range(3):
+            resp = await http.post("/chat/completions", json=payload)
+            if resp.status_code == 429 and attempt < 2:
+                await asyncio.sleep(2 ** attempt)
+                continue
+            resp.raise_for_status()
+            break
         data = resp.json()
         return data["choices"][0]["message"]["content"]
 
