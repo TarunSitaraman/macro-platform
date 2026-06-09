@@ -1,8 +1,9 @@
-"""Multi-provider LLM client: Gemini (primary) → OpenRouter (fallback)."""
+"""Multi-provider LLM client with per-provider cooldown and fresh connections per call."""
 
 import asyncio
 import json
 import logging
+import time
 from typing import Any, Optional
 
 import httpx
@@ -12,39 +13,56 @@ from src.config import MODEL_ROUTES, get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# Per-provider cooldown: maps provider name → monotonic time when it becomes available again.
+# Module-level so it persists across calls within the same Streamlit session process.
+_provider_cooldown: dict[str, float] = {}
+_COOLDOWN_SECS = 90  # how long to skip a provider after a 429
+
 
 class LLMError(Exception):
     """Raised when all candidates in a tier's fallback chain are exhausted."""
 
 
+def _make_headers(provider: str) -> dict[str, str]:
+    keys = {
+        "groq": settings.groq_api_key,
+        "gemini": settings.gemini_api_key,
+        "openrouter": settings.openrouter_api_key,
+    }
+    key = keys.get(provider, "")
+    if not key:
+        return {}
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    if provider == "openrouter":
+        headers["HTTP-Referer"] = "https://macro-platform.io"
+        headers["X-Title"] = "Macro Intelligence Platform"
+    return headers
+
+
+def _base_url(provider: str) -> str:
+    return {
+        "groq": settings.groq_base_url,
+        "gemini": settings.gemini_base_url,
+        "openrouter": settings.openrouter_base_url,
+    }[provider]
+
+
+def _has_key(provider: str) -> bool:
+    return bool({
+        "groq": settings.groq_api_key,
+        "gemini": settings.gemini_api_key,
+        "openrouter": settings.openrouter_api_key,
+    }.get(provider, ""))
+
+
 class LLMClient:
-    """Sends chat completion requests with per-tier provider fallback chains."""
+    """
+    Sends chat completion requests with per-tier provider fallback chains.
 
-    def __init__(self):
-        def _client(base_url: str, key: str, extra_headers: dict | None = None) -> httpx.AsyncClient | None:
-            if not key:
-                return None
-            return httpx.AsyncClient(
-                base_url=base_url,
-                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", **(extra_headers or {})},
-                timeout=120.0,
-            )
-
-        self._groq = _client(settings.groq_base_url, settings.groq_api_key)
-        self._gemini = _client(settings.gemini_base_url, settings.gemini_api_key)
-        self._openrouter = _client(
-            settings.openrouter_base_url,
-            settings.openrouter_api_key,
-            {"HTTP-Referer": "https://macro-platform.io", "X-Title": "Macro Intelligence Platform"},
-        )
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, *_):
-        for c in (self._groq, self._gemini, self._openrouter):
-            if c:
-                await c.aclose()
+    Creates a fresh httpx.AsyncClient per provider call to avoid stale TLS connections
+    (the original singleton pattern caused ConnectError after idle periods).
+    Per-provider 429 cooldown state is tracked at module level across calls.
+    """
 
     async def chat(
         self,
@@ -53,31 +71,35 @@ class LLMClient:
         response_format: Optional[dict] = None,
         system: Optional[str] = None,
     ) -> tuple[str, str]:
-        """
-        Send a chat completion request, trying each candidate in order.
-        Returns (content, model_used).
-        """
+        """Try each candidate in order, skipping providers in cooldown. Returns (content, model_used)."""
         route = MODEL_ROUTES[tier]
 
-        all_messages = []
+        all_messages: list[dict] = []
         if system:
             all_messages.append({"role": "system", "content": system})
         all_messages.extend(messages)
 
+        now = time.monotonic()
         failures: list[str] = []
         last_exc: Optional[Exception] = None
+
         for candidate in route["candidates"]:
             provider = candidate["provider"]
             model = candidate["model"]
 
-            http = {"groq": self._groq, "gemini": self._gemini, "openrouter": self._openrouter}.get(provider)
-            if not http:
+            if not _has_key(provider):
                 failures.append(f"{provider}/{model}: skipped (API key not set)")
+                continue
+
+            cooldown_until = _provider_cooldown.get(provider, 0)
+            if cooldown_until > now:
+                remaining = int(cooldown_until - now)
+                failures.append(f"{provider}/{model}: skipped (rate-limited, {remaining}s cooldown remaining)")
                 continue
 
             try:
                 content = await self._call(
-                    http=http,
+                    provider=provider,
                     model=model,
                     messages=all_messages,
                     max_tokens=route["max_tokens"],
@@ -86,8 +108,18 @@ class LLMClient:
                 )
                 logger.debug("LLM success: provider=%s model=%s tier=%s", provider, model, tier)
                 return content, f"{provider}/{model}"
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 429:
+                    _provider_cooldown[provider] = time.monotonic() + _COOLDOWN_SECS
+                    msg = f"{provider}/{model}: 429 — cooling down for {_COOLDOWN_SECS}s"
+                else:
+                    msg = f"{provider}/{model}: HTTP {exc.response.status_code}"
+                logger.warning("LLM failed — %s", msg)
+                failures.append(msg)
+                last_exc = exc
             except Exception as exc:
-                msg = f"{provider}/{model}: {exc}"
+                error_str = str(exc) or type(exc).__name__
+                msg = f"{provider}/{model}: {error_str}"
                 logger.warning("LLM failed — %s", msg)
                 failures.append(msg)
                 last_exc = exc
@@ -98,7 +130,7 @@ class LLMClient:
 
     async def _call(
         self,
-        http: httpx.AsyncClient,
+        provider: str,
         model: str,
         messages: list[dict],
         max_tokens: int,
@@ -114,41 +146,33 @@ class LLMClient:
         if response_format:
             payload["response_format"] = response_format
 
-        for attempt in range(3):
-            resp = await http.post("/chat/completions", json=payload)
-            if resp.status_code == 429 and attempt < 2:
-                # Free-tier rate limits need a real cooldown, not just 1-2 s
-                await asyncio.sleep(5 * (attempt + 1))
-                continue
-            if resp.status_code == 413:
-                # Payload too large — truncate the last user message by half and retry once
-                if attempt == 0:
-                    payload["messages"] = self._truncate_messages(payload["messages"])
+        # Fresh client per call — avoids stale TLS connections from the old singleton pattern
+        async with httpx.AsyncClient(
+            base_url=_base_url(provider),
+            headers=_make_headers(provider),
+            timeout=60.0,
+        ) as http:
+            for attempt in range(2):
+                resp = await http.post("/chat/completions", json=payload)
+
+                if resp.status_code == 429:
+                    # Raise immediately so the caller can set cooldown and move to next provider
+                    resp.raise_for_status()
+
+                if resp.status_code == 413 and attempt == 0:
+                    payload["messages"] = _truncate_messages(payload["messages"])
                     continue
+
                 resp.raise_for_status()
-            resp.raise_for_status()
-            break
+                break
+
         data = resp.json()
-        # OpenRouter (and some providers) return errors inside a 200 response body
+        # Some providers (OpenRouter) return HTTP 200 with {"error": {...}} on quota/model errors
         if "choices" not in data:
             error_info = data.get("error", data)
-            if isinstance(error_info, dict):
-                msg = error_info.get("message", str(error_info))
-            else:
-                msg = str(error_info)
+            msg = error_info.get("message", str(error_info)) if isinstance(error_info, dict) else str(error_info)
             raise ValueError(f"Provider error: {msg}")
         return data["choices"][0]["message"]["content"]
-
-    @staticmethod
-    def _truncate_messages(messages: list[dict], keep_ratio: float = 0.5) -> list[dict]:
-        """Shorten the last user message to fit within a smaller model's context window."""
-        result = list(messages)
-        for i in range(len(result) - 1, -1, -1):
-            if result[i].get("role") == "user" and isinstance(result[i].get("content"), str):
-                original = result[i]["content"]
-                result[i] = {**result[i], "content": original[: int(len(original) * keep_ratio)]}
-                break
-        return result
 
     async def extract_json(
         self,
@@ -170,11 +194,17 @@ class LLMClient:
             return json.loads(cleaned), model
 
 
-_client: Optional[LLMClient] = None
+def _truncate_messages(messages: list[dict], keep_ratio: float = 0.5) -> list[dict]:
+    """Shorten the last user message to fit within a smaller model's context window."""
+    result = list(messages)
+    for i in range(len(result) - 1, -1, -1):
+        if result[i].get("role") == "user" and isinstance(result[i].get("content"), str):
+            original = result[i]["content"]
+            result[i] = {**result[i], "content": original[: int(len(original) * keep_ratio)]}
+            break
+    return result
 
 
 def get_llm_client() -> LLMClient:
-    global _client
-    if _client is None:
-        _client = LLMClient()
-    return _client
+    """Return an LLMClient instance. Stateless — safe to call per request."""
+    return LLMClient()
