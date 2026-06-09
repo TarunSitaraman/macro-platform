@@ -78,11 +78,11 @@ MODEL_ROUTES: dict[str, dict] = {
     # Intent classification, simple field extraction, JSON normalization
     "simple": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.1-8b"},
+            {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
-            {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
         ],
         "max_tokens": 1024,
         "temperature": 0.0,
@@ -90,12 +90,12 @@ MODEL_ROUTES: dict[str, dict] = {
     # Structured extraction, DQ rationale
     "medium": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.1-8b"},
+            {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
-            {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
         ],
         "max_tokens": 4096,
         "temperature": 0.0,
@@ -103,13 +103,13 @@ MODEL_ROUTES: dict[str, dict] = {
     # Summaries, RAG chat, complex reasoning
     "complex": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.1-8b"},
+            {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
             {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
-            {"provider": "openrouter", "model": "mistralai/mistral-7b-instruct:free"},
         ],
         "max_tokens": 4096,
         "temperature": 0.2,
