@@ -1,5 +1,7 @@
 """Dynamic crawler agent — Crawl4AI + LLM extraction for HTML sources."""
 
+import asyncio
+import concurrent.futures
 import logging
 from typing import Optional
 
@@ -8,6 +10,34 @@ from src.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+def _crawl4ai_in_thread(url: str, headless: bool) -> Optional[str]:
+    """
+    Run Crawl4AI in a dedicated thread with its own event loop.
+    Playwright uses asyncio.create_subprocess_exec which fails inside
+    Streamlit's nested event loop on Windows — a fresh thread avoids this.
+    """
+    async def _inner() -> Optional[str]:
+        from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
+        browser_cfg = BrowserConfig(headless=headless)
+        run_cfg = CrawlerRunConfig(
+            word_count_threshold=50,
+            exclude_external_links=True,
+            remove_overlay_elements=True,
+        )
+        async with AsyncWebCrawler(config=browser_cfg) as crawler:
+            result = await crawler.arun(url=url, config=run_cfg)
+            if result.success:
+                return result.markdown.raw_markdown or result.markdown.fit_markdown
+            logger.error("Crawl4AI failed for %s: %s", url, result.error_message)
+            return None
+
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(_inner())
+    finally:
+        loop.close()
 
 EXTRACTION_SYSTEM = """You are a macroeconomic data extraction specialist.
 Extract ALL macroeconomic indicator values from the provided text.
@@ -49,22 +79,18 @@ class DynamicCrawlerAgent:
         return await self._extract(markdown, url, extraction_prompt)
 
     async def _crawl(self, url: str) -> Optional[str]:
-        """Use Crawl4AI to render the page and return clean markdown."""
+        """Use Crawl4AI (in a thread) to JS-render the page and return clean markdown."""
         try:
-            from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
-
-            browser_cfg = BrowserConfig(headless=settings.crawl_headless)
-            run_cfg = CrawlerRunConfig(
-                word_count_threshold=50,
-                exclude_external_links=True,
-                remove_overlay_elements=True,
-            )
-            async with AsyncWebCrawler(config=browser_cfg) as crawler:
-                result = await crawler.arun(url=url, config=run_cfg)
-                if result.success:
-                    return result.markdown.raw_markdown or result.markdown.fit_markdown
-                logger.error("Crawl4AI failed for %s: %s", url, result.error_message)
-                return None
+            import crawl4ai  # noqa: F401 — check import before spinning a thread
+            loop = asyncio.get_event_loop()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                markdown = await loop.run_in_executor(
+                    pool, _crawl4ai_in_thread, url, settings.crawl_headless
+                )
+            if markdown:
+                return markdown
+            logger.warning("Crawl4AI returned no content for %s; falling back to httpx", url)
+            return await self._simple_fetch(url)
         except ImportError:
             logger.warning("crawl4ai not installed; falling back to httpx text fetch")
             return await self._simple_fetch(url)
