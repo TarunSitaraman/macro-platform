@@ -29,7 +29,6 @@ def _make_headers(provider: str) -> dict[str, str]:
         "gemini":     settings.gemini_api_key,
         "openrouter": settings.openrouter_api_key,
         "cerebras":   settings.cerebras_api_key,
-        "together":   settings.together_api_key,
     }
     key = keys.get(provider, "")
     if not key:
@@ -47,7 +46,6 @@ def _base_url(provider: str) -> str:
         "gemini":     settings.gemini_base_url,
         "openrouter": settings.openrouter_base_url,
         "cerebras":   settings.cerebras_base_url,
-        "together":   settings.together_base_url,
     }[provider]
 
 
@@ -57,7 +55,6 @@ def _has_key(provider: str) -> bool:
         "gemini":     settings.gemini_api_key,
         "openrouter": settings.openrouter_api_key,
         "cerebras":   settings.cerebras_api_key,
-        "together":   settings.together_api_key,
     }.get(provider, ""))
 
 
