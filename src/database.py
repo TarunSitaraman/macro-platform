@@ -249,7 +249,7 @@ class Summary(Base):
     __tablename__ = "summaries"
 
     summary_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    country_code = Column(String(3), nullable=False)
+    country_code = Column(String(10), nullable=False)
     summary_type = Column(SummaryTypeEnum, nullable=False)
     content = Column(Text, nullable=False)
     indicators_used = Column(ARRAY(UUID(as_uuid=True)))
