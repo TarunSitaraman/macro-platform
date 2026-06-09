@@ -5,7 +5,7 @@ import asyncio
 import pandas as pd
 import streamlit as st
 
-from src.agents.crawler import DynamicCrawlerAgent
+from src.agents.crawler import CURATED_ARTICLES, DynamicCrawlerAgent
 from src.config import INDICATOR_CATALOGUE
 from src.database import SessionLocal, SourceConfig
 
@@ -41,9 +41,45 @@ if source.extraction_prompt:
 
 st.divider()
 
+# ── Article discovery ───────────────────────────────────────────────────────────
+with st.expander("🔍 Browse Articles", expanded=True):
+    curated = CURATED_ARTICLES.get(source.source_code, [])
+    col_disc, col_info = st.columns([2, 3])
+    with col_disc:
+        run_discovery = st.button("Discover from Source Page", use_container_width=True)
+    with col_info:
+        st.caption("Scans the source index page for article links. Falls back to curated list.")
+
+    articles: list[dict] = []
+    if run_discovery:
+        with st.spinner("Scanning source page for articles..."):
+            crawler_tmp = DynamicCrawlerAgent()
+            articles = asyncio.run(
+                crawler_tmp.discover_articles(source.source_url, source.source_code)
+            )
+        if articles:
+            st.success(f"Found {len(articles)} articles")
+        else:
+            st.info("Dynamic discovery returned nothing — showing curated list.")
+            articles = curated
+    elif curated:
+        articles = curated
+
+    if articles:
+        st.markdown("**Select an article to crawl:**")
+        for art in articles:
+            c1, c2 = st.columns([5, 1])
+            c1.markdown(f"[{art['title']}]({art['url']})", unsafe_allow_html=False)
+            if c2.button("Use", key=f"use_{art['url']}", use_container_width=True):
+                st.session_state["selected_crawl_url"] = art["url"]
+                st.rerun()
+
+st.divider()
+
 # ── Manual URL crawl ────────────────────────────────────────────────────────────
 st.subheader("Crawl & Extract")
-custom_url = st.text_input("URL to crawl (leave blank to use source URL)", value="")
+_default_url = st.session_state.pop("selected_crawl_url", "")
+custom_url = st.text_input("URL to crawl (leave blank to use source URL)", value=_default_url)
 url_to_crawl = custom_url.strip() if custom_url.strip() else source.source_url
 
 if st.button("🕷 Run Crawler", type="primary"):

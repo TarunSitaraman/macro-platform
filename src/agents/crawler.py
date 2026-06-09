@@ -12,6 +12,23 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
+def _html_in_thread(url: str, headless: bool) -> Optional[str]:
+    """Run Playwright in a thread and return the raw rendered HTML (for link discovery)."""
+    async def _inner() -> Optional[str]:
+        from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
+        browser_cfg = BrowserConfig(headless=headless)
+        run_cfg = CrawlerRunConfig(remove_overlay_elements=True)
+        async with AsyncWebCrawler(config=browser_cfg) as crawler:
+            result = await crawler.arun(url=url, config=run_cfg)
+            return result.html if result.success else None
+
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(_inner())
+    finally:
+        loop.close()
+
+
 def _crawl4ai_in_thread(url: str, headless: bool) -> Optional[str]:
     """
     Run Crawl4AI in a dedicated thread with its own event loop.
@@ -58,11 +75,113 @@ If no indicator data is found, return {"records": []}.
 Do not invent values. Only extract what is explicitly stated in the text."""
 
 
+# Curated high-value articles per source — shown as fallback when dynamic discovery finds nothing
+CURATED_ARTICLES: dict[str, list[dict]] = {
+    "IMF_BLOG": [
+        {"title": "World Economic Outlook Update, January 2025", "url": "https://www.imf.org/en/Publications/WEO/Issues/2025/01/17/world-economic-outlook-update-january-2025"},
+        {"title": "World Economic Outlook, October 2024", "url": "https://www.imf.org/en/Publications/WEO/Issues/2024/10/22/world-economic-outlook-october-2024"},
+        {"title": "World Economic Outlook Update, July 2024", "url": "https://www.imf.org/en/Publications/WEO/Issues/2024/07/16/world-economic-outlook-update-july-2024"},
+        {"title": "World Economic Outlook, April 2024", "url": "https://www.imf.org/en/Publications/WEO/Issues/2024/04/16/world-economic-outlook-april-2024"},
+        {"title": "Global Economic Prospects, January 2025 (WB)", "url": "https://www.worldbank.org/en/publication/global-economic-prospects"},
+    ],
+    "WB_PROSPECTS": [
+        {"title": "Global Economic Prospects, January 2025", "url": "https://www.worldbank.org/en/publication/global-economic-prospects"},
+        {"title": "Global Economic Prospects, June 2024", "url": "https://openknowledge.worldbank.org/bitstreams/7d84ce04-c277-4f2b-a51e-c44bbc9e7760/download"},
+        {"title": "Commodity Markets Outlook, October 2024", "url": "https://www.worldbank.org/en/publication/commodity-markets-outlook"},
+    ],
+    "OECD_OUTLOOK": [
+        {"title": "OECD Economic Outlook, November 2024", "url": "https://www.oecd.org/en/publications/oecd-economic-outlook-volume-2024-issue-2_a41daca5-en.html"},
+        {"title": "OECD Interim Economic Outlook, September 2024", "url": "https://www.oecd.org/en/publications/oecd-economic-outlook-interim-report-september-2024_16690dfb-en.html"},
+    ],
+    "BIS_REVIEW": [
+        {"title": "BIS Quarterly Review, December 2024", "url": "https://www.bis.org/publ/qtrpdf/r_qt2412.htm"},
+        {"title": "BIS Quarterly Review, September 2024", "url": "https://www.bis.org/publ/qtrpdf/r_qt2409.htm"},
+    ],
+}
+
+
 class DynamicCrawlerAgent:
     """
     Crawls HTML pages using Crawl4AI, extracts clean markdown,
     then passes to LLM for structured indicator extraction.
     """
+
+    async def discover_articles(self, source_url: str, source_code: str = "") -> list[dict]:
+        """
+        Render the source index page and extract article links.
+        Falls back to curated list if the page yields nothing.
+        Returns list of {title, url} dicts.
+        """
+        articles = await self._discover_dynamic(source_url)
+        if not articles:
+            articles = CURATED_ARTICLES.get(source_code, [])
+        return articles
+
+    async def _discover_dynamic(self, source_url: str) -> list[dict]:
+        """Render page with Playwright and extract article links via regex."""
+        import re
+        from urllib.parse import urlparse
+
+        html: Optional[str] = None
+        try:
+            import crawl4ai  # noqa: F401
+            loop = asyncio.get_event_loop()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                html = await loop.run_in_executor(
+                    pool, _html_in_thread, source_url, settings.crawl_headless
+                )
+        except Exception:
+            pass
+
+        if not html:
+            try:
+                import httpx
+                async with httpx.AsyncClient(
+                    headers={"User-Agent": "Mozilla/5.0"}, follow_redirects=True, timeout=15
+                ) as client:
+                    resp = await client.get(source_url)
+                    html = resp.text if resp.status_code == 200 else None
+            except Exception:
+                pass
+
+        if not html:
+            return []
+
+        parsed = urlparse(source_url)
+        base = f"{parsed.scheme}://{parsed.netloc}"
+
+        ARTICLE_PATTERNS = [
+            r"/[Bb]logs?/[Aa]rticles?/\d{4}/",
+            r"/[Pp]ublications?/[A-Z]",
+            r"/\d{4}/\d{2}/\d{2}/",
+            r"/press-release/\d{4}/",
+            r"/[Oo]utlook/",
+            r"/publ/qtr",
+            r"/en/doc/",
+        ]
+
+        links = re.findall(
+            r'<a[^>]+href=["\']([^"\'#?][^"\']*)["\'][^>]*>(.*?)</a>',
+            html, re.IGNORECASE | re.DOTALL,
+        )
+        seen: set[str] = set()
+        articles: list[dict] = []
+        for href, raw_text in links:
+            url = href if href.startswith("http") else base + href
+            if url in seen:
+                continue
+            if not any(re.search(p, url) for p in ARTICLE_PATTERNS):
+                continue
+            title = re.sub(r"<[^>]+>", "", raw_text).strip()
+            title = " ".join(title.split())
+            if len(title) < 8:
+                continue
+            seen.add(url)
+            articles.append({"title": title[:120], "url": url})
+            if len(articles) >= 25:
+                break
+
+        return articles
 
     async def crawl_and_extract(
         self, url: str, extraction_prompt: Optional[str] = None

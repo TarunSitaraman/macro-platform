@@ -48,11 +48,19 @@ def seed_sources(db):
         dict(source_code="IMF_BLOG", source_name="IMF Blog",
              source_url="https://www.imf.org/en/Blogs",
              source_type="HTML", frequency="WEEKLY", reputation_score=85,
-             extraction_prompt="Extract macroeconomic indicator values, GDP growth, inflation rates, unemployment figures mentioned in this article. Include country name, time period, and exact values."),
+             extraction_prompt="Extract macroeconomic indicator values — GDP growth rates, inflation, unemployment — for any country mentioned. Include exact numeric values, the year/period, and whether figures are actual or forecast."),
         dict(source_code="WB_PROSPECTS", source_name="World Bank Global Economic Prospects",
              source_url="https://www.worldbank.org/en/publication/global-economic-prospects",
              source_type="HTML", frequency="QUARTERLY", reputation_score=85,
              extraction_prompt="Extract GDP growth forecasts, inflation forecasts, and economic outlook figures for all countries or regions mentioned. Include year and whether values are actual or forecast."),
+        dict(source_code="OECD_OUTLOOK", source_name="OECD Economic Outlook",
+             source_url="https://www.oecd.org/en/topics/economic-outlook-analysis-and-forecasts.html",
+             source_type="HTML", frequency="QUARTERLY", reputation_score=88,
+             extraction_prompt="Extract GDP growth, inflation, unemployment, and fiscal balance figures for OECD member countries. Note whether figures are projections or actuals. Include year."),
+        dict(source_code="BIS_REVIEW", source_name="BIS Quarterly Review",
+             source_url="https://www.bis.org/publ/qtrpdf/r_qt2412.htm",
+             source_type="HTML", frequency="QUARTERLY", reputation_score=87,
+             extraction_prompt="Extract macroeconomic figures including GDP growth, inflation rates, current account balances, and government debt ratios mentioned for any country. Include the time period."),
     ]
     added = 0
     for s in sources:
