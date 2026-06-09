@@ -127,7 +127,7 @@ class LLMClient:
             except httpx.ConnectError as exc:
                 # Host unreachable — cool down the entire provider so remaining
                 # candidates on the same host aren't tried one by one
-                _provider_cooldown[provider] = time.monotonic() + _COOLDOWN_SECS
+                _provider_cooldown[provider] = time.monotonic() + 30  # shorter: may be transient
                 msg = f"{provider}/{model}: ConnectError — host unreachable, cooling down"
                 logger.warning("LLM failed — %s", msg)
                 failures.append(msg)
@@ -161,14 +161,17 @@ class LLMClient:
         if response_format:
             payload["response_format"] = response_format
 
+        base = _base_url(provider)
+        full_url = base + "chat/completions"
+        logger.debug("LLM request: %s  model=%s", full_url, model)
+
         # Fresh client per call — avoids stale TLS connections from the old singleton pattern
         async with httpx.AsyncClient(
-            base_url=_base_url(provider),
             headers=_make_headers(provider),
             timeout=60.0,
         ) as http:
             for attempt in range(2):
-                resp = await http.post("chat/completions", json=payload)
+                resp = await http.post(full_url, json=payload)
 
                 if resp.status_code == 429:
                     # Raise immediately so the caller can set cooldown and move to next provider
