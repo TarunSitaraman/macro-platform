@@ -23,6 +23,30 @@ class LLMError(Exception):
     """Raised when all candidates in a tier's fallback chain are exhausted."""
 
 
+def _cooldown_for_429(body: str) -> int:
+    """
+    Parse the 429 response body to pick an appropriate cooldown.
+    - Daily/hourly limit (Groq TPD, Gemini quota): use 3600s
+    - Groq 'try again in Xm Ys': parse and use that duration
+    - RPM / short-term rate limit: use 90s default
+    """
+    import re
+    low = body.lower()
+    # Daily token / quota exhaustion — won't recover in 90s
+    if "per day" in low or "tokens per day" in low or "daily" in low or "quota" in low:
+        return 3600
+    # Groq includes "try again in 5m30s" — parse it
+    m = re.search(r"try again in\s+(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:([\d.]+)s)?", low)
+    if m:
+        hours = int(m.group(1) or 0)
+        mins  = int(m.group(2) or 0)
+        secs  = float(m.group(3) or 0)
+        total = int(hours * 3600 + mins * 60 + secs) + 5  # +5s buffer
+        if total > 0:
+            return total
+    return _COOLDOWN_SECS  # default 90s for RPM limits
+
+
 def _make_headers(provider: str) -> dict[str, str]:
     keys = {
         "groq":       settings.groq_api_key,
@@ -117,8 +141,9 @@ class LLMClient:
                 return content, f"{provider}/{model}"
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code == 429:
-                    _provider_cooldown[provider] = time.monotonic() + _COOLDOWN_SECS
-                    msg = f"{provider}/{model}: 429 — cooling down for {_COOLDOWN_SECS}s"
+                    cooldown = _cooldown_for_429(exc.response.text)
+                    _provider_cooldown[provider] = time.monotonic() + cooldown
+                    msg = f"{provider}/{model}: 429 — cooling down for {cooldown}s"
                 else:
                     msg = f"{provider}/{model}: HTTP {exc.response.status_code}"
                 logger.warning("LLM failed — %s", msg)

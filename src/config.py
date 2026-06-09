@@ -78,8 +78,7 @@ MODEL_ROUTES: dict[str, dict] = {
     # Intent classification, simple field extraction, JSON normalization
     "simple": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.3-70b"},
-            {"provider": "cerebras",   "model": "llama3.1-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
@@ -91,8 +90,7 @@ MODEL_ROUTES: dict[str, dict] = {
     # Structured extraction, DQ rationale
     "medium": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.3-70b"},
-            {"provider": "cerebras",   "model": "llama3.1-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
@@ -105,8 +103,7 @@ MODEL_ROUTES: dict[str, dict] = {
     # Summaries, RAG chat, complex reasoning
     "complex": {
         "candidates": [
-            {"provider": "cerebras",   "model": "llama3.3-70b"},
-            {"provider": "cerebras",   "model": "llama3.1-70b"},
+            {"provider": "cerebras",   "model": "llama3.1-8b"},
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
