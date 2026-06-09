@@ -75,13 +75,15 @@ class DynamicCrawlerAgent:
     async def _simple_fetch(self, url: str) -> Optional[str]:
         """Fallback: plain HTTP fetch without JS rendering."""
         import httpx
+        import re
         try:
-            async with httpx.AsyncClient(timeout=settings.crawl_timeout) as client:
+            async with httpx.AsyncClient(timeout=settings.crawl_timeout, follow_redirects=True) as client:
                 resp = await client.get(url, headers={"User-Agent": "MacroPlatform/1.0"})
                 resp.raise_for_status()
-                # Strip HTML tags roughly
-                import re
-                text = re.sub(r"<[^>]+>", " ", resp.text)
+                html = resp.text
+                # Remove script/style blocks including their content before stripping tags
+                html = re.sub(r"<(script|style)[^>]*>.*?</(script|style)>", " ", html, flags=re.DOTALL | re.IGNORECASE)
+                text = re.sub(r"<[^>]+>", " ", html)
                 return " ".join(text.split())
         except Exception as exc:
             logger.error("Simple fetch failed for %s: %s", url, exc)
