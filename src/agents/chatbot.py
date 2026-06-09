@@ -71,7 +71,7 @@ class ChatbotAgent:
                 )
         return None
 
-    async def _retrieve_context(self, query: str, limit: int = 10) -> list[GoldRecord]:
+    async def _retrieve_context(self, query: str, limit: int = 6) -> list[GoldRecord]:
         """Vector similarity search to find relevant gold records."""
         try:
             query_embedding = await embed_text(query)
@@ -108,7 +108,7 @@ class ChatbotAgent:
 
         return self.db.query(GoldRecord).filter(GoldRecord.record_id.in_(ids)).all()
 
-    def _build_context_block(self, records: list[GoldRecord]) -> str:
+    def _build_context_block(self, records: list[GoldRecord], max_chars: int = 1800) -> str:
         if not records:
             return "No relevant data found in the database."
         lines = []
@@ -119,7 +119,8 @@ class ChatbotAgent:
                 f"{r.value} {r.standard_unit}{forecast_tag} "
                 f"[Source: {r.source_name}, {r.period}]"
             )
-        return "\n".join(lines)
+        block = "\n".join(lines)
+        return block[:max_chars]
 
     async def get_or_create_session(self, session_id: Optional[str] = None) -> ChatSession:
         if session_id:
@@ -173,7 +174,7 @@ class ChatbotAgent:
         )
         messages = [
             {"role": m.role, "content": m.content}
-            for m in history[-20:]  # last 20 turns
+            for m in history[-6:]  # last 6 turns keeps request size manageable on free tiers
         ]
         messages.append({"role": "user", "content": user_message})
 

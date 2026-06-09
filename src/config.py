@@ -75,7 +75,6 @@ MODEL_ROUTES: dict[str, dict] = {
     "simple": {
         "candidates": [
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
-            {"provider": "groq",       "model": "gemma2-9b-it"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
@@ -87,7 +86,6 @@ MODEL_ROUTES: dict[str, dict] = {
     "medium": {
         "candidates": [
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
-            {"provider": "groq",       "model": "mixtral-8x7b-32768"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
@@ -101,14 +99,12 @@ MODEL_ROUTES: dict[str, dict] = {
         "candidates": [
             {"provider": "groq",       "model": "llama-3.3-70b-versatile"},
             {"provider": "gemini",     "model": "gemini-2.0-flash"},
-            {"provider": "groq",       "model": "mixtral-8x7b-32768"},
             {"provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free"},
             {"provider": "openrouter", "model": "deepseek/deepseek-chat-v3-0324:free"},
-            {"provider": "openrouter", "model": "qwen/qwen3-235b-a22b:free"},
             {"provider": "openrouter", "model": "google/gemma-3-27b-it:free"},
-            {"provider": "groq",       "model": "gemma2-9b-it"},
+            {"provider": "openrouter", "model": "mistralai/mistral-7b-instruct:free"},
         ],
-        "max_tokens": 8192,
+        "max_tokens": 4096,
         "temperature": 0.2,
     },
 }

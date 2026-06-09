@@ -129,6 +129,14 @@ class LLMClient:
             resp.raise_for_status()
             break
         data = resp.json()
+        # OpenRouter (and some providers) return errors inside a 200 response body
+        if "choices" not in data:
+            error_info = data.get("error", data)
+            if isinstance(error_info, dict):
+                msg = error_info.get("message", str(error_info))
+            else:
+                msg = str(error_info)
+            raise ValueError(f"Provider error: {msg}")
         return data["choices"][0]["message"]["content"]
 
     @staticmethod
