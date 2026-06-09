@@ -69,8 +69,8 @@ class DynamicCrawlerAgent:
             logger.warning("crawl4ai not installed; falling back to httpx text fetch")
             return await self._simple_fetch(url)
         except Exception as exc:
-            logger.error("Crawler error for %s: %s", url, exc)
-            return None
+            logger.warning("Crawl4AI failed (%s); falling back to httpx fetch for %s", exc, url)
+            return await self._simple_fetch(url)
 
     async def _simple_fetch(self, url: str) -> Optional[str]:
         """Fallback: plain HTTP fetch without JS rendering."""
