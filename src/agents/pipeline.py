@@ -109,6 +109,21 @@ class Pipeline:
         self.db.add(silver)
         return silver
 
+    def _get_existing_gold(self, indicator_code, country_code, period):
+        if not hasattr(self, '_gold_cache'):
+            self._gold_cache = {}
+            # Pre-load all existing gold records for this tenant into memory to prevent N+1 queries
+            records = self.db.query(GoldRecord).filter(
+                (GoldRecord.tenant_id == self.tenant_id) | (GoldRecord.tenant_id == None),
+                GoldRecord.is_forecast == False
+            ).order_by(GoldRecord.promoted_at.asc()).all()
+            for r in records:
+                key = (r.indicator_code, r.country_code, str(r.period))
+                self._gold_cache[key] = r
+
+        key = (indicator_code, country_code, str(period))
+        return self._gold_cache.get(key)
+
     # ── Gold promotion (no embedding — deferred to batch step) ────────────────
 
     def promote_to_gold_sync(
@@ -120,17 +135,8 @@ class Pipeline:
         approved_by: str = "auto",
     ) -> GoldRecord:
         """Insert gold record without embedding. Call generate_embeddings() after bulk load."""
-        existing = (
-            self.db.query(GoldRecord)
-            .filter(
-                GoldRecord.indicator_code == silver.indicator_code,
-                GoldRecord.country_code == silver.country_code,
-                GoldRecord.period == silver.period,
-                GoldRecord.tenant_id == self.tenant_id,
-            )
-            .order_by(GoldRecord.promoted_at.desc())
-            .first()
-        )
+        existing = self._get_existing_gold(silver.indicator_code, silver.country_code, silver.period)
+        
         revision_flag = existing is not None
         revision_delta = (
             silver.value - existing.value
@@ -159,6 +165,11 @@ class Pipeline:
             embedding=None,  # filled by generate_embeddings()
         )
         self.db.add(gold)
+        
+        # Update cache for subsequent lookups in the same batch
+        if hasattr(self, '_gold_cache'):
+            self._gold_cache[(silver.indicator_code, silver.country_code, str(silver.period))] = gold
+            
         return gold
 
     # ── Async gold promotion (single record, e.g. from review queue) ──────────

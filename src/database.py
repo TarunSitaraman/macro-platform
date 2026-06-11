@@ -218,7 +218,7 @@ class GoldRecord(Base):
 
     record_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
-    silver_id = Column(UUID(as_uuid=True), ForeignKey("silver_records.record_id"), nullable=False)
+    silver_id = Column(UUID(as_uuid=True), ForeignKey("silver_records.record_id"), nullable=True)
     indicator_code = Column(String(100), ForeignKey("indicator_definitions.indicator_code"), nullable=False)
     country_code = Column(String(3), nullable=False)
     period = Column(String(20), nullable=False)
