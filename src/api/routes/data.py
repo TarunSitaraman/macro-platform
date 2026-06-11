@@ -5,15 +5,20 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from src.database import GoldRecord, IndicatorDefinition, SourceConfig, get_db
+from src.database import GoldRecord, IndicatorDefinition, SourceConfig, User, get_db
+from src.utils.auth import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/indicators")
-def list_indicators(db: Session = Depends(get_db)):
+def list_indicators(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     rows = db.query(IndicatorDefinition).filter(
-        IndicatorDefinition.deprecated_at.is_(None)
+        IndicatorDefinition.deprecated_at.is_(None),
+        (IndicatorDefinition.tenant_id == None) | (IndicatorDefinition.tenant_id == current_user.tenant_id)
     ).all()
     return [
         {
@@ -29,8 +34,15 @@ def list_indicators(db: Session = Depends(get_db)):
 
 
 @router.get("/indicators/{code}")
-def get_indicator(code: str, db: Session = Depends(get_db)):
-    row = db.query(IndicatorDefinition).get(code)
+def get_indicator(
+    code: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    row = db.query(IndicatorDefinition).filter(
+        IndicatorDefinition.indicator_code == code,
+        (IndicatorDefinition.tenant_id == None) | (IndicatorDefinition.tenant_id == current_user.tenant_id)
+    ).first()
     if not row:
         raise HTTPException(status_code=404, detail="Indicator not found")
     return {
@@ -54,8 +66,11 @@ def get_gold_data(
     year_to: Optional[int] = Query(None),
     limit: int = Query(500, le=5000),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    q = db.query(GoldRecord)
+    q = db.query(GoldRecord).filter(
+        (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == current_user.tenant_id)
+    )
     if indicator:
         q = q.filter(GoldRecord.indicator_code == indicator)
     if country:
@@ -85,8 +100,15 @@ def get_gold_data(
 
 
 @router.get("/gold-data/{record_id}")
-def get_gold_record(record_id: str, db: Session = Depends(get_db)):
-    row = db.query(GoldRecord).filter(GoldRecord.record_id == record_id).first()
+def get_gold_record(
+    record_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    row = db.query(GoldRecord).filter(
+        GoldRecord.record_id == record_id,
+        (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == current_user.tenant_id)
+    ).first()
     if not row:
         raise HTTPException(status_code=404, detail="Record not found")
     return {
@@ -111,8 +133,13 @@ def get_gold_record(record_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/sources")
-def list_sources(db: Session = Depends(get_db)):
-    rows = db.query(SourceConfig).all()
+def list_sources(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    rows = db.query(SourceConfig).filter(
+        (SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == current_user.tenant_id)
+    ).all()
     return [
         {
             "source_code": r.source_code,
@@ -128,8 +155,15 @@ def list_sources(db: Session = Depends(get_db)):
 
 
 @router.get("/sources/{code}/status")
-def get_source_status(code: str, db: Session = Depends(get_db)):
-    row = db.query(SourceConfig).filter(SourceConfig.source_code == code).first()
+def get_source_status(
+    code: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    row = db.query(SourceConfig).filter(
+        SourceConfig.source_code == code,
+        (SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == current_user.tenant_id)
+    ).first()
     if not row:
         raise HTTPException(status_code=404, detail="Source not found")
     return {

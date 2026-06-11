@@ -1,239 +1,119 @@
 # Macro Intelligence Platform
 
-An agentic macroeconomic data intelligence platform. Ingests, validates, and serves macroeconomic indicator data through a medallion architecture, with a RAG-powered chatbot and multi-provider LLM routing.
+An agentic macroeconomic data intelligence platform. Ingests, validates, forecasts, and serves macroeconomic indicator data through a Medallion architecture. Features a multi-tenant enterprise backend, a RAG-powered chatbot, and an autonomous research agent for comprehensive reporting.
+
+## 🏗️ Architecture
+
+The platform has evolved from a basic prototype into a production-ready enterprise system.
+
+*   **Multi-Tenant Security Core**: 
+    *   JWT-based authentication with Role-Based Access Control (RBAC: Admin, Analyst, Viewer).
+    *   Strict database-level row isolation via `tenant_id` across all data layers, chat histories, and audit logs.
+*   **Orchestration (Dagster)**:
+    *   Data pipelines are defined as **Software-Defined Assets (SDA)** in a DAG structure.
+    *   Handles automated scheduling, retries, and data lineage tracking.
+*   **Medallion Data Pipeline**:
+    *   **Bronze**: Raw, append-only records from APIs (World Bank, IMF, FRED) and dynamic web crawlers.
+    *   **Silver**: Cleaned data with composite Data Quality (DQ) scores. Records `<90%` require human-in-the-loop review.
+    *   **Gold**: Production-ready data with **pgvector embeddings** (Jina AI) for RAG.
+*   **Predictive Analytics (Prophet)**:
+    *   Automated time-series forecasting generates forward-looking data points.
+    *   Trend-based **Anomaly Detection** flags outliers outside the 99% confidence interval.
+*   **Agentic Intelligence**:
+    *   **ChatbotAgent**: RAG-powered Q&A with strict guardrails and citation enforcement.
+    *   **AlertAgent**: Monitors the Gold layer for critical macro signals (e.g., high inflation, negative growth).
+    *   **ResearcherAgent**: Combines real-time web search (DuckDuckGo) with internal data to synthesize and export professional PDF research reports using Gemini.
+*   **Observability**: Integrated OpenTelemetry (OTLP) tracing across FastAPI routes and SQLAlchemy queries.
 
 ---
 
-## What It Does
+## 🚀 Quick Start
 
-The platform continuously pulls macroeconomic data from public APIs and web sources, runs it through a Bronze → Silver → Gold quality pipeline, stores production-ready records with vector embeddings in PostgreSQL, and surfaces everything through a Streamlit UI and FastAPI backend.
-
-**Indicators tracked:** GDP (current USD), GDP growth rate, CPI inflation, unemployment rate, current account balance (% GDP), government debt (% GDP)
-
-**Countries covered (Phase 1):** USA, GBR, DEU, FRA, JPN, CHN, IND, BRA, CAN, AUS, KOR, MEX, ITA, ESP, NLD, SAU, ZAF, ARG, IDN, TUR
-
----
-
-## Architecture
-
-```
-External Sources          Bronze Layer          Silver Layer          Gold Layer
-─────────────────        ─────────────         ─────────────         ──────────────
-World Bank API    ──▶    Raw records   ──▶     Cleaned &     ──▶     Production     ──▶  Chatbot RAG
-IMF WEO API              (append-only)         DQ-scored             records with         Dashboards
-FRED API                 Full audit trail      DQ ≥ 90% → Auto      embeddings           REST API
-Web crawlers                                   70–90%  → Review      pgvector index       Summaries
-                                               < 70%   → Reject
-```
-
-### Data Quality Scoring
-
-Every record receives a composite DQ score (0–100) based on four sub-scores:
-
-| Sub-score | Weight | What it checks |
-|-----------|--------|----------------|
-| Accuracy | 40% | Value parseable, within plausible range, unit matches |
-| Completeness | 30% | No nulls, country/period/source all present |
-| Timeliness | 20% | Data freshness relative to crawl time |
-| Consistency | 10% | Matches expected frequency and source reputation |
-
-- **≥ 90%** → Auto-promoted to Gold
-- **70–90%** → Queued for human review (4-hour SLA)
-- **< 70%** → Rejected with failure reasons logged
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| UI | Streamlit (multipage) |
-| Backend API | FastAPI + Uvicorn |
-| Database | Neon PostgreSQL + pgvector |
-| ORM | SQLAlchemy 2.0 |
-| Embeddings | Jina AI (`jina-embeddings-v3`, 1024-dim, 1M free tokens/month) |
-| LLM — Primary | Groq (`llama-3.3-70b-versatile`, 14,400 req/day free) |
-| LLM — Fallback | Google Gemini (`gemini-2.0-flash`) |
-| LLM — Last resort | OpenRouter (free-tier models) |
-| Static data | World Bank API, IMF WEO API, FRED API |
-| Web crawling | Crawl4AI + Playwright |
-| Deployment | Render (API + UI), Neon (DB) |
-
----
-
-## Project Structure
-
-```
-macro-platform/
-├── src/
-│   ├── agents/
-│   │   ├── pipeline.py      # Bronze→Silver→Gold orchestration
-│   │   ├── static.py        # WorldBank / IMF / FRED API clients
-│   │   ├── crawler.py       # Crawl4AI web extraction
-│   │   ├── chatbot.py       # RAG chatbot with citation enforcement
-│   │   ├── embeddings.py    # Jina AI embedding client
-│   │   ├── llm_client.py    # Multi-provider LLM with fallback routing
-│   │   ├── qa.py            # DQ scoring engine
-│   │   └── summarizer.py    # Macro summary generation
-│   ├── api/
-│   │   ├── main.py          # FastAPI app
-│   │   └── routes/          # data, pipelines, review, chat, audit
-│   ├── ui/
-│   │   ├── app.py           # Streamlit entry point
-│   │   └── _pages/          # 7 pages (overview, static data, crawler, explorer, review, chatbot, summaries)
-│   ├── config.py            # Pydantic settings + model routing config
-│   └── database.py          # SQLAlchemy models (Bronze, Silver, Gold, Review, Chat)
-├── migrations/
-│   └── init.sql             # Schema with pgvector extension
-├── docker/                  # Dockerfiles for API and UI
-├── tests/unit/              # Pytest unit tests
-├── db_init.py               # One-shot schema creation + seed
-├── setup.bat                # Windows dev setup script
-├── run.bat                  # Launch Streamlit locally
-├── render.yaml              # Render.com deployment config
-└── .env.example             # Environment variable template
-```
-
----
-
-## Getting Started
-
-### Prerequisites
+### 1. Requirements
 
 - Python 3.12+
-- A [Neon](https://neon.tech) PostgreSQL database (free tier)
-- A [Groq](https://console.groq.com) API key (free, 14,400 req/day)
-- A [Jina AI](https://jina.ai) API key (free, 1M tokens/month)
-- A [FRED](https://fred.stlouisfed.org/docs/api/api_key.html) API key (free)
+- PostgreSQL 15+ with the `pgvector` extension.
+- API Keys: Jina AI (Embeddings), Groq/Gemini/OpenRouter (LLMs), FRED (Data).
 
-### 1. Clone and set up environment
+### 2. Installation
 
 ```bash
-git clone https://github.com/TarunSitaraman/macro-platform.git
-cd macro-platform
+# Create and activate virtual environment
 python -m venv .venv
-.venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # macOS/Linux
+.\.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Mac/Linux
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Install Playwright browsers (for the Web Crawler)
+playwright install
 ```
 
-### 2. Configure environment variables
+### 3. Environment Configuration
 
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and fill in:
+Copy `.env.example` to `.env` and fill in your keys:
 
 ```env
-DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/dbname?sslmode=require
-GROQ_API_KEY=gsk_...
-GEMINI_API_KEY=AQ....          # optional fallback
-OPENROUTER_API_KEY=sk-or-...   # optional fallback
-JINA_API_KEY=jina_...
-FRED_API_KEY=your_fred_key
+APP_ENV=development
+DATABASE_URL=postgresql://user:pass@localhost:5432/macro_db
+JINA_API_KEY=your_key
+GEMINI_API_KEY=your_key
+GROQ_API_KEY=your_key
+API_SECRET_KEY=your_secure_jwt_secret
 ```
 
-### 3. Initialise the database
+### 4. Database Setup
+
+Initialise the database, create tables, and seed the global indicators:
 
 ```bash
 python db_init.py
+
+# Create the default Admin user
+python register_admin.py
 ```
+*(Default login: `admin@example.com` / `admin123`)*
 
-This creates all tables, enables the pgvector extension, and seeds the source registry.
+### 5. Running the Platform
 
-### 4. Run the platform
+The platform consists of three main services. Run them in separate terminal windows:
 
+**1. FastAPI Backend:**
 ```bash
-run.bat          # Windows — launches Streamlit on http://localhost:8501
+uvicorn src.api.main:app --reload
 ```
+*(Available at http://localhost:8000)*
 
-Or manually:
-
+**2. Dagster Orchestrator:**
 ```bash
-set PYTHONPATH=%CD%
+dagster dev -f src/orchestration/jobs.py
+```
+*(Available at http://localhost:3000)*
+
+**3. Streamlit Frontend:**
+```bash
 streamlit run src/ui/app.py
 ```
+*(Available at http://localhost:8501)*
 
 ---
 
-## UI Pages
+## 📂 Project Structure
 
-| Page | Description |
-|------|-------------|
-| Platform Overview | Live KPIs, medallion architecture diagram, source registry |
-| Static Data Product | Trigger World Bank / IMF / FRED ingestion, generate embeddings |
-| Dynamic Crawler | Run web crawlers against financial news sources |
-| Data Explorer | Browse and filter gold records, download CSV |
-| Review Queue | Human-in-the-loop approval for 70–90% DQ records |
-| Chatbot | RAG-powered Q&A with citation enforcement and guardrails |
-| Summary Engine | AI-generated macro summaries (country, indicator, global) |
-
----
-
-## LLM Routing
-
-The platform uses a three-tier routing system with automatic fallback:
-
-```
-simple  → intent classification, JSON extraction       → Groq → Gemini → OpenRouter
-medium  → structured extraction, DQ rationale          → Groq → Gemini → OpenRouter
-complex → RAG chat, summaries, multi-indicator reports → Groq → Groq (lite) → Gemini → OpenRouter
+```text
+├── src/
+│   ├── agents/          # AI Agents (Chatbot, Researcher, Forecaster, Crawler)
+│   ├── api/             # FastAPI REST endpoints
+│   ├── orchestration/   # Dagster jobs, assets, and resources
+│   ├── ui/              # Streamlit frontend & dashboards
+│   └── utils/           # Auth, Observability, and PDF Reporting helpers
+├── db_init.py           # Database schema & seed script
+├── register_admin.py    # Setup script for default tenant/admin
+├── pyproject.toml       # Linter/formatter configs
+└── requirements.txt     # Python dependencies
 ```
 
-All providers are optional — the client skips any provider whose API key is not set and falls through to the next. If all fail, a clear error lists each failure reason.
-
----
-
-## Chatbot Guardrails
-
-The RAG chatbot enforces topic scope and citation discipline:
-
-- Only answers questions about macroeconomic indicators
-- Declines investment advice requests
-- Cites every numeric claim as `[Source: <source_name>, <period>]`
-- Falls back to most-recent records if no embeddings exist yet
-- Maintains conversation history (last 20 turns) per session
-
----
-
-## Data Sources
-
-| Source | Coverage | Auth |
-|--------|----------|------|
-| World Bank Open Data | 20 countries × 6 indicators × multiple years | None (public) |
-| IMF World Economic Outlook | Global, annual forecasts included | None (public) |
-| FRED (US Federal Reserve) | US macroeconomic series | Free API key |
-| Web crawlers | IMF Blog, World Bank Blog (HTML extraction) | None |
-
----
-
-## Deployment (Render + Neon)
-
-1. Push this repo to GitHub
-2. Create a [Render](https://render.com) account and connect the repo
-3. Render auto-detects `render.yaml` and creates two services: API + UI
-4. Set environment variables in the Render dashboard (never commit `.env`)
-5. The Neon database connection string goes in `DATABASE_URL`
-
----
-
-## Environment Variables Reference
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | Neon PostgreSQL connection string |
-| `GROQ_API_KEY` | Recommended | Primary LLM provider (free) |
-| `GEMINI_API_KEY` | Optional | Fallback LLM (Google AI Studio) |
-| `OPENROUTER_API_KEY` | Optional | Last-resort LLM fallback |
-| `JINA_API_KEY` | Yes | Embeddings for RAG search |
-| `FRED_API_KEY` | Yes | US Federal Reserve data |
-| `DQ_AUTO_PROMOTE_THRESHOLD` | No | Default: 90 |
-| `DQ_REVIEW_THRESHOLD` | No | Default: 70 |
-| `REVIEW_SLA_HOURS` | No | Default: 4 |
-
----
-
-## License
+## 📜 License
 
 MIT

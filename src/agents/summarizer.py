@@ -1,6 +1,7 @@
 """AI summary generation agent — country snapshots, indicator briefs, sector analysis."""
 
 import logging
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -40,8 +41,9 @@ Data:
 class SummarizerAgent:
     """Generates AI summaries from gold records using the complex LLM tier."""
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, tenant_id: Optional[uuid.UUID] = None):
         self.db = db
+        self.tenant_id = tenant_id
 
     def _build_data_block(self, records: list[GoldRecord]) -> tuple[str, list]:
         """Convert gold records to a formatted text block for LLM context."""
@@ -68,24 +70,23 @@ class SummarizerAgent:
 
     async def generate_country_snapshot(
         self,
-        countries: list[str],
+        country: str,
         year_from: int = 2018,
         indicators: Optional[list[str]] = None,
     ) -> Summary:
         query = self.db.query(GoldRecord).filter(
-            GoldRecord.country_code.in_(countries),
+            GoldRecord.country_code == country,
             GoldRecord.period >= str(year_from),
+            (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id)
         )
         if indicators:
             query = query.filter(GoldRecord.indicator_code.in_(indicators))
         records = query.order_by(GoldRecord.period.desc()).limit(120).all()
-        label = ", ".join(countries) if len(countries) > 1 else countries[0]
-        country_key = countries[0] if len(countries) == 1 else "MULTI"
         return await self._generate(
-            country_code=country_key,
+            country_code=country,
             summary_type="COUNTRY_SNAPSHOT",
             records=records,
-            context_label=label,
+            context_label=country,
         )
 
     async def generate_indicator_brief(
@@ -97,6 +98,7 @@ class SummarizerAgent:
         query = self.db.query(GoldRecord).filter(
             GoldRecord.indicator_code == indicator_code,
             GoldRecord.period >= str(year_from),
+            (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id)
         )
         if countries:
             query = query.filter(GoldRecord.country_code.in_(countries))
@@ -110,7 +112,7 @@ class SummarizerAgent:
 
     async def generate_sector_analysis(
         self,
-        countries: list[str],
+        country: str,
         sector_theme: str = "Full Macro Overview",
     ) -> Summary:
         ind_codes = self.SECTOR_INDICATORS.get(
@@ -119,17 +121,17 @@ class SummarizerAgent:
         records = (
             self.db.query(GoldRecord)
             .filter(
-                GoldRecord.country_code.in_(countries),
+                GoldRecord.country_code == country,
                 GoldRecord.indicator_code.in_(ind_codes),
+                (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id)
             )
             .order_by(GoldRecord.period.desc())
             .limit(120)
             .all()
         )
-        label = f"{sector_theme} — {', '.join(countries)}"
-        country_key = countries[0] if len(countries) == 1 else "MULTI"
+        label = f"{sector_theme} — {country}"
         return await self._generate(
-            country_code=country_key,
+            country_code=country,
             summary_type="SECTOR_ANALYSIS",
             records=records,
             context_label=label,
@@ -162,6 +164,7 @@ class SummarizerAgent:
         )
 
         summary = Summary(
+            tenant_id=self.tenant_id,
             country_code=country_code,
             summary_type=summary_type,
             content=content,
@@ -172,7 +175,8 @@ class SummarizerAgent:
         self.db.add(summary)
         self.db.commit()
         self.db.refresh(summary)
-        self.db.expunge(summary)  # detach cleanly so attributes stay readable after session closes
+        # Detach cleanly so attributes stay readable after session closes
+        self.db.expunge(summary)
         logger.info("Summary generated: %s / %s / model=%s", summary_type, country_code, model_used)
         return summary
 
@@ -182,7 +186,7 @@ class SummarizerAgent:
         summary_type: Optional[str] = None,
         limit: int = 20,
     ) -> list[Summary]:
-        query = self.db.query(Summary)
+        query = self.db.query(Summary).filter(Summary.tenant_id == self.tenant_id)
         if country_code:
             query = query.filter(Summary.country_code == country_code)
         if summary_type:

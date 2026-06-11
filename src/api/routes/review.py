@@ -8,19 +8,18 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.agents.pipeline import Pipeline
-from src.database import GoldRecord, ReviewQueue, SilverRecord, SourceConfig, get_db
+from src.database import GoldRecord, ReviewQueue, SilverRecord, SourceConfig, User, get_db
+from src.utils.auth import get_current_user, check_role
 
 router = APIRouter()
 
 
 class ApproveRequest(BaseModel):
-    reviewed_by: str
     adjusted_value: Optional[float] = None
     review_notes: Optional[str] = None
 
 
 class RejectRequest(BaseModel):
-    reviewed_by: str
     review_notes: str
 
 
@@ -29,10 +28,12 @@ def list_review_queue(
     status: str = "PENDING",
     limit: int = 50,
     db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
     rows = (
         db.query(ReviewQueue)
         .filter(ReviewQueue.status == status)
+        .filter(ReviewQueue.tenant_id == current_user.tenant_id)
         .order_by(ReviewQueue.sla_deadline)
         .limit(limit)
         .all()
@@ -62,8 +63,12 @@ async def approve_queue_item(
     queue_id: str,
     body: ApproveRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
-    item = db.query(ReviewQueue).filter(ReviewQueue.queue_id == queue_id).first()
+    item = db.query(ReviewQueue).filter(
+        ReviewQueue.queue_id == queue_id,
+        ReviewQueue.tenant_id == current_user.tenant_id
+    ).first()
     if not item:
         raise HTTPException(status_code=404, detail="Queue item not found")
     if item.status != "PENDING":
@@ -81,20 +86,20 @@ async def approve_queue_item(
     else:
         item.status = "APPROVED"
 
-    item.reviewed_by = body.reviewed_by
+    item.reviewed_by = current_user.email
     item.reviewed_at = datetime.now(timezone.utc)
     item.review_notes = body.review_notes
     db.flush()
 
     # Promote to gold
     source = db.query(SourceConfig).filter(SourceConfig.source_code == silver.source_code).first()
-    pipeline = Pipeline(db)
+    pipeline = Pipeline(db, tenant_id=current_user.tenant_id)
     gold = await pipeline.promote_to_gold(
         silver=silver,
         source_name=source.source_name if source else silver.source_code,
         source_url=item.source_url or "",
         crawled_at=silver.processed_at or datetime.now(timezone.utc),
-        approved_by=body.reviewed_by,
+        approved_by=current_user.email,
     )
     db.commit()
 
@@ -102,7 +107,7 @@ async def approve_queue_item(
         "queue_id": queue_id,
         "status": item.status,
         "gold_id": str(gold.record_id),
-        "reviewed_by": body.reviewed_by,
+        "reviewed_by": current_user.email,
     }
 
 
@@ -111,15 +116,19 @@ def reject_queue_item(
     queue_id: str,
     body: RejectRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
-    item = db.query(ReviewQueue).filter(ReviewQueue.queue_id == queue_id).first()
+    item = db.query(ReviewQueue).filter(
+        ReviewQueue.queue_id == queue_id,
+        ReviewQueue.tenant_id == current_user.tenant_id
+    ).first()
     if not item:
         raise HTTPException(status_code=404, detail="Queue item not found")
     if item.status != "PENDING":
         raise HTTPException(status_code=400, detail=f"Item already in status: {item.status}")
 
     item.status = "REJECTED"
-    item.reviewed_by = body.reviewed_by
+    item.reviewed_by = current_user.email
     item.reviewed_at = datetime.now(timezone.utc)
     item.review_notes = body.review_notes
     db.commit()

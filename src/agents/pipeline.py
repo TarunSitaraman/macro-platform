@@ -23,8 +23,9 @@ BATCH_SIZE = 100  # DB flush every N records
 class Pipeline:
     """Orchestrates the Bronze → Silver → Gold medallion flow."""
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, tenant_id: Optional[uuid.UUID] = None):
         self.db = db
+        self.tenant_id = tenant_id
 
     # ── Bronze write ───────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ class Pipeline:
         request_id: Optional[str] = None,
     ) -> BronzeRecord:
         record = BronzeRecord(
+            tenant_id=self.tenant_id,
             source_code=source_code,
             indicator_code=indicator_code,
             country_code=country_code,
@@ -89,6 +91,7 @@ class Pipeline:
             dq_status = "REJECTED"
 
         silver = SilverRecord(
+            tenant_id=self.tenant_id,
             bronze_id=bronze.record_id,
             source_code=bronze.source_code,
             indicator_code=bronze.indicator_code,
@@ -123,6 +126,7 @@ class Pipeline:
                 GoldRecord.indicator_code == silver.indicator_code,
                 GoldRecord.country_code == silver.country_code,
                 GoldRecord.period == silver.period,
+                GoldRecord.tenant_id == self.tenant_id,
             )
             .order_by(GoldRecord.promoted_at.desc())
             .first()
@@ -135,6 +139,7 @@ class Pipeline:
         )
 
         gold = GoldRecord(
+            tenant_id=self.tenant_id,
             silver_id=silver.record_id,
             indicator_code=silver.indicator_code,
             country_code=silver.country_code,
@@ -194,6 +199,7 @@ class Pipeline:
         records = (
             self.db.query(GoldRecord)
             .filter(GoldRecord.embedding.is_(None))
+            .filter(GoldRecord.tenant_id == self.tenant_id)
             .all()
         )
         if not records:
@@ -223,6 +229,7 @@ class Pipeline:
     def queue_for_review(self, silver: SilverRecord, source_url: str) -> ReviewQueue:
         sla = datetime.now(timezone.utc) + timedelta(hours=settings.review_sla_hours)
         item = ReviewQueue(
+            tenant_id=self.tenant_id,
             silver_id=silver.record_id,
             indicator_code=silver.indicator_code,
             country_code=silver.country_code,
@@ -366,6 +373,7 @@ class Pipeline:
 
     def _audit(self, table, record_id, action, new_values=None, old_values=None):
         self.db.add(AuditLog(
+            tenant_id=self.tenant_id,
             table_name=table, record_id=record_id, action=action,
             new_values=new_values, old_values=old_values,
             actor="system", actor_role="pipeline",
@@ -373,6 +381,7 @@ class Pipeline:
 
     def _lineage(self, source_id, target_id, transformation):
         self.db.add(DataLineage(
+            tenant_id=self.tenant_id,
             source_record_id=source_id, target_record_id=target_id,
             transformation=transformation, transform_version="1.0.0",
             started_at=datetime.now(timezone.utc),

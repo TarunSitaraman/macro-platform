@@ -65,10 +65,59 @@ ChatRoleEnum = Enum("user", "assistant", name="chat_role_enum")
 
 # ── Models ─────────────────────────────────────────────────────────────────────
 
+class Tenant(Base):
+    __tablename__ = "tenants"
+
+    tenant_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(200), unique=True, nullable=False)
+    slug = Column(String(50), unique=True, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    metadata_ = Column("metadata", JSONB, default=dict)
+
+    users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
+    api_keys = relationship("TenantAPIKey", back_populates="tenant", cascade="all, delete-orphan")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(200))
+    role = Column(String(50), default="viewer")  # admin, analyst, viewer
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    tenant = relationship("Tenant", back_populates="users")
+    chat_sessions = relationship("ChatSession", back_populates="user")
+
+
+class TenantAPIKey(Base):
+    __tablename__ = "tenant_api_keys"
+
+    key_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=False)
+    name = Column(String(100), nullable=False)
+    prefix = Column(String(10), nullable=False)
+    hashed_key = Column(String(255), nullable=False, unique=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime)
+    last_used_at = Column(DateTime)
+    is_active = Column(Boolean, default=True)
+
+    tenant = relationship("Tenant", back_populates="api_keys")
+
+
 class SourceConfig(Base):
     __tablename__ = "source_config"
 
     source_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True) # Null for global sources
     source_code = Column(String(50), unique=True, nullable=False)
     source_name = Column(String(200), nullable=False)
     source_url = Column(Text)
@@ -91,6 +140,7 @@ class IndicatorDefinition(Base):
     __tablename__ = "indicator_definitions"
 
     indicator_code = Column(String(100), primary_key=True)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True) # Null for global indicators
     indicator_name = Column(String(200), nullable=False)
     category = Column(String(100))
     standard_unit = Column(String(50))
@@ -112,6 +162,7 @@ class BronzeRecord(Base):
     __tablename__ = "bronze_records"
 
     record_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     source_code = Column(String(50), ForeignKey("source_config.source_code"), nullable=False)
     indicator_code = Column(String(100), ForeignKey("indicator_definitions.indicator_code"), nullable=False)
     country_code = Column(String(3), nullable=False)
@@ -129,6 +180,7 @@ class BronzeRecord(Base):
         Index("ix_bronze_source_indicator", "source_code", "indicator_code"),
         Index("ix_bronze_country_period", "country_code", "period"),
         Index("ix_bronze_crawled_at", "crawled_at"),
+        Index("ix_bronze_tenant", "tenant_id"),
     )
 
 
@@ -136,6 +188,7 @@ class SilverRecord(Base):
     __tablename__ = "silver_records"
 
     record_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     bronze_id = Column(UUID(as_uuid=True), ForeignKey("bronze_records.record_id"), nullable=False)
     source_code = Column(String(50), ForeignKey("source_config.source_code"), nullable=False)
     indicator_code = Column(String(100), ForeignKey("indicator_definitions.indicator_code"), nullable=False)
@@ -156,6 +209,7 @@ class SilverRecord(Base):
     __table_args__ = (
         Index("ix_silver_indicator_country_period", "indicator_code", "country_code", "period"),
         Index("ix_silver_dq_status", "dq_status"),
+        Index("ix_silver_tenant", "tenant_id"),
     )
 
 
@@ -163,6 +217,7 @@ class GoldRecord(Base):
     __tablename__ = "gold_records"
 
     record_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     silver_id = Column(UUID(as_uuid=True), ForeignKey("silver_records.record_id"), nullable=False)
     indicator_code = Column(String(100), ForeignKey("indicator_definitions.indicator_code"), nullable=False)
     country_code = Column(String(3), nullable=False)
@@ -187,6 +242,7 @@ class GoldRecord(Base):
         Index("ix_gold_indicator_country_period", "indicator_code", "country_code", "period"),
         Index("ix_gold_promoted_at", "promoted_at"),
         Index("ix_gold_source_code", "source_code"),
+        Index("ix_gold_tenant", "tenant_id"),
     )
 
 
@@ -194,6 +250,7 @@ class ReviewQueue(Base):
     __tablename__ = "review_queue"
 
     queue_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     silver_id = Column(UUID(as_uuid=True), ForeignKey("silver_records.record_id"), unique=True, nullable=False)
     indicator_code = Column(String(100), ForeignKey("indicator_definitions.indicator_code"))
     country_code = Column(String(3))
@@ -214,6 +271,7 @@ class ReviewQueue(Base):
     __table_args__ = (
         Index("ix_review_queue_status", "status"),
         Index("ix_review_queue_created_at", "created_at"),
+        Index("ix_review_queue_tenant", "tenant_id"),
     )
 
 
@@ -221,12 +279,14 @@ class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
     session_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(String(100))
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_active = Column(DateTime, default=datetime.utcnow)
     metadata_ = Column("metadata", JSONB, default=dict)
 
     messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="chat_sessions")
 
 
 class ChatMessage(Base):
@@ -249,6 +309,7 @@ class Summary(Base):
     __tablename__ = "summaries"
 
     summary_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     country_code = Column(String(10), nullable=False)
     summary_type = Column(SummaryTypeEnum, nullable=False)
     content = Column(Text, nullable=False)
@@ -261,6 +322,7 @@ class Summary(Base):
 
     __table_args__ = (
         Index("ix_summaries_country_type", "country_code", "summary_type"),
+        Index("ix_summaries_tenant", "tenant_id"),
     )
 
 
@@ -268,6 +330,7 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
 
     log_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     table_name = Column(String(100), nullable=False)
     record_id = Column(UUID(as_uuid=True))
     action = Column(AuditActionEnum, nullable=False)
@@ -283,6 +346,7 @@ class AuditLog(Base):
     __table_args__ = (
         Index("ix_audit_log_table_record", "table_name", "record_id"),
         Index("ix_audit_log_timestamp", "timestamp"),
+        Index("ix_audit_log_tenant", "tenant_id"),
     )
 
 
@@ -290,6 +354,7 @@ class DataLineage(Base):
     __tablename__ = "data_lineage"
 
     lineage_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
     source_record_id = Column(UUID(as_uuid=True), nullable=False)
     target_record_id = Column(UUID(as_uuid=True), nullable=False)
     transformation = Column(String(200))
@@ -303,6 +368,31 @@ class DataLineage(Base):
     __table_args__ = (
         Index("ix_lineage_source", "source_record_id"),
         Index("ix_lineage_target", "target_record_id"),
+        Index("ix_lineage_tenant", "tenant_id"),
+    )
+
+
+class NewsRecord(Base):
+    __tablename__ = "news_records"
+
+    news_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=True)
+    source_name = Column(String(200), nullable=False)
+    title = Column(Text, nullable=False)
+    content = Column(Text)
+    url = Column(Text, unique=True)
+    published_at = Column(DateTime)
+    category = Column(String(100))  # e.g., Fiscal, Monetary, Trade
+    sentiment_score = Column(Float)  # -1 to 1
+    sentiment_label = Column(String(20))  # Positive, Neutral, Negative
+    impact_indicators = Column(ARRAY(String))  # Indicators this news might affect
+    country_code = Column(String(3))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    embedding = Column(Vector(1024))
+
+    __table_args__ = (
+        Index("ix_news_tenant", "tenant_id"),
+        Index("ix_news_published", "published_at"),
     )
 
 

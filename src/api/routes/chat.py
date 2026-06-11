@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 
 from src.agents.chatbot import ChatbotAgent, SUGGESTED_QUESTIONS
 from src.agents.summarizer import SummarizerAgent
-from src.database import get_db
+from src.database import get_db, User
+from src.utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -24,8 +25,11 @@ class SummaryRequest(BaseModel):
 
 
 @router.post("/chat/sessions")
-async def create_session(db: Session = Depends(get_db)):
-    agent = ChatbotAgent(db)
+async def create_session(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    agent = ChatbotAgent(db, tenant_id=current_user.tenant_id, user_id=current_user.user_id)
     sess = await agent.get_or_create_session()
     db.commit()
     return {
@@ -39,21 +43,30 @@ async def send_message(
     session_id: str,
     body: MessageRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    agent = ChatbotAgent(db)
+    agent = ChatbotAgent(db, tenant_id=current_user.tenant_id, user_id=current_user.user_id)
     result = await agent.chat(session_id=session_id, user_message=body.message)
     return result
 
 
 @router.get("/chat/sessions/{session_id}/messages")
-def get_history(session_id: str, db: Session = Depends(get_db)):
-    agent = ChatbotAgent(db)
+def get_history(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    agent = ChatbotAgent(db, tenant_id=current_user.tenant_id, user_id=current_user.user_id)
     return {"session_id": session_id, "messages": agent.get_history(session_id)}
 
 
 @router.post("/summaries/generate")
-async def generate_summary(body: SummaryRequest, db: Session = Depends(get_db)):
-    agent = SummarizerAgent(db)
+async def generate_summary(
+    body: SummaryRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    agent = SummarizerAgent(db, tenant_id=current_user.tenant_id)
     valid_types = {"COUNTRY_SNAPSHOT", "INDICATOR_BRIEF", "SECTOR_ANALYSIS"}
     if body.summary_type not in valid_types:
         raise HTTPException(status_code=400, detail=f"summary_type must be one of {valid_types}")
@@ -83,8 +96,9 @@ def list_summaries(
     type: Optional[str] = None,
     limit: int = 20,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    agent = SummarizerAgent(db)
+    agent = SummarizerAgent(db, tenant_id=current_user.tenant_id)
     rows = agent.list_summaries(country_code=country, summary_type=type, limit=limit)
     return [
         {

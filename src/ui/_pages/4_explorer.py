@@ -33,10 +33,12 @@ with col4:
 
 
 @st.cache_data(ttl=120)
-def load_explorer_data(indicators, countries, y_from, y_to):
+def load_explorer_data(indicators, countries, y_from, y_to, tenant_id):
     db = SessionLocal()
     try:
-        q = db.query(GoldRecord)
+        q = db.query(GoldRecord).filter(
+            (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id)
+        )
         if indicators:
             q = q.filter(GoldRecord.indicator_code.in_(indicators))
         if countries:
@@ -68,7 +70,8 @@ def load_explorer_data(indicators, countries, y_from, y_to):
 
 
 data = load_explorer_data(
-    tuple(ind_sel), tuple(country_sel), int(year_from), int(year_to)
+    tuple(ind_sel), tuple(country_sel), int(year_from), int(year_to),
+    st.session_state.tenant_id
 )
 
 if not data:
@@ -80,8 +83,11 @@ st.success(f"Found {len(df):,} records")
 
 # ── Chart ───────────────────────────────────────────────────────────────────────
 if not df.empty and ind_sel:
+    # Ensure native pandas for Altair
+    chart_df = df.copy()
+    
     for ind in ind_sel:
-        ind_df = df[df["Indicator"] == ind].copy()
+        ind_df = chart_df[chart_df["Indicator"] == ind].copy()
         if ind_df.empty:
             continue
 
@@ -107,10 +113,12 @@ if not df.empty and ind_sel:
 
         lines = base.mark_line().encode(
             strokeDash=alt.condition(
-                "datum.Forecast", alt.value([6, 4]), alt.value([1, 0])
+                alt.datum.Forecast, alt.value([5, 5]), alt.value([0])
             )
         )
-        points = base.mark_point(filled=True, size=55)
+        points = base.mark_point(filled=True, size=55).encode(
+            shape=alt.condition(alt.datum.Forecast, alt.value("square"), alt.value("circle"))
+        )
 
         chart = (lines + points).properties(
             height=380,

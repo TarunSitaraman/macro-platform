@@ -5,6 +5,7 @@ streamlit==1.40.2
 python-dotenv==1.0.1
 pydantic==2.10.3
 pydantic-settings==2.6.1
+email-validator==2.2.0
 
 # Database
 sqlalchemy==2.0.36
@@ -38,11 +39,31 @@ apscheduler==3.10.4
 
 # Auth / Security
 python-jose[cryptography]==3.3.0
+bcrypt==4.0.1
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.17
 
 # Visualisation
 altair==5.4.1
+
+# Observability
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-fastapi==0.50b0
+opentelemetry-instrumentation-sqlalchemy==0.50b0
+opentelemetry-exporter-otlp==1.29.0
+
+# Orchestration (Dagster)
+dagster==1.9.4
+dagster-webserver==1.9.4
+dagster-postgres==0.25.4
+
+# Analytics
+prophet==1.1.6
+
+# Research & Reporting
+duckduckgo-search==6.3.3
+fpdf2==2.8.1
 
 # Utilities
 structlog==24.4.0

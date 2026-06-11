@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -13,7 +14,8 @@ from src.agents.pipeline import Pipeline
 from src.agents.static import FREDAgent, IMFAgent, WorldBankAgent
 from src.agents.crawler import DynamicCrawlerAgent
 from src.config import INDICATOR_CATALOGUE, get_settings
-from src.database import SourceConfig, get_db
+from src.database import SourceConfig, User, get_db
+from src.utils.auth import get_current_user, check_role
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -30,7 +32,7 @@ class IngestResult(BaseModel):
     completed_at: str
 
 
-async def _run_static_source(source_code: str, db: Session) -> IngestResult:
+async def _run_static_source(source_code: str, db: Session, tenant_id: uuid.UUID) -> IngestResult:
     started = datetime.now(timezone.utc)
 
     if source_code == "WORLD_BANK":
@@ -42,11 +44,14 @@ async def _run_static_source(source_code: str, db: Session) -> IngestResult:
     else:
         raise ValueError(f"Unknown static source: {source_code}")
 
-    source = db.query(SourceConfig).filter(SourceConfig.source_code == source_code).first()
+    source = db.query(SourceConfig).filter(
+        SourceConfig.source_code == source_code,
+        (SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id)
+    ).first()
     source_name = source.source_name if source else source_code
     source_url = source.source_url if source else ""
 
-    pipeline = Pipeline(db)
+    pipeline = Pipeline(db, tenant_id=tenant_id)
     promoted = queued = rejected = 0
 
     for rec in raw_records:
@@ -96,75 +101,59 @@ async def _run_static_source(source_code: str, db: Session) -> IngestResult:
 @router.post("/pipelines/static/{source_code}/run")
 async def run_static_pipeline(
     source_code: str,
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
     valid_sources = {"WORLD_BANK", "IMF_WEO", "FRED"}
     if source_code not in valid_sources:
         raise HTTPException(status_code=400, detail=f"Valid sources: {valid_sources}")
 
-    result = await _run_static_source(source_code, db)
+    result = await _run_static_source(source_code, db, tenant_id=current_user.tenant_id)
     return result
 
 
-@router.post("/pipelines/dynamic/{source_code}/run")
-async def run_dynamic_pipeline(
-    source_code: str,
-    db: Session = Depends(get_db),
+@router.post("/pipelines/orchestrate/run")
+async def run_dagster_orchestration(
+    current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
-    source = db.query(SourceConfig).filter(SourceConfig.source_code == source_code).first()
-    if not source or source.source_type not in ("HTML", "PDF"):
-        raise HTTPException(status_code=400, detail="Source not found or not a crawlable source")
-
-    started = datetime.now(timezone.utc)
-    crawler = DynamicCrawlerAgent()
-    raw_records = await crawler.crawl_and_extract(
-        url=source.source_url,
-        extraction_prompt=source.extraction_prompt,
-    )
-
-    pipeline = Pipeline(db)
-    promoted = queued = rejected = 0
-
-    for rec in raw_records:
-        ind_code = rec.get("indicator_code", "")
-        if ind_code not in INDICATOR_CATALOGUE:
-            rejected += 1
-            continue
-        unit = INDICATOR_CATALOGUE[ind_code]["standard_unit"]
-        try:
-            result = await pipeline.run(
-                source_code=source_code,
-                indicator_code=ind_code,
-                country_code=rec.get("country_code", ""),
-                period=rec.get("period", ""),
-                raw_value=str(rec.get("raw_value", "")),
-                raw_unit=rec.get("raw_unit", unit),
-                source_url=source.source_url,
-                extraction_method="HTML_LLM",
-                raw_json=rec,
-                standard_unit=unit,
-                source_name=source.source_name,
-            )
-            if result["status"] == "promoted":
-                promoted += 1
-            elif result["status"] == "review":
-                queued += 1
-            else:
-                rejected += 1
-        except Exception as exc:
-            logger.error("Crawler pipeline error: %s", exc)
-            rejected += 1
-
-    source.last_run_at = datetime.now(timezone.utc)
-    db.commit()
-
-    return {
-        "source_code": source_code,
-        "records_fetched": len(raw_records),
-        "records_promoted": promoted,
-        "records_queued": queued,
-        "records_rejected": rejected,
-        "started_at": started.isoformat(),
-        "completed_at": datetime.now(timezone.utc).isoformat(),
-    }
+    """Trigger the full Medallion orchestration via Dagster."""
+    try:
+        from src.orchestration.jobs import defs
+        
+        # Configuration for the run (including tenant_id)
+        run_config = {
+            "ops": {
+                "world_bank_bronze": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "imf_bronze": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "fred_bronze": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "silver_records": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "gold_records": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "macro_news": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "macro_alerts": {"config": {"tenant_id": str(current_user.tenant_id)}},
+                "macro_forecasts": {"config": {"tenant_id": str(current_user.tenant_id)}},
+            }
+        }
+        
+        # Retrieve the fully resolved job definition
+        job_def = defs.get_job_def("full_ingestion_job")
+        
+        # Execute the job synchronously in the current process 
+        # (For a true background run in a real cluster, we would use a GraphQL client to submit to the daemon)
+        # But this works perfectly for local demo/API triggering without needing external repository origins.
+        result = job_def.execute_in_process(run_config=run_config)
+        
+        if result.success:
+            return {
+                "message": "Orchestration job completed successfully",
+                "run_id": result.run_id,
+                "status": "SUCCESS"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Orchestration job failed")
+            
+    except Exception as e:
+        logger.error("Failed to launch Dagster job: %s", e)
+        raise HTTPException(
+            status_code=503,
+            detail=f"Orchestration service (Dagster) failed: {str(e)}"
+        )

@@ -13,11 +13,13 @@ st.title("🕷️ Dynamic Crawler")
 st.caption("Crawl HTML sources and extract macroeconomic data using AI")
 
 # ── Source selector ─────────────────────────────────────────────────────────────
+tenant_id = st.session_state.tenant_id
 db = SessionLocal()
 try:
     html_sources = (
         db.query(SourceConfig)
         .filter(SourceConfig.source_type.in_(["HTML", "PDF"]))
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id))
         .all()
     )
 finally:
@@ -106,7 +108,7 @@ if st.button("🕷 Run Crawler", type="primary"):
             from src.agents.pipeline import Pipeline
             db = SessionLocal()
             try:
-                pipeline = Pipeline(db)
+                pipeline = Pipeline(db, tenant_id=tenant_id)
                 promoted = queued = rejected = 0
                 for rec in extracted:
                     ind_code = rec.get("indicator_code", "")
@@ -152,7 +154,12 @@ st.divider()
 st.subheader("Source Run History")
 db = SessionLocal()
 try:
-    sources_all = db.query(SourceConfig).filter(SourceConfig.source_type.in_(["HTML", "PDF"])).all()
+    sources_all = (
+        db.query(SourceConfig)
+        .filter(SourceConfig.source_type.in_(["HTML", "PDF"]))
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id))
+        .all()
+    )
     for s in sources_all:
         status = "🟢" if not s.error_message else "🔴"
         last = s.last_run_at.strftime("%Y-%m-%d %H:%M") if s.last_run_at else "Never"

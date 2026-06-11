@@ -8,8 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.config import get_settings
-from src.database import init_db
-from src.api.routes import audit, chat, data, pipelines, review
+from src.database import engine, init_db
+from src.api.routes import audit, auth, chat, data, pipelines, review
+from src.utils.observability import setup_observability
 
 logging.basicConfig(level=get_settings().log_level)
 logger = logging.getLogger(__name__)
@@ -32,6 +33,10 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # setup_observability must be called before adding other middleware or routes
+    # as it instruments the app by adding middleware.
+    setup_observability(app, engine)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -40,6 +45,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.include_router(auth.router, prefix="/api/v1")
     app.include_router(data.router, prefix="/api/v1", tags=["Data"])
     app.include_router(pipelines.router, prefix="/api/v1", tags=["Pipelines"])
     app.include_router(review.router, prefix="/api/v1", tags=["Review Queue"])

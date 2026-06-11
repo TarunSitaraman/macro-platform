@@ -52,7 +52,9 @@ if user_input:
         with st.spinner("Retrieving data and generating response..."):
             db = SessionLocal()
             try:
-                agent = ChatbotAgent(db)
+                tenant_id = st.session_state.tenant_id
+                user_id = st.session_state.user_id
+                agent = ChatbotAgent(db, tenant_id=tenant_id, user_id=user_id)
                 result = asyncio.run(
                     agent.chat(
                         session_id=st.session_state.chat_session_id,

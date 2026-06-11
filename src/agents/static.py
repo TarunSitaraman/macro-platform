@@ -32,7 +32,7 @@ class WorldBankAgent:
 
         url = (
             f"{self.BASE}/country/{country.lower()}/indicator/{wb_code}"
-            f"?format=json&per_page=100&mrv={year_range[1] - year_range[0] + 10}"
+            f"?format=json&per_page=100"
         )
         try:
             async with session.get(url, headers={"User-Agent": _USER_AGENT}) as resp:

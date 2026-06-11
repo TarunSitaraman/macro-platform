@@ -12,16 +12,41 @@ from src.database import ReviewQueue, SessionLocal, SilverRecord, SourceConfig
 st.title("👁️ Review Queue")
 st.caption("Human-in-the-loop review for records with DQ score 70–90%")
 
+# ── Access Control ─────────────────────────────────────────────────────────────
+tenant_id = st.session_state.tenant_id
+user_role = st.session_state.user_role
+user_email = st.session_state.user_email
+
+if user_role not in ["admin", "analyst"]:
+    st.error("You do not have permission to access the Review Queue.")
+    st.stop()
+
 # ── Queue stats ─────────────────────────────────────────────────────────────────
 db = SessionLocal()
 try:
     from sqlalchemy import func
-    pending = db.query(func.count(ReviewQueue.queue_id)).filter(ReviewQueue.status == "PENDING").scalar() or 0
-    approved = db.query(func.count(ReviewQueue.queue_id)).filter(ReviewQueue.status.in_(["APPROVED", "ADJUSTED"])).scalar() or 0
-    rejected_count = db.query(func.count(ReviewQueue.queue_id)).filter(ReviewQueue.status == "REJECTED").scalar() or 0
+    pending = (
+        db.query(func.count(ReviewQueue.queue_id))
+        .filter(ReviewQueue.status == "PENDING", ReviewQueue.tenant_id == tenant_id)
+        .scalar() or 0
+    )
+    approved = (
+        db.query(func.count(ReviewQueue.queue_id))
+        .filter(ReviewQueue.status.in_(["APPROVED", "ADJUSTED"]), ReviewQueue.tenant_id == tenant_id)
+        .scalar() or 0
+    )
+    rejected_count = (
+        db.query(func.count(ReviewQueue.queue_id))
+        .filter(ReviewQueue.status == "REJECTED", ReviewQueue.tenant_id == tenant_id)
+        .scalar() or 0
+    )
     sla_breached = (
         db.query(func.count(ReviewQueue.queue_id))
-        .filter(ReviewQueue.status == "PENDING", ReviewQueue.sla_deadline < datetime.now(timezone.utc))
+        .filter(
+            ReviewQueue.status == "PENDING",
+            ReviewQueue.tenant_id == tenant_id,
+            ReviewQueue.sla_deadline < datetime.now(timezone.utc)
+        )
         .scalar() or 0
     )
 finally:
@@ -36,15 +61,15 @@ c4.metric("🚨 SLA Breached", sla_breached, delta_color="inverse")
 st.divider()
 
 # ── Load pending items ──────────────────────────────────────────────────────────
-reviewer_name = st.text_input("Reviewer Name", value="analyst", key="reviewer_name")
+st.caption(f"Reviewing as: **{user_email}** ({user_role.upper()})")
 
 @st.cache_data(ttl=30)
-def load_pending():
+def load_pending(t_id):
     db = SessionLocal()
     try:
         rows = (
             db.query(ReviewQueue)
-            .filter(ReviewQueue.status == "PENDING")
+            .filter(ReviewQueue.status == "PENDING", ReviewQueue.tenant_id == t_id)
             .order_by(ReviewQueue.sla_deadline)
             .limit(50)
             .all()
@@ -70,7 +95,7 @@ def load_pending():
         db.close()
 
 
-items = load_pending()
+items = load_pending(tenant_id)
 
 if not items:
     st.success("✅ No pending review items. The queue is clear.")
@@ -119,45 +144,42 @@ for item in items:
         notes = st.text_input("Review Notes (optional)", key=f"notes_{item['queue_id']}")
 
         if st.button("Submit Decision", key=f"submit_{item['queue_id']}"):
-            if not reviewer_name.strip():
-                st.error("Please enter reviewer name above")
-            else:
-                db = SessionLocal()
-                try:
-                    q_item = db.query(ReviewQueue).filter(ReviewQueue.queue_id == item["queue_id"]).first()
-                    silver = db.query(SilverRecord).filter(SilverRecord.record_id == item["silver_id"]).first()
+            db = SessionLocal()
+            try:
+                q_item = db.query(ReviewQueue).filter(ReviewQueue.queue_id == item["queue_id"]).first()
+                silver = db.query(SilverRecord).filter(SilverRecord.record_id == item["silver_id"]).first()
 
-                    if action == "Reject":
-                        q_item.status = "REJECTED"
-                        q_item.reviewed_by = reviewer_name
-                        q_item.reviewed_at = datetime.now(timezone.utc)
-                        q_item.review_notes = notes
-                        db.commit()
-                        st.success("Record rejected.")
+                if action == "Reject":
+                    q_item.status = "REJECTED"
+                    q_item.reviewed_by = user_email
+                    q_item.reviewed_at = datetime.now(timezone.utc)
+                    q_item.review_notes = notes
+                    db.commit()
+                    st.success("Record rejected.")
+                else:
+                    if adjusted is not None:
+                        silver.value = adjusted
+                        q_item.adjusted_value = adjusted
+                        q_item.status = "ADJUSTED"
                     else:
-                        if adjusted is not None:
-                            silver.value = adjusted
-                            q_item.adjusted_value = adjusted
-                            q_item.status = "ADJUSTED"
-                        else:
-                            q_item.status = "APPROVED"
-                        q_item.reviewed_by = reviewer_name
-                        q_item.reviewed_at = datetime.now(timezone.utc)
-                        q_item.review_notes = notes
-                        db.flush()
+                        q_item.status = "APPROVED"
+                    q_item.reviewed_by = user_email
+                    q_item.reviewed_at = datetime.now(timezone.utc)
+                    q_item.review_notes = notes
+                    db.flush()
 
-                        src = db.query(SourceConfig).filter(SourceConfig.source_code == silver.source_code).first()
-                        pipeline = Pipeline(db)
-                        gold = asyncio.run(pipeline.promote_to_gold(
-                            silver=silver,
-                            source_name=src.source_name if src else silver.source_code,
-                            source_url=q_item.source_url or "",
-                            crawled_at=silver.processed_at or datetime.now(timezone.utc),
-                            approved_by=reviewer_name,
-                        ))
-                        db.commit()
-                        st.success(f"✅ Promoted to Gold! Record ID: {gold.record_id}")
-                finally:
-                    db.close()
-                st.cache_data.clear()
-                st.rerun()
+                    src = db.query(SourceConfig).filter(SourceConfig.source_code == silver.source_code).first()
+                    pipeline = Pipeline(db, tenant_id=tenant_id)
+                    gold = asyncio.run(pipeline.promote_to_gold(
+                        silver=silver,
+                        source_name=src.source_name if src else silver.source_code,
+                        source_url=q_item.source_url or "",
+                        crawled_at=silver.processed_at or datetime.now(timezone.utc),
+                        approved_by=user_email,
+                    ))
+                    db.commit()
+                    st.success(f"✅ Promoted to Gold! Record ID: {gold.record_id}")
+            finally:
+                db.close()
+            st.cache_data.clear()
+            st.rerun()

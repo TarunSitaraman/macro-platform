@@ -94,11 +94,12 @@ if st.button("✨ Generate Summary", type="primary"):
     with st.spinner("Generating AI summary..."):
         db = SessionLocal()
         try:
-            agent = SummarizerAgent(db)
+            tenant_id = st.session_state.tenant_id
+            agent = SummarizerAgent(db, tenant_id=tenant_id)
             if summary_type == "COUNTRY_SNAPSHOT":
                 summary = asyncio.run(
                     agent.generate_country_snapshot(
-                        countries=countries_sel,
+                        country=countries_sel[0], # Updated to single country per roadmap logic
                         year_from=int(year_from),
                         indicators=indicators_sel,
                     )
@@ -114,13 +115,15 @@ if st.button("✨ Generate Summary", type="primary"):
             else:
                 summary = asyncio.run(
                     agent.generate_sector_analysis(
-                        countries=countries_sel,
+                        country=countries_sel[0], # Updated to single country
                         sector_theme=sector_theme,
                     )
                 )
 
-            # Load chart data while session is open
-            chart_query = db.query(GoldRecord)
+            # Load chart data while session is open (with tenant isolation)
+            chart_query = db.query(GoldRecord).filter(
+                (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id)
+            )
             if summary_type == "INDICATOR_BRIEF":
                 chart_query = chart_query.filter(
                     GoldRecord.indicator_code == ind_sel,
@@ -225,10 +228,10 @@ with fcol2:
 
 
 @st.cache_data(ttl=60)
-def load_summaries(country, stype):
+def load_summaries(country, stype, t_id):
     db = SessionLocal()
     try:
-        agent = SummarizerAgent(db)
+        agent = SummarizerAgent(db, tenant_id=t_id)
         rows = agent.list_summaries(
             country_code=None if country == "All" else country,
             summary_type=None if stype == "All" else stype,
@@ -248,7 +251,7 @@ def load_summaries(country, stype):
         db.close()
 
 
-previous = load_summaries(filter_country, filter_type)
+previous = load_summaries(filter_country, filter_type, st.session_state.tenant_id)
 if not previous:
     st.info("No summaries yet. Generate one above.")
 else:

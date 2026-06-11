@@ -51,8 +51,10 @@ SUGGESTED_QUESTIONS = [
 class ChatbotAgent:
     """Handles multi-turn RAG conversation with full citation and guardrails."""
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, tenant_id: UUID, user_id: Optional[UUID] = None):
         self.db = db
+        self.tenant_id = tenant_id
+        self.user_id = user_id
 
     def _check_guardrails(self, query: str) -> Optional[str]:
         """Return a refusal message if the query violates guardrails, else None."""
@@ -77,14 +79,16 @@ class ChatbotAgent:
             query_embedding = await embed_text(query)
             embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
+            # SQL for vector similarity with tenant isolation
             raw = self.db.execute(
                 text(
                     "SELECT record_id FROM gold_records "
                     "WHERE embedding IS NOT NULL "
+                    "AND (tenant_id IS NULL OR tenant_id = :tenant_id) "
                     "ORDER BY embedding <-> CAST(:emb AS vector) "
                     "LIMIT :lim"
                 ),
-                {"emb": embedding_str, "lim": limit},
+                {"emb": embedding_str, "lim": limit, "tenant_id": self.tenant_id},
             ).fetchall()
             ids = [row[0] for row in raw]
         except Exception as exc:
@@ -92,6 +96,7 @@ class ChatbotAgent:
             self.db.rollback()  # reset aborted transaction so fallback query works
             records = (
                 self.db.query(GoldRecord)
+                .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id))
                 .order_by(GoldRecord.promoted_at.desc())
                 .limit(limit)
                 .all()
@@ -101,6 +106,7 @@ class ChatbotAgent:
         if not ids:
             return (
                 self.db.query(GoldRecord)
+                .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id))
                 .order_by(GoldRecord.promoted_at.desc())
                 .limit(limit)
                 .all()
@@ -125,14 +131,19 @@ class ChatbotAgent:
     async def get_or_create_session(self, session_id: Optional[str] = None) -> ChatSession:
         if session_id:
             sess = self.db.query(ChatSession).filter(
-                ChatSession.session_id == session_id
+                ChatSession.session_id == session_id,
+                ChatSession.tenant_id == self.tenant_id
             ).first()
             if sess:
                 sess.last_active = datetime.now(timezone.utc)
                 self.db.flush()
                 return sess
 
-        sess = ChatSession(last_active=datetime.now(timezone.utc))
+        sess = ChatSession(
+            tenant_id=self.tenant_id,
+            user_id=self.user_id,
+            last_active=datetime.now(timezone.utc)
+        )
         self.db.add(sess)
         self.db.flush()
         return sess
@@ -173,7 +184,7 @@ class ChatbotAgent:
             .all()
         )
         messages = [
-            {"role": m.role, "content": m.content}
+            {"role": m.role.name if hasattr(m.role, 'name') else str(m.role), "content": m.content}
             for m in history[-6:]  # last 6 turns keeps request size manageable on free tiers
         ]
         messages.append({"role": "user", "content": user_message})
@@ -225,13 +236,17 @@ class ChatbotAgent:
     def get_history(self, session_id: str) -> list[dict]:
         messages = (
             self.db.query(ChatMessage)
-            .filter(ChatMessage.session_id == session_id)
+            .join(ChatSession)
+            .filter(
+                ChatMessage.session_id == session_id,
+                ChatSession.tenant_id == self.tenant_id
+            )
             .order_by(ChatMessage.created_at)
             .all()
         )
         return [
             {
-                "role": m.role,
+                "role": m.role.name if hasattr(m.role, 'name') else str(m.role),
                 "content": m.content,
                 "created_at": m.created_at.isoformat(),
             }

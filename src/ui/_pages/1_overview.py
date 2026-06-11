@@ -12,21 +12,36 @@ st.title("🏠 Macro Intelligence Platform")
 st.caption("AI-Enabled Financial Services Macroeconomic Intelligence")
 
 # ── KPI row ────────────────────────────────────────────────────────────────────
+tenant_id = st.session_state.tenant_id
 db = SessionLocal()
 try:
-    n_gold = db.query(func.count(GoldRecord.record_id)).scalar() or 0
-    n_bronze = db.query(func.count(BronzeRecord.record_id)).scalar() or 0
+    n_gold = (
+        db.query(func.count(GoldRecord.record_id))
+        .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id))
+        .scalar() or 0
+    )
+    n_bronze = (
+        db.query(func.count(BronzeRecord.record_id))
+        .filter((BronzeRecord.tenant_id == None) | (BronzeRecord.tenant_id == tenant_id))
+        .scalar() or 0
+    )
     n_pending = (
         db.query(func.count(ReviewQueue.queue_id))
         .filter(ReviewQueue.status == "PENDING")
+        .filter(ReviewQueue.tenant_id == tenant_id)
         .scalar() or 0
     )
     n_sources = (
         db.query(func.count(SourceConfig.source_id))
         .filter(SourceConfig.is_active == True)
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id))
         .scalar() or 0
     )
-    avg_dq = db.query(func.avg(GoldRecord.dq_score)).scalar()
+    avg_dq = (
+        db.query(func.avg(GoldRecord.dq_score))
+        .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id))
+        .scalar()
+    )
 finally:
     db.close()
 
@@ -69,7 +84,12 @@ st.subheader("Data Source Registry")
 
 db = SessionLocal()
 try:
-    sources = db.query(SourceConfig).order_by(SourceConfig.reputation_score.desc()).all()
+    sources = (
+        db.query(SourceConfig)
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id))
+        .order_by(SourceConfig.reputation_score.desc())
+        .all()
+    )
 finally:
     db.close()
 

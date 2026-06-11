@@ -51,7 +51,7 @@ if st.button("Run Ingestion Pipeline", type="primary"):
         unit_map = {k: v["standard_unit"] for k, v in INDICATOR_CATALOGUE.items()}
 
         with st.spinner("Processing Bronze -> Silver -> Gold (no embeddings yet)..."):
-            pipeline = Pipeline(db)
+            pipeline = Pipeline(db, tenant_id=st.session_state.tenant_id)
             counts = pipeline.run_bulk_sync(
                 raw_records=raw,
                 source_code=source,
@@ -83,16 +83,26 @@ if st.button("Run Ingestion Pipeline", type="primary"):
 st.divider()
 st.subheader("Generate Embeddings (enables Chatbot RAG)")
 
+tenant_id = st.session_state.tenant_id
 db = SessionLocal()
 try:
     from sqlalchemy import func
-    missing = db.query(func.count(GoldRecord.record_id)).filter(GoldRecord.embedding.is_(None)).scalar() or 0
-    total = db.query(func.count(GoldRecord.record_id)).scalar() or 0
+    missing = (
+        db.query(func.count(GoldRecord.record_id))
+        .filter(GoldRecord.embedding.is_(None))
+        .filter(GoldRecord.tenant_id == tenant_id)
+        .scalar() or 0
+    )
+    total = (
+        db.query(func.count(GoldRecord.record_id))
+        .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id))
+        .scalar() or 0
+    )
 finally:
     db.close()
 
 col1, col2 = st.columns(2)
-col1.metric("Gold Records", total)
+col1.metric("Gold Records (Tenant)", total)
 col2.metric("Missing Embeddings", missing)
 
 if missing > 0:
@@ -100,7 +110,7 @@ if missing > 0:
         db = SessionLocal()
         try:
             with st.spinner(f"Batching {missing} records to Jina AI..."):
-                pipeline = Pipeline(db)
+                pipeline = Pipeline(db, tenant_id=tenant_id)
                 updated = asyncio.run(pipeline.generate_embeddings(batch_size=200))
             st.success(f"Done — {updated} embeddings generated. Chatbot is now active.")
         except Exception as e:
@@ -109,6 +119,59 @@ if missing > 0:
             db.close()
 else:
     st.success("All gold records have embeddings.")
+
+st.divider()
+
+# ── Automated Orchestration ───────────────────────────────────────────────────
+st.divider()
+st.subheader("🚀 Automated Orchestration (Dagster)")
+st.info(
+    "Run the full Medallion pipeline (Bronze → Silver → Gold) with automated "
+    "retries, dependency management, and data lineage tracking."
+)
+
+if st.button("Trigger Full Orchestration Run", type="primary"):
+    with st.spinner("Launching Dagster job via API..."):
+        try:
+            db = SessionLocal()
+            from src.orchestration.jobs import defs
+
+            run_config = {
+                "ops": {
+                    "world_bank_bronze": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "imf_bronze": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "fred_bronze": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "silver_records": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "gold_records": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "macro_news": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "macro_alerts": {"config": {"tenant_id": st.session_state.tenant_id}},
+                    "macro_forecasts": {"config": {"tenant_id": st.session_state.tenant_id}},
+                }
+            }
+            
+            # Use execute_in_process to bypass daemon requirements in Streamlit
+            job_def = defs.get_job_def("full_ingestion_job")
+            result = job_def.execute_in_process(run_config=run_config)
+            
+            if result.success:
+                st.success(f"✅ Job completed successfully! Run ID: `{result.run_id}`")
+            else:
+                st.error("Orchestration job failed. Check console logs.")
+            st.markdown(
+                f"Monitor progress in the **Dagster UI** (usually at http://localhost:3000)"
+            )
+        except Exception as e:
+            st.error(f"Failed to launch orchestrator: {e}")
+            st.caption("Ensure Dagster is correctly installed and initialized.")
+
+with st.expander("🛠️ How to run Dagster UI"):
+    st.markdown("""
+    To see the live asset graph and monitor runs, open a new terminal and run:
+    ```bash
+    dagster dev -f src/orchestration/jobs.py
+    ```
+    Then visit http://localhost:3000
+    """)
 
 st.divider()
 
@@ -125,10 +188,12 @@ with fcol3:
 
 
 @st.cache_data(ttl=60)
-def load_gold_records(ind, country, src):
+def load_gold_records(ind, country, src, t_id):
     db = SessionLocal()
     try:
-        q = db.query(GoldRecord)
+        q = db.query(GoldRecord).filter(
+            (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == t_id)
+        )
         if ind != "All":
             q = q.filter(GoldRecord.indicator_code == ind)
         if country != "All":
@@ -154,7 +219,7 @@ def load_gold_records(ind, country, src):
         db.close()
 
 
-data = load_gold_records(ind_filter, country_filter, source_filter)
+data = load_gold_records(ind_filter, country_filter, source_filter, tenant_id)
 if data:
     df = pd.DataFrame(data)
     st.dataframe(df, use_container_width=True, hide_index=True)
