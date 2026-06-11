@@ -108,7 +108,7 @@ class NewsAgent:
         from src.agents.embeddings import embed_batch
         text_to_embed = f"Title: {title}\nCategory: {news_rec.category}\nContent: {content[:1000]}"
         try:
-            vecs = await embed_batch([text_to_embed])
+            vecs, _ = await embed_batch([text_to_embed])
             news_rec.embedding = vecs[0]
         except Exception as e:
             logger.warning("Failed to embed news: %s", e)

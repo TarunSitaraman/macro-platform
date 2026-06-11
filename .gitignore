@@ -30,3 +30,12 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local Dagster directories
+.dagster/
+.tmp_dagster_home_*/
+.tmp_dagster_home_*
+
+# Temporary and local IDE configurations
+temp/
+.claude/

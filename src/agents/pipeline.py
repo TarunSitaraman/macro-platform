@@ -188,9 +188,9 @@ class Pipeline:
 
         text_to_embed = build_gold_record_text(gold)
         try:
-            vecs = await embed_batch([text_to_embed])
+            vecs, model_used = await embed_batch([text_to_embed])
             gold.embedding = vecs[0]
-            gold.embedding_model = settings.jina_embedding_model
+            gold.embedding_model = model_used
             gold.embedding_generated_at = datetime.now(timezone.utc)
         except Exception as exc:
             logger.warning("Embedding failed for single record: %s", exc)
@@ -221,10 +221,10 @@ class Pipeline:
             chunk = records[i: i + batch_size]
             texts = [build_gold_record_text(r) for r in chunk]
             try:
-                vecs = await embed_batch(texts)
+                vecs, model_used = await embed_batch(texts)
                 for rec, vec in zip(chunk, vecs):
                     rec.embedding = vec
-                    rec.embedding_model = settings.jina_embedding_model
+                    rec.embedding_model = model_used
                     rec.embedding_generated_at = datetime.now(timezone.utc)
                 self.db.commit()
                 updated += len(chunk)

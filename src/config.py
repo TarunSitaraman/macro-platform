@@ -26,10 +26,16 @@ class Settings(BaseSettings):
     cerebras_api_key: str = Field("", env="CEREBRAS_API_KEY")
     cerebras_base_url: str = Field("https://api.cerebras.ai/v1", env="CEREBRAS_BASE_URL")
 
-    # Embeddings (Jina AI — free tier 1M tokens/month)
-    jina_api_key: str = Field(..., env="JINA_API_KEY")
+    # Embeddings configuration
+    embedding_provider: str = Field("gemini", env="EMBEDDING_PROVIDER")
+    jina_api_key: str = Field("", env="JINA_API_KEY")
     jina_embedding_model: str = Field("jina-embeddings-v3", env="JINA_EMBEDDING_MODEL")
     jina_embedding_dimensions: int = Field(1024, env="JINA_EMBEDDING_DIMENSIONS")
+
+    gemini_embedding_model: str = Field(
+        "models/gemini-embedding-2", env="GEMINI_EMBEDDING_MODEL"
+    )
+    gemini_embedding_dimensions: int = Field(1024, env="GEMINI_EMBEDDING_DIMENSIONS")
 
     # App
     app_env: str = Field("development", env="APP_ENV")
@@ -160,6 +166,41 @@ INDICATOR_CATALOGUE = {
         "description": "General government gross debt as percentage of GDP",
         "frequency": "ANNUAL",
     },
+    "POPULATION": {
+        "name": "Population (Total)",
+        "category": "Demographics",
+        "standard_unit": "MILLIONS",
+        "description": "Total population",
+        "frequency": "ANNUAL",
+    },
+    "EXPORTS_PCT_GDP": {
+        "name": "Exports of Goods and Services (% GDP)",
+        "category": "Trade",
+        "standard_unit": "PCT_GDP",
+        "description": "Exports of goods and services as a percentage of GDP",
+        "frequency": "ANNUAL",
+    },
+    "IMPORTS_PCT_GDP": {
+        "name": "Imports of Goods and Services (% GDP)",
+        "category": "Trade",
+        "standard_unit": "PCT_GDP",
+        "description": "Imports of goods and services as a percentage of GDP",
+        "frequency": "ANNUAL",
+    },
+    "GOVT_REVENUE_PCT_GDP": {
+        "name": "General Government Revenue (% GDP)",
+        "category": "Fiscal",
+        "standard_unit": "PCT_GDP",
+        "description": "General government revenue as a percentage of GDP",
+        "frequency": "ANNUAL",
+    },
+    "GOVT_EXPENDITURE_PCT_GDP": {
+        "name": "General Government Expenditure (% GDP)",
+        "category": "Fiscal",
+        "standard_unit": "PCT_GDP",
+        "description": "General government total expenditure as a percentage of GDP",
+        "frequency": "ANNUAL",
+    },
 }
 
 # Phase 1 country list (ISO3 codes)
@@ -177,6 +218,11 @@ WORLD_BANK_INDICATORS = {
     "UNEMPLOYMENT_RATE": "SL.UEM.TOTL.ZS",
     "CURRENT_ACCOUNT_PCT_GDP": "BN.CAB.XOKA.GD.ZS",
     "GOVT_DEBT_PCT_GDP": "GC.DOD.TOTL.GD.ZS",
+    "POPULATION": "SP.POP.TOTL",
+    "EXPORTS_PCT_GDP": "NE.EXP.GNFS.ZS",
+    "IMPORTS_PCT_GDP": "NE.IMP.GNFS.ZS",
+    "GOVT_REVENUE_PCT_GDP": "GC.REV.XIGT.GD.ZS",
+    "GOVT_EXPENDITURE_PCT_GDP": "GC.XPN.TOTL.GD.ZS",
 }
 
 # IMF WEO indicator codes mapping
@@ -187,6 +233,9 @@ IMF_INDICATORS = {
     "UNEMPLOYMENT_RATE": "LUR",
     "CURRENT_ACCOUNT_PCT_GDP": "BCA_NGDPD",
     "GOVT_DEBT_PCT_GDP": "GGXWDG_NGDP",
+    "POPULATION": "LP",
+    "GOVT_REVENUE_PCT_GDP": "GGR_NGDP",
+    "GOVT_EXPENDITURE_PCT_GDP": "GGX_NGDP",
 }
 
 # FRED series codes
@@ -194,4 +243,5 @@ FRED_SERIES = {
     "GDP_CURRENT_USD": "GDP",
     "CPI_INFLATION": "CPIAUCSL",
     "UNEMPLOYMENT_RATE": "UNRATE",
+    "POPULATION": "POPTHM",
 }

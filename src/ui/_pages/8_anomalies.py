@@ -6,15 +6,43 @@ import streamlit as st
 import altair as alt
 
 from src.agents.forecaster import ForecasterAgent
-from src.database import GoldRecord, SessionLocal
+from src.database import GoldRecord, AuditLog, SessionLocal
 from src.config import INDICATOR_CATALOGUE, PHASE1_COUNTRIES
 
-st.title("🚨 Anomaly Detection")
-st.caption("AI-powered identification of macroeconomic outliers and trend deviations")
+st.title("🚨 Anomaly Detection & Alerts")
+st.caption("AI-powered identification of macroeconomic outliers and critical threshold breaches")
 
-# ── Load Anomaly Data ──────────────────────────────────────────────────────────
 tenant_id = st.session_state.tenant_id
 
+# ── Active Alerts ─────────────────────────────────────────────────────────────
+st.subheader("Active Macro Signals")
+db = SessionLocal()
+try:
+    from sqlalchemy import desc
+    recent_alerts = (
+        db.query(AuditLog)
+        .filter(
+            AuditLog.actor == "AlertAgent",
+            (AuditLog.tenant_id == None) | (AuditLog.tenant_id == tenant_id)
+        )
+        .order_by(desc(AuditLog.timestamp))
+        .limit(10)
+        .all()
+    )
+    
+    if not recent_alerts:
+        st.success("✅ No critical macro signals detected in the latest pipeline run.")
+    else:
+        for alert in recent_alerts:
+            color = "🔴" if alert.new_values.get("type") == "CRITICAL" else "🟠"
+            st.markdown(f"**{color} {alert.timestamp.strftime('%Y-%m-%d %H:%M')}** — {alert.reason}")
+            
+finally:
+    db.close()
+
+st.divider()
+
+# ── Load Anomaly Data ──────────────────────────────────────────────────────────
 @st.cache_data(ttl=300)
 def load_anomalies(t_id):
     db = SessionLocal()
@@ -73,7 +101,7 @@ else:
     chart = alt.Chart(heatmap_df).mark_rect().encode(
         x=alt.X("Country:N"),
         y=alt.Y("Indicator:N"),
-        color=alt.Color("Deviation %:Q", scale=alt.Scale(scheme="redblue", domain=[-20, 20])),
+        color=alt.Color("Deviation %:Q", scale=alt.Scale(scheme="redblue", domain=[-20, 20], clamp=True)),
         tooltip=["Indicator", "Country", "Actual", "Expected", "Deviation %"]
     ).properties(height=400)
     st.altair_chart(chart, use_container_width=True)
