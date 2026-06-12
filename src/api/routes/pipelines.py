@@ -14,8 +14,9 @@ from src.agents.pipeline import Pipeline
 from src.agents.static import FREDAgent, IMFAgent, WorldBankAgent
 from src.agents.crawler import DynamicCrawlerAgent
 from src.config import INDICATOR_CATALOGUE, get_settings
-from src.database import SourceConfig, User, get_db
+from src.database import SourceConfig, User, get_db, SessionLocal
 from src.utils.auth import get_current_user, check_role
+from src.utils.anomaly_cache import AnomalyCacheManager
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -101,6 +102,7 @@ async def _run_static_source(source_code: str, db: Session, tenant_id: uuid.UUID
 @router.post("/pipelines/static/{source_code}/run")
 async def run_static_pipeline(
     source_code: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
@@ -109,11 +111,14 @@ async def run_static_pipeline(
         raise HTTPException(status_code=400, detail=f"Valid sources: {valid_sources}")
 
     result = await _run_static_source(source_code, db, tenant_id=current_user.tenant_id)
+    # Trigger background anomalies refresh
+    background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, current_user.tenant_id)
     return result
 
 
 @router.post("/pipelines/orchestrate/run")
 async def run_dagster_orchestration(
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
     """Trigger the full Medallion orchestration via Dagster."""
@@ -143,6 +148,8 @@ async def run_dagster_orchestration(
         result = job_def.execute_in_process(run_config=run_config)
         
         if result.success:
+            # Trigger background anomalies refresh after successful ingestion
+            background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, current_user.tenant_id)
             return {
                 "message": "Orchestration job completed successfully",
                 "run_id": result.run_id,
@@ -157,3 +164,173 @@ async def run_dagster_orchestration(
             status_code=503,
             detail=f"Orchestration service (Dagster) failed: {str(e)}"
         )
+
+
+@router.post("/pipelines/embeddings/run")
+async def run_embeddings_refresher(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
+):
+    """Trigger the Gemini embeddings generator for unindexed gold records."""
+    pipeline = Pipeline(db, tenant_id=current_user.tenant_id)
+    try:
+        updated = await pipeline.generate_embeddings()
+        return {
+            "status": "SUCCESS",
+            "message": f"Successfully generated embeddings for {updated} gold records."
+        }
+    except Exception as e:
+        logger.error("Failed to run embedding generation: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Crawler endpoints ──
+
+class DiscoverRequest(BaseModel):
+    source_url: str
+    source_code: str
+
+
+class CrawlRequest(BaseModel):
+    url: str
+    extraction_prompt: Optional[str] = None
+
+
+class PushRecord(BaseModel):
+    indicator_code: str
+    country_code: str
+    period: str
+    raw_value: str
+    raw_unit: Optional[str] = None
+    source_url: str
+    source_code: str
+
+
+class PushRequest(BaseModel):
+    records: list[PushRecord]
+
+
+@router.get("/crawler/sources")
+def list_crawler_sources(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List HTML/PDF crawl sources."""
+    sources = (
+        db.query(SourceConfig)
+        .filter(SourceConfig.source_type.in_(["HTML", "PDF"]))
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == current_user.tenant_id))
+        .all()
+    )
+    return [
+        {
+            "source_code": s.source_code,
+            "source_name": s.source_name,
+            "source_url": s.source_url,
+            "source_type": s.source_type,
+            "frequency": s.frequency,
+            "reputation_score": s.reputation_score,
+            "extraction_prompt": s.extraction_prompt,
+            "is_active": s.is_active,
+            "last_run_at": s.last_run_at.isoformat() if s.last_run_at else None,
+            "error_message": s.error_message,
+        }
+        for s in sources
+    ]
+
+
+@router.post("/crawler/discover")
+async def discover_crawler_articles(
+    body: DiscoverRequest,
+    current_user: User = Depends(check_role(["admin", "analyst"]))
+):
+    """Scan the source index page for article links."""
+    try:
+        crawler = DynamicCrawlerAgent()
+        articles = await crawler.discover_articles(body.source_url, body.source_code)
+        return {"articles": articles}
+    except Exception as e:
+        logger.error("Failed to discover articles: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/crawler/crawl")
+async def crawl_and_extract_url(
+    body: CrawlRequest,
+    current_user: User = Depends(check_role(["admin", "analyst"]))
+):
+    """Crawl a URL and extract macroeconomic indicators using LLM."""
+    try:
+        crawler = DynamicCrawlerAgent()
+        extracted = await crawler.crawl_and_extract(
+            url=body.url,
+            extraction_prompt=body.extraction_prompt,
+        )
+        return {"extracted": extracted}
+    except Exception as e:
+        logger.error("Failed to crawl and extract: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/crawler/push")
+async def push_extracted_records(
+    body: PushRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(check_role(["admin", "analyst"]))
+):
+    """Push extracted records through the medallion pipeline."""
+    pipeline = Pipeline(db, tenant_id=current_user.tenant_id)
+    promoted = queued = rejected = 0
+    
+    # Pre-fetch source configurations to avoid multiple queries
+    sources = db.query(SourceConfig).all()
+    source_map = {s.source_code: s for s in sources}
+
+    for rec in body.records:
+        ind_code = rec.indicator_code
+        if ind_code not in INDICATOR_CATALOGUE:
+            rejected += 1
+            continue
+        unit = INDICATOR_CATALOGUE[ind_code]["standard_unit"]
+        
+        # Get source metadata
+        source = source_map.get(rec.source_code)
+        source_name = source.source_name if source else rec.source_code
+        
+        try:
+            result = await pipeline.run(
+                source_code=rec.source_code,
+                indicator_code=ind_code,
+                country_code=rec.country_code,
+                period=rec.period,
+                raw_value=rec.raw_value,
+                raw_unit=rec.raw_unit or unit,
+                source_url=rec.source_url,
+                extraction_method="HTML_LLM",
+                raw_json={"indicator_code": ind_code, "country_code": rec.country_code, "period": rec.period, "raw_value": rec.raw_value},
+                standard_unit=unit,
+                source_name=source_name,
+            )
+            if result["status"] == "promoted":
+                promoted += 1
+            elif result["status"] == "review":
+                queued += 1
+            else:
+                rejected += 1
+        except Exception as e:
+            logger.error("Failed to push record through pipeline: %s", e)
+            rejected += 1
+            
+    # Update last run timestamp for the source of the first record (if any)
+    if body.records:
+        first_src = source_map.get(body.records[0].source_code)
+        if first_src:
+            first_src.last_run_at = datetime.now(timezone.utc)
+            db.commit()
+
+    if promoted > 0:
+        # Trigger background anomalies refresh on data change
+        background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, current_user.tenant_id)
+
+    return {"promoted": promoted, "queued": queued, "rejected": rejected}

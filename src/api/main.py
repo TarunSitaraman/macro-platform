@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from src.config import get_settings
 from src.database import engine, init_db
@@ -55,6 +56,9 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["Health"])
     async def health():
         return {"status": "ok", "env": settings.app_env}
+
+    # Mount static files for JS dashboard
+    app.mount("/", StaticFiles(directory="src/ui/static", html=True), name="static")
 
     @app.exception_handler(Exception)
     async def global_exc_handler(request, exc):

@@ -1,13 +1,18 @@
 """Chatbot REST endpoints."""
 
+import os
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.agents.chatbot import ChatbotAgent, SUGGESTED_QUESTIONS
 from src.agents.summarizer import SummarizerAgent
+from src.agents.researcher import ResearcherAgent
+from src.utils.reporting import generate_pdf_report
 from src.database import get_db, User
 from src.utils.auth import get_current_user
 
@@ -111,3 +116,56 @@ def list_summaries(
         }
         for r in rows
     ]
+
+
+# ── Researcher endpoints ──
+
+class ResearchRequest(BaseModel):
+    topic: str
+
+
+@router.post("/researcher/compile")
+async def compile_research_report(
+    body: ResearchRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Trigger Lead Researcher agent to gather web/internal data and generate report."""
+    try:
+        agent = ResearcherAgent(db, tenant_id=current_user.tenant_id)
+        report = await agent.compile_report(body.topic)
+        
+        # Generate PDF report
+        pdf_filename = f"research_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        os.makedirs("temp", exist_ok=True)
+        pdf_path = os.path.join("temp", pdf_filename)
+        generate_pdf_report(body.topic, report["content"], pdf_path)
+        
+        report["pdf_filename"] = pdf_filename
+        return report
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Failed compiling report: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/researcher/download-pdf")
+def download_research_pdf(
+    filename: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Serve compiled research report PDF file."""
+    # Safety check: prevent path traversal attacks by validating filename layout
+    clean_filename = os.path.basename(filename)
+    if not clean_filename.startswith("research_") or not clean_filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Invalid filename format")
+        
+    pdf_path = os.path.join("temp", clean_filename)
+    if not os.path.exists(pdf_path):
+        raise HTTPException(status_code=404, detail="Research report not found")
+        
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename=clean_filename
+    )

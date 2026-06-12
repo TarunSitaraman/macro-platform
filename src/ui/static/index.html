@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Intelligence Platform</title>
+    <meta name="description" content="AI-Enabled Financial Services Macroeconomic Intelligence Dashboard.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ── Authentication Overlay ── -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card glass-panel">
+            <div class="auth-header">
+                <div class="logo">
+                    <i data-lucide="bar-chart-2" class="glow-icon"></i>
+                    <span>MACRO INTELLIGENCE</span>
+                </div>
+                <p>Enter credentials to access the platform</p>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="login-email" required placeholder="admin@example.com" value="admin@example.com">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••" value="admin123">
+                    </div>
+                </div>
+                
+                <div id="auth-error" class="error-msg hidden">
+                    <i data-lucide="alert-triangle"></i>
+                    <span id="auth-error-text">Invalid email or password</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span>Login</span>
+                    <i data-lucide="log-in"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Main Application Container ── -->
+    <div id="app-container" class="app-container hidden">
+        
+        <!-- ── Left Sidebar Navigation ── -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-brand">
+                <div class="logo">
+                    <i data-lucide="bar-chart-2" class="glow-icon"></i>
+                    <span>MACRO HUB</span>
+                </div>
+                <span class="badge badge-accent">v1.0.0</span>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <ul>
+                    <li class="menu-item active" data-tab="overview">
+                        <i data-lucide="home"></i>
+                        <span>Overview</span>
+                    </li>
+                    <li class="menu-item" data-tab="crawler">
+                        <i data-lucide="bug"></i>
+                        <span>Dynamic Crawler</span>
+                    </li>
+                    <li class="menu-item" data-tab="explorer">
+                        <i data-lucide="line-chart"></i>
+                        <span>Data Explorer</span>
+                    </li>
+                    <li class="menu-item" data-tab="anomalies">
+                        <i data-lucide="alert-triangle"></i>
+                        <span>Anomaly Detection</span>
+                    </li>
+                    <li class="menu-item" data-tab="review">
+                        <i data-lucide="eye"></i>
+                        <span>Review Queue</span>
+                        <span id="review-badge" class="badge badge-danger hidden">0</span>
+                    </li>
+                    <li class="menu-item" data-tab="chatbot">
+                        <i data-lucide="message-square"></i>
+                        <span>AI RAG Chatbot</span>
+                    </li>
+                    <li class="menu-item" data-tab="summaries">
+                        <i data-lucide="file-text"></i>
+                        <span>Summary Engine</span>
+                    </li>
+                    <li class="menu-item" data-tab="researcher">
+                        <i data-lucide="search"></i>
+                        <span>Autonomous Researcher</span>
+                    </li>
+                    <li class="menu-item" data-tab="audits">
+                        <i data-lucide="git-branch"></i>
+                        <span>Audit & Lineage</span>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- User Status / Logout -->
+            <div class="sidebar-user glass-panel-nested">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span id="user-name" class="user-name">Loading...</span>
+                        <span id="user-role" class="user-role">ADMIN</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="logout-btn" title="Logout">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── Main Content Area ── -->
+        <main class="main-content">
+            
+            <!-- Page Header -->
+            <header class="content-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p id="page-subtitle">Real-time medallion pipeline health & configuration registry.</p>
+                </div>
+                <div class="header-actions">
+                    <div id="pipeline-status-container" class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="status-text">API Online</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ── TAB: OVERVIEW ── -->
+            <section id="tab-overview" class="tab-pane active-pane">
+                <!-- KPI Dashboard Widgets -->
+                <div class="kpi-grid">
+                    <div class="kpi-card glass-panel card-purple">
+                        <div class="kpi-header">
+                            <span>Production Gold Records</span>
+                            <div class="kpi-icon"><i data-lucide="award"></i></div>
+                        </div>
+                        <h2 id="kpi-gold">0</h2>
+                        <p class="kpi-sub">Cleaned & vector indexed data</p>
+                    </div>
+                    <div class="kpi-card glass-panel card-blue">
+                        <div class="kpi-header">
+                            <span>Total Raw Ingested</span>
+                            <div class="kpi-icon"><i data-lucide="database"></i></div>
+                        </div>
+                        <h2 id="kpi-bronze">0</h2>
+                        <p class="kpi-sub">Raw append-only records</p>
+                    </div>
+                    <div class="kpi-card glass-panel card-amber">
+                        <div class="kpi-header">
+                            <span>Pending Human Review</span>
+                            <div class="kpi-icon"><i data-lucide="clock"></i></div>
+                        </div>
+                        <h2 id="kpi-pending">0</h2>
+                        <p class="kpi-sub">Awaiting SLA approval</p>
+                    </div>
+                    <div class="kpi-card glass-panel card-emerald">
+                        <div class="kpi-header">
+                            <span>Active Data Sources</span>
+                            <div class="kpi-icon"><i data-lucide="link"></i></div>
+                        </div>
+                        <h2 id="kpi-sources">0</h2>
+                        <p class="kpi-sub">Active ingestion connectors</p>
+                    </div>
+                    <div class="kpi-card glass-panel card-neon">
+                        <div class="kpi-header">
+                            <span>Average Quality Score</span>
+                            <div class="kpi-icon"><i data-lucide="activity"></i></div>
+                        </div>
+                        <h2 id="kpi-quality">0.0%</h2>
+                        <p class="kpi-sub">Production DQ metrics</p>
+                    </div>
+                </div>
+
+                <!-- Orchestration Control & Medallion Overview -->
+                <div class="two-column-grid">
+                    <!-- Medallion Pipeline Architecture -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Medallion Data Architecture</h3>
+                        <p class="section-desc">Automated ingestion, translation, quality profiling & publishing.</p>
+                        
+                        <div class="pipeline-flow">
+                            <div class="flow-step">
+                                <div class="step-icon step-bronze"><i data-lucide="arrow-down-to-line"></i></div>
+                                <span>Bronze Layer</span>
+                                <p class="step-desc">Raw external APIs</p>
+                            </div>
+                            <div class="flow-arrow"><i data-lucide="chevrons-right"></i></div>
+                            <div class="flow-step">
+                                <div class="step-icon step-silver"><i data-lucide="shield-check"></i></div>
+                                <span>Silver Layer</span>
+                                <p class="step-desc">Cleaned & DQ Scored</p>
+                            </div>
+                            <div class="flow-arrow"><i data-lucide="chevrons-right"></i></div>
+                            <div class="flow-step">
+                                <div class="step-icon step-gold"><i data-lucide="sparkles"></i></div>
+                                <span>Gold Layer</span>
+                                <p class="step-desc">Vector RAG Indexed</p>
+                            </div>
+                        </div>
+                        
+                        <div class="threshold-grid">
+                            <div class="threshold-box th-green">
+                                <strong>DQ &ge; 90%</strong>
+                                <span>Auto-Promoted to Gold</span>
+                            </div>
+                            <div class="threshold-box th-yellow">
+                                <strong>70% &le; DQ &lt; 90%</strong>
+                                <span>Sent to Review SLA</span>
+                            </div>
+                            <div class="threshold-box th-red">
+                                <strong>DQ &lt; 70%</strong>
+                                <span>Rejected Automatically</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Orchestrator Commands -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Pipeline Orchestration</h3>
+                        <p class="section-desc">Trigger ingestion connectors and generate vector index updates.</p>
+                        
+                        <div class="orchestration-actions">
+                            <div class="action-row">
+                                <div class="action-info">
+                                    <strong>Trigger Full Ingestion Job</strong>
+                                    <span>Run World Bank, IMF, & FRED connector pipelines</span>
+                                </div>
+                                <button id="run-ingestion-btn" class="btn btn-primary">
+                                    <i data-lucide="play"></i>
+                                    <span>Run Job</span>
+                                </button>
+                            </div>
+                            <div class="action-row">
+                                <div class="action-info">
+                                    <strong>Run Vector Index Refresher</strong>
+                                    <span>Generate Gemini embeddings for unindexed gold records</span>
+                                </div>
+                                <button id="run-embeddings-btn" class="btn btn-secondary">
+                                    <i data-lucide="refresh-cw"></i>
+                                    <span>Refresh Embeds</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="orchestrator-console" class="terminal-console">
+                            <div class="console-header">
+                                <span class="console-dot red"></span>
+                                <span class="console-dot yellow"></span>
+                                <span class="console-dot green"></span>
+                                <span class="console-title">Orchestrator Terminal</span>
+                            </div>
+                            <div id="console-output" class="console-output">
+                                <p class="sys-msg">[SYSTEM] Ready. Select an orchestration task above to start.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Sources Registry -->
+                <div class="glass-panel main-info-card margin-top">
+                    <h3>Registered Data Ingestion Sources</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Connector Name</th>
+                                    <th>Code</th>
+                                    <th>Type</th>
+                                    <th>Frequency</th>
+                                    <th>Reputation</th>
+                                    <th>Last Execution</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sources-table-body">
+                                <tr><td colspan="7" class="loading-cell">Loading registered sources...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: EXPLORER ── -->
+            <section id="tab-explorer" class="tab-pane">
+
+                <!-- ── Selection Controls ── -->
+                <div class="glass-panel exp-controls">
+
+                    <!-- Indicators row -->
+                    <div class="exp-ctrl-row">
+                        <div class="exp-ctrl-label">
+                            <i data-lucide="trending-up"></i>
+                            <span>INDICATORS</span>
+                            <span id="ind-count" class="badge badge-cyan hidden">0</span>
+                        </div>
+                        <div id="indicator-chip-set" class="chip-set">
+                            <span class="chip-placeholder">Loading indicators…</span>
+                        </div>
+                    </div>
+
+                    <div class="exp-ctrl-divider"></div>
+
+                    <!-- Countries row -->
+                    <div class="exp-ctrl-row">
+                        <div class="exp-ctrl-label">
+                            <i data-lucide="globe"></i>
+                            <span>ECONOMIES</span>
+                            <span id="country-count" class="badge badge-cyan hidden">0</span>
+                        </div>
+                        <div id="country-chip-set" class="chip-set">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="exp-ctrl-divider"></div>
+
+                    <!-- Footer: meta + actions -->
+                    <div class="exp-ctrl-footer">
+                        <span id="exp-meta-text" class="exp-meta">Select indicators and economies above.</span>
+                        <div style="display:flex;gap:8px;flex-shrink:0">
+                            <button id="exp-clear-btn" class="btn btn-secondary">
+                                <i data-lucide="rotate-ccw"></i>
+                                <span>Clear</span>
+                            </button>
+                            <button id="exp-search-btn" class="btn btn-primary">
+                                <i data-lucide="bar-chart-2"></i>
+                                <span>Visualize</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Charts Grid ── -->
+                <div id="explorer-charts-grid" class="explorer-charts-grid margin-top"></div>
+
+                <!-- ── Data Table ── -->
+                <div id="explorer-table-card" class="glass-panel main-info-card margin-top hidden">
+                    <div class="card-header-with-badge">
+                        <h3>Gold Layer Records</h3>
+                        <span id="explorer-record-count" class="badge badge-cyan">0 records</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Indicator</th>
+                                    <th>Country</th>
+                                    <th>Period</th>
+                                    <th>Value</th>
+                                    <th>Unit</th>
+                                    <th>Type</th>
+                                    <th>DQ Score</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody id="explorer-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ── TAB: REVIEW QUEUE ── -->
+            <section id="tab-review" class="tab-pane">
+                <div class="glass-panel main-info-card">
+                    <div class="card-header-with-badge">
+                        <h3>Awaiting Ingestion Sign-off</h3>
+                        <span class="badge badge-amber">SLA 4 Hours</span>
+                    </div>
+                    <p class="section-desc">Analyst queue for manual approval of records with borderline Quality Scores (70% - 90%).</p>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Indicator</th>
+                                    <th>Country</th>
+                                    <th>Period</th>
+                                    <th>Raw Ingested Value</th>
+                                    <th>DQ Score</th>
+                                    <th>Trigger Issues</th>
+                                    <th>Source Data</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="review-table-body">
+                                <tr><td colspan="8" class="loading-cell">Loading pending review items...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: CHATBOT ── -->
+            <section id="tab-chatbot" class="tab-pane">
+                <div class="chatbot-container">
+                    <div class="glass-panel chatbot-sessions">
+                        <h3>Chat Sessions</h3>
+                        <button id="new-chat-btn" class="btn btn-secondary btn-block">
+                            <i data-lucide="plus"></i>
+                            <span>New Conversation</span>
+                        </button>
+                        <div id="sessions-list" class="sessions-list">
+                            <!-- Sessions will render here -->
+                        </div>
+                    </div>
+
+                    <div class="glass-panel chatbot-chat-window">
+                        <div class="chat-window-header">
+                            <div class="assistant-profile">
+                                <div class="bot-avatar"><i data-lucide="bot"></i></div>
+                                <div class="bot-details">
+                                    <strong>Macro RAG Assistant</strong>
+                                    <span>Powered by Gemini 3.5 & pgvector</span>
+                                </div>
+                            </div>
+                            <span class="badge badge-emerald">Verified Citations</span>
+                        </div>
+                        
+                        <!-- Messages Pane -->
+                        <div id="chat-messages-container" class="chat-messages-container">
+                            <div class="chat-message assistant">
+                                <div class="msg-avatar"><i data-lucide="bot"></i></div>
+                                <div class="msg-content">
+                                    Hello! I am your Macroeconomic Intelligence RAG Assistant. Ask me questions about GDP, inflation, unemployment, trade balances, and government debt. I will cite verified database records dynamically.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <form id="chat-input-form" class="chat-input-form">
+                            <input type="text" id="chat-message-input" autocomplete="off" placeholder="What is the GDP growth rate of USA in 2023? Compare G7 inflation..." required>
+                            <button type="submit" class="btn btn-primary btn-round">
+                                <i data-lucide="send"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: SUMMARIES ── -->
+            <section id="tab-summaries" class="tab-pane">
+                <div class="two-column-grid">
+                    <!-- Generate Summary -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Generate Intelligence Summary</h3>
+                        <p class="section-desc">Create AI-driven macroeconomic briefs utilizing validated database values.</p>
+                        
+                        <form id="summary-form" class="form-grid">
+                            <div class="form-group">
+                                <label for="sum-country">Country / Region</label>
+                                <select id="sum-country" class="custom-select" required>
+                                    <option value="USA">United States (USA)</option>
+                                    <option value="GBR">United Kingdom (GBR)</option>
+                                    <option value="DEU">Germany (DEU)</option>
+                                    <option value="FRA">France (FRA)</option>
+                                    <option value="JPN">Japan (JPN)</option>
+                                    <option value="CHN">China (CHN)</option>
+                                    <option value="IND">India (IND)</option>
+                                    <option value="BRA">Brazil (BRA)</option>
+                                    <option value="CAN">Canada (CAN)</option>
+                                    <option value="AUS">Australia (AUS)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sum-type">Analysis Depth</label>
+                                <select id="sum-type" class="custom-select" required>
+                                    <option value="COUNTRY_SNAPSHOT" selected>Country Snapshot Brief</option>
+                                    <option value="SECTOR_ANALYSIS">Sector Structural Analysis</option>
+                                </select>
+                            </div>
+                            <button type="submit" id="gen-summary-btn" class="btn btn-primary btn-block margin-top">
+                                <i data-lucide="sparkles"></i>
+                                <span>Generate Intelligence Report</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Summary Viewer -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Recent Summaries</h3>
+                        <p class="section-desc">Select a generated brief below to read the AI structural analysis.</p>
+                        <div id="summaries-list" class="summaries-list">
+                            <!-- Summaries will render here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Content Display -->
+                <div id="report-view-card" class="glass-panel main-info-card margin-top hidden">
+                    <div class="report-header">
+                        <div>
+                            <h2 id="report-title">United States Country Snapshot Brief</h2>
+                            <p id="report-metadata">Generated by gemini-2.0-flash on 2026-06-11</p>
+                        </div>
+                        <button id="close-report-btn" class="btn btn-secondary">
+                            <span>Close Brief</span>
+                        </button>
+                    </div>
+                    <hr>
+                    <div id="report-body" class="report-body">
+                        <!-- Brief text renders here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: CRAWLER ── -->
+            <section id="tab-crawler" class="tab-pane">
+                <div class="two-column-grid">
+                    <!-- Source Selection & Discover -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Scrape Sources Index</h3>
+                        <p class="section-desc">Crawl HTML index pages, extract articles and run the LLM extraction agent.</p>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="crawler-source">Select Web Source</label>
+                                <select id="crawler-source" class="custom-select">
+                                    <option value="">Loading web sources...</option>
+                                </select>
+                            </div>
+                            <button id="crawler-discover-btn" class="btn btn-secondary btn-block margin-top">
+                                <i data-lucide="search"></i>
+                                <span>Discover Articles</span>
+                            </button>
+                        </div>
+                        
+                        <div id="crawler-metadata" class="margin-top hidden">
+                            <p><strong>Crawl URL:</strong> <a id="crawler-source-url" href="#" target="_blank" class="table-link">Link</a></p>
+                            <p class="margin-top"><strong>Extraction Guidelines:</strong></p>
+                            <pre id="crawler-prompt" class="terminal-console" style="padding: 10px; font-size: 11px; white-space: pre-wrap; word-break: break-all; margin-top: 5px; height: 100px; overflow-y: auto; color: #a5b4fc;"></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Article List -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Discovered Web Articles</h3>
+                        <p class="section-desc">Select an article link to trigger the crawler agent.</p>
+                        <div id="crawler-articles-list" class="summaries-list" style="max-height: 230px; overflow-y: auto;">
+                            <div class="loading-cell">Select a source configuration above and click Discover.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom URL Crawl Console -->
+                <div class="glass-panel main-info-card margin-top">
+                    <h3>Run Web Crawler</h3>
+                    <p class="section-desc">Input a custom URL or select one of the discovered articles above to crawl.</p>
+                    
+                    <div class="form-inline margin-bottom">
+                        <input type="text" id="crawler-url-input" placeholder="Enter full URL to crawl (e.g. https://www.bloomberg.com/news/...)" class="custom-input flex-grow" style="margin-right: 10px;">
+                        <button id="crawler-run-btn" class="btn btn-primary">
+                            <i data-lucide="play"></i>
+                            <span>Run Crawler Agent</span>
+                        </button>
+                    </div>
+
+                    <div id="crawler-console" class="terminal-console hidden" style="margin-bottom: 20px;">
+                        <div class="console-header">
+                            <span class="console-dot red"></span>
+                            <span class="console-dot yellow"></span>
+                            <span class="console-dot green"></span>
+                            <span class="console-title">Crawler Log Console</span>
+                        </div>
+                        <div id="crawler-console-output" class="console-output" style="height: 100px;">
+                            <p class="sys-msg">[SYSTEM] Ready to crawl.</p>
+                        </div>
+                    </div>
+
+                    <!-- Extracted Records Table -->
+                    <div id="crawler-results-container" class="hidden">
+                        <div class="card-header-with-badge" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3>Extracted LLM Records</h3>
+                            <button id="crawler-push-btn" class="btn btn-primary">
+                                <i data-lucide="arrow-up-to-line"></i>
+                                <span>Push Records to Pipeline</span>
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Indicator</th>
+                                        <th>Country</th>
+                                        <th>Period</th>
+                                        <th>Extracted Value</th>
+                                        <th>Extracted Unit</th>
+                                        <th>Is Forecast</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="crawler-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: ANOMALIES ── -->
+            <section id="tab-anomalies" class="tab-pane">
+                <!-- Active Alerts -->
+                <div class="glass-panel main-info-card">
+                    <h3>Active Macro Signals</h3>
+                    <p class="section-desc">Automated threshold warnings and critical macro deviations flagged by pipeline runs.</p>
+                    <div id="anomalies-alerts-list" class="summaries-list" style="max-height: 200px; overflow-y: auto;">
+                        <div class="loading-cell">Loading active alerts...</div>
+                    </div>
+                </div>
+
+                <!-- Prophetic Deviations Heatmap -->
+                <div class="glass-panel main-info-card margin-top">
+                    <div class="card-header-with-badge" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <h3>Macro Deviation Heatmap</h3>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="anomalies-status-text" class="status-text hidden" style="font-size:12px;color:var(--warning);font-weight:600;">Recalculating in background...</span>
+                            <button id="anomalies-refresh-btn" class="btn btn-secondary">
+                                <i data-lucide="refresh-cw"></i>
+                                <span>Recalculate</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="section-desc" style="margin-bottom:16px;">Prophet CI-normalised sigma per series — amber/red = above trend, cyan = below trend. Worst year shown per cell.</p>
+                    <div id="anomaly-heatmap" class="anomaly-heatmap-root"></div>
+                </div>
+            </section>
+
+            <!-- ── TAB: RESEARCHER ── -->
+            <section id="tab-researcher" class="tab-pane">
+                <div class="glass-panel main-info-card">
+                    <h3>Lead Research Request</h3>
+                    <p class="section-desc">Compose macroeconomic reports utilizing internal Gold data combined with live DuckDuckGo web results.</p>
+                    
+                    <form id="research-form" class="form-inline" style="display: flex; gap: 10px;">
+                        <input type="text" id="research-topic" required placeholder="e.g. US Inflation Outlook 2025, impact of BRICS expansion on global trade" class="custom-input flex-grow">
+                        <button type="submit" id="research-btn" class="btn btn-primary" style="white-space: nowrap;">
+                            <i data-lucide="send"></i>
+                            <span>Start Research</span>
+                        </button>
+                    </form>
+
+                    <!-- Console log -->
+                    <div id="research-console" class="terminal-console margin-top hidden">
+                        <div class="console-header">
+                            <span class="console-dot red"></span>
+                            <span class="console-dot yellow"></span>
+                            <span class="console-dot green"></span>
+                            <span class="console-title">Autonomous Agent Console</span>
+                        </div>
+                        <div id="research-console-output" class="console-output" style="height: 100px;">
+                            <p class="sys-msg">[SYSTEM] Starting research lead agent...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Result View -->
+                <div id="research-view-card" class="glass-panel main-info-card margin-top hidden">
+                    <div class="report-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 id="research-title">US Inflation Outlook 2025</h2>
+                            <p id="research-metadata">Generated on 2026-06-11</p>
+                        </div>
+                        <button id="research-download-btn" class="btn btn-primary">
+                            <i data-lucide="download"></i>
+                            <span>Download PDF Brief</span>
+                        </button>
+                    </div>
+                    <hr>
+                    <div id="research-body" class="report-body markdown-content" style="padding-top: 15px; line-height: 1.6; max-height: 500px; overflow-y: auto;">
+                        <!-- Markdown text gets rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: AUDITS ── -->
+            <section id="tab-audits" class="tab-pane">
+                <div class="two-column-grid">
+                    <!-- Ingestion Audit Logs -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Ingestion Audit Logs</h3>
+                        <p class="section-desc">Audit trail logs tracking write operations across all platform layers.</p>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Table Name</th>
+                                        <th>Action</th>
+                                        <th>Actor</th>
+                                        <th>Metadata Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table-body">
+                                    <tr><td colspan="5" class="loading-cell">Loading audit logs...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Lineage Explorer -->
+                    <div class="glass-panel main-info-card">
+                        <h3>Data Lineage Tracker</h3>
+                        <p class="section-desc">Inspect transformations and provenance for any selected Gold Record ID.</p>
+                        
+                        <div class="form-inline margin-bottom" style="display: flex; gap: 10px;">
+                            <input type="text" id="lineage-record-id" placeholder="Enter Gold Record UUID (e.g. fd72-4e87-...)" class="custom-input flex-grow">
+                            <button id="lineage-search-btn" class="btn btn-secondary" style="white-space: nowrap;">
+                                <i data-lucide="git-branch"></i>
+                                <span>Trace Lineage</span>
+                            </button>
+                        </div>
+
+                        <div id="lineage-display" class="lineage-display hidden">
+                            <div class="lineage-node node-bronze">
+                                <div class="node-icon"><i data-lucide="arrow-down-to-line"></i></div>
+                                <div class="node-info">
+                                    <strong>Bronze Origin</strong>
+                                    <span id="lineage-bronze-id">UUID</span>
+                                    <span id="lineage-source">Source: FRED</span>
+                                </div>
+                            </div>
+                            <div class="lineage-line"></div>
+                            <div class="lineage-node node-silver">
+                                <div class="node-icon"><i data-lucide="shield-check"></i></div>
+                                <div class="node-info">
+                                    <strong>Silver Processed</strong>
+                                    <span id="lineage-silver-id">UUID</span>
+                                    <span id="lineage-dq">Quality Score: 92.5%</span>
+                                </div>
+                            </div>
+                            <div class="lineage-line"></div>
+                            <div class="lineage-node node-gold">
+                                <div class="node-icon"><i data-lucide="award"></i></div>
+                                <div class="node-info">
+                                    <strong>Gold Published</strong>
+                                    <span id="lineage-gold-id">UUID</span>
+                                    <span id="lineage-value">Value: 3.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="lineage-placeholder" class="lineage-placeholder">
+                            <i data-lucide="git-commit"></i>
+                            <p>Enter a verified Gold Record ID above to generate provenance flowchart.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script Entry Point -->
+    <script src="app.js"></script>
+</body>
+</html>

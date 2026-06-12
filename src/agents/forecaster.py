@@ -115,32 +115,76 @@ class ForecasterAgent:
             logger.error("Forecast failed for %s/%s: %s", indicator_code, country_code, e)
             return []
 
+    # Train on the N periods before the test window; always test the most recent TEST_PERIODS.
+    _TRAIN_WINDOW = 20
+    _TEST_PERIODS = 5
+
     def detect_anomalies(self, records: List[GoldRecord]) -> List[dict]:
-        """Detect if recent points deviate from the trend."""
-        # Basic implementation: use the last 10% of data as 'test' points
-        if len(records) < 10:
+        """Detect recent points that deviate from the historical trend.
+
+        Uses a fixed lookback window so the model reflects the modern regime,
+        not decades-old volatility. Returns sigma score (CI-normalised) instead
+        of raw percentage so near-zero expected values don't explode the metric.
+        """
+        if len(records) < self._TEST_PERIODS + 5:
             return []
-            
+
         df = self._prepare_data(records)
-        train_size = int(len(df) * 0.9)
-        train_df = df.iloc[:train_size]
-        test_df = df.iloc[train_size:]
-        
+
+        # Remove extreme outlier records (IQR fence at 10x) that indicate unit mixing.
+        # This strips a few bad records rather than discarding the whole series.
+        q1, q3 = df['y'].quantile(0.25), df['y'].quantile(0.75)
+        iqr = q3 - q1
+        if iqr > 0:
+            fence_hi = q3 + 10 * iqr
+            fence_lo = q1 - 10 * iqr
+            clean = df[(df['y'] >= fence_lo) & (df['y'] <= fence_hi)]
+            removed = len(df) - len(clean)
+            if removed > 0.30 * len(df):
+                logger.warning("Skipping series — >30%% of records are outliers (%d/%d)", removed, len(df))
+                return []
+            if removed:
+                logger.debug("Stripped %d outlier record(s) from series before Prophet fit", removed)
+            df = clean.reset_index(drop=True)
+
+        if len(df) < self._TEST_PERIODS + 5:
+            return []
+
+        total = len(df)
+        test_df = df.iloc[-self._TEST_PERIODS:]
+        train_start = max(0, total - self._TEST_PERIODS - self._TRAIN_WINDOW)
+        train_df = df.iloc[train_start : total - self._TEST_PERIODS]
+
+        if len(train_df) < 5:
+            return []
+
         try:
-            m = Prophet(interval_width=0.99) # Higher threshold for anomalies
+            m = Prophet(interval_width=0.95)
             m.fit(train_df)
             forecast = m.predict(test_df)
-            
+
             anomalies = []
             for idx, row in test_df.iterrows():
                 f_row = forecast[forecast['ds'] == row['ds']].iloc[0]
-                if row['y'] > f_row['yhat_upper'] or row['y'] < f_row['yhat_lower']:
+                actual = float(row['y'])
+                expected = float(f_row['yhat'])
+                upper = float(f_row['yhat_upper'])
+                lower = float(f_row['yhat_lower'])
+                if actual > upper or actual < lower:
+                    # Sigma score: how many CI half-widths outside the band.
+                    # Meaningful regardless of whether expected is near zero.
+                    ci_half = (upper - lower) / 2.0
+                    if ci_half > 0:
+                        sigma = (actual - expected) / ci_half
+                    else:
+                        sigma = 0.0
                     anomalies.append({
                         "ds": row['ds'],
-                        "actual": row['y'],
-                        "expected": f_row['yhat'],
-                        "upper": f_row['yhat_upper'],
-                        "lower": f_row['yhat_lower'],
+                        "actual": actual,
+                        "expected": expected,
+                        "upper": upper,
+                        "lower": lower,
+                        "sigma": round(sigma, 2),
                     })
             return anomalies
         except Exception as e:

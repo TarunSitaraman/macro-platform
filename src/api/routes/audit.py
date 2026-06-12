@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from src.database import AuditLog, DataLineage, get_db
+from src.database import AuditLog, DataLineage, get_db, GoldRecord, SilverRecord, BronzeRecord
 
 router = APIRouter()
 
@@ -39,7 +39,30 @@ def get_audit_log(
 
 @router.get("/lineage/{record_id}")
 def get_lineage(record_id: str, db: Session = Depends(get_db)):
-    # Upstream lineage (what fed into this record)
+    # Try to resolve records to flat values for UI convenience
+    gold_id = record_id
+    silver_id = "N/A"
+    bronze_id = "N/A"
+    value = "N/A"
+    standard_unit = ""
+    dq_score = None
+    source_code = "N/A"
+
+    # Try checking if this is a Gold Record
+    gold = db.query(GoldRecord).filter(GoldRecord.record_id == record_id).first()
+    if gold:
+        value = str(gold.value)
+        standard_unit = gold.standard_unit or ""
+        source_code = gold.source_code or "N/A"
+        if gold.silver_id:
+            silver_id = str(gold.silver_id)
+            silver = db.query(SilverRecord).filter(SilverRecord.record_id == gold.silver_id).first()
+            if silver:
+                dq_score = silver.dq_score
+                if silver.bronze_id:
+                    bronze_id = str(silver.bronze_id)
+
+    # Fallback/complementary: Upstream lineage (what fed into this record)
     upstream = (
         db.query(DataLineage)
         .filter(DataLineage.target_record_id == record_id)
@@ -64,6 +87,13 @@ def get_lineage(record_id: str, db: Session = Depends(get_db)):
 
     return {
         "record_id": record_id,
+        "gold_id": gold_id,
+        "silver_id": silver_id,
+        "bronze_id": bronze_id,
+        "value": value,
+        "standard_unit": standard_unit,
+        "dq_score": dq_score,
+        "source_code": source_code,
         "upstream": [_fmt(r) for r in upstream],
         "downstream": [_fmt(r) for r in downstream],
     }

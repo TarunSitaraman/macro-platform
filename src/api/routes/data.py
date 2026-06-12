@@ -1,12 +1,20 @@
 """Data access endpoints — indicators, gold records, sources."""
 
+from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from fastapi.responses import JSONResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from src.database import GoldRecord, IndicatorDefinition, SourceConfig, User, get_db
+from src.database import (
+    GoldRecord, IndicatorDefinition, SourceConfig, User, get_db,
+    BronzeRecord, ReviewQueue, AuditLog, SessionLocal
+)
 from src.utils.auth import get_current_user
+from src.agents.forecaster import ForecasterAgent
+from src.utils.anomaly_cache import AnomalyCacheManager
 
 router = APIRouter()
 
@@ -64,6 +72,7 @@ def get_gold_data(
     country: Optional[str] = Query(None),
     year_from: Optional[int] = Query(None),
     year_to: Optional[int] = Query(None),
+    actuals_only: bool = Query(False),
     limit: int = Query(500, le=5000),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -79,7 +88,9 @@ def get_gold_data(
         q = q.filter(GoldRecord.period >= str(year_from))
     if year_to:
         q = q.filter(GoldRecord.period <= str(year_to))
-    rows = q.order_by(GoldRecord.period.desc()).limit(limit).all()
+    if actuals_only:
+        q = q.filter(GoldRecord.is_forecast == False)
+    rows = q.order_by(GoldRecord.period.asc()).limit(limit).all()
     return [
         {
             "record_id": str(r.record_id),
@@ -175,3 +186,117 @@ def get_source_status(
         "error_message": row.error_message,
         "retry_count": row.retry_count,
     }
+
+
+@router.get("/overview-stats")
+def get_overview_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    tenant_id = current_user.tenant_id
+    
+    n_gold = (
+        db.query(func.count(GoldRecord.record_id))
+        .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id))
+        .scalar() or 0
+    )
+    n_bronze = (
+        db.query(func.count(BronzeRecord.record_id))
+        .filter((BronzeRecord.tenant_id == None) | (BronzeRecord.tenant_id == tenant_id))
+        .scalar() or 0
+    )
+    n_pending = (
+        db.query(func.count(ReviewQueue.queue_id))
+        .filter(ReviewQueue.status == "PENDING")
+        .filter(ReviewQueue.tenant_id == tenant_id)
+        .scalar() or 0
+    )
+    n_sources = (
+        db.query(func.count(SourceConfig.source_id))
+        .filter(SourceConfig.is_active == True)
+        .filter((SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == tenant_id))
+        .scalar() or 0
+    )
+    avg_dq = (
+        db.query(func.avg(GoldRecord.dq_score))
+        .filter((GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == tenant_id))
+        .scalar()
+    )
+    
+    return {
+        "gold_records": n_gold,
+        "total_ingested": n_bronze,
+        "pending_review": n_pending,
+        "active_sources": n_sources,
+        "avg_dq_score": round(float(avg_dq), 1) if avg_dq is not None else 0.0,
+    }
+
+
+# ── Anomaly & Alert endpoints ──
+
+@router.get("/anomalies/alerts")
+def get_anomaly_alerts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Retrieve recent active macro signals/alerts from the pipeline."""
+    from sqlalchemy import desc
+    recent_alerts = (
+        db.query(AuditLog)
+        .filter(
+            AuditLog.actor == "AlertAgent",
+            (AuditLog.tenant_id == None) | (AuditLog.tenant_id == current_user.tenant_id)
+        )
+        .order_by(desc(AuditLog.timestamp))
+        .limit(20)
+        .all()
+    )
+    return [
+        {
+            "log_id": str(a.log_id),
+            "timestamp": a.timestamp.isoformat(),
+            "reason": a.reason,
+            "type": a.new_values.get("type") if a.new_values else "WARNING",
+        }
+        for a in recent_alerts
+    ]
+
+
+@router.get("/anomalies/detect")
+def detect_macro_anomalies(
+    background_tasks: BackgroundTasks,
+    force: bool = Query(False),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Serve Prophet anomalies from cache, running updates in the background."""
+    tenant_id = current_user.tenant_id
+    status = AnomalyCacheManager.get_status(tenant_id)
+    
+    # Decide if background recalculation should run
+    should_calculate = force or (not status["is_calculating"] and (status["last_calculated_at"] is None))
+    if not should_calculate and not status["is_calculating"]:
+        try:
+            last_calc = datetime.fromisoformat(status["last_calculated_at"])
+            age = (datetime.now(timezone.utc) - last_calc.astimezone(timezone.utc)).total_seconds()
+            if age > 1800:  # 30 minutes
+                should_calculate = True
+        except Exception:
+            should_calculate = True
+
+    if should_calculate and not status["is_calculating"]:
+        # Always schedule background refresh — never block the request on Prophet.
+        background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, tenant_id)
+        is_calculating = True
+    else:
+        is_calculating = status["is_calculating"]
+
+    anomalies = AnomalyCacheManager.get_anomalies(tenant_id)
+    # Fall back to global cache when tenant cache is still empty.
+    if not anomalies:
+        anomalies = AnomalyCacheManager.get_anomalies(None)
+    headers = {
+        "X-Is-Calculating": "true" if is_calculating else "false",
+        "X-Last-Calculated": AnomalyCacheManager.get_status(tenant_id).get("last_calculated_at") or ""
+    }
+    return JSONResponse(content=anomalies, headers=headers)
