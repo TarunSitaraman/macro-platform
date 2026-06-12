@@ -1,10 +1,13 @@
 """Pipeline management endpoints — trigger ingestion, check status."""
 
 import asyncio
+import ipaddress
 import logging
+import socket
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
@@ -21,6 +24,36 @@ from src.utils.anomaly_cache import AnomalyCacheManager
 router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+_BLOCKED_NETWORKS = [
+    ipaddress.ip_network("0.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),   # link-local / cloud metadata
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+    ipaddress.ip_network("fe80::/10"),
+]
+
+
+def _assert_safe_url(url: str) -> None:
+    """Raise HTTP 400 if url points to a private/reserved address (SSRF guard)."""
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise HTTPException(status_code=400, detail="URL must use http or https scheme")
+    hostname = parsed.hostname
+    if not hostname:
+        raise HTTPException(status_code=400, detail="Invalid URL: missing hostname")
+    try:
+        ip = ipaddress.ip_address(socket.gethostbyname(hostname))
+    except (socket.gaierror, ValueError):
+        raise HTTPException(status_code=400, detail="Could not resolve hostname")
+    for network in _BLOCKED_NETWORKS:
+        if ip in network:
+            raise HTTPException(status_code=400, detail="URL resolves to a private or reserved address")
 
 
 class IngestResult(BaseModel):
@@ -245,6 +278,7 @@ async def discover_crawler_articles(
     current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
     """Scan the source index page for article links."""
+    _assert_safe_url(body.source_url)
     try:
         crawler = DynamicCrawlerAgent()
         articles = await crawler.discover_articles(body.source_url, body.source_code)
@@ -260,6 +294,7 @@ async def crawl_and_extract_url(
     current_user: User = Depends(check_role(["admin", "analyst"]))
 ):
     """Crawl a URL and extract macroeconomic indicators using LLM."""
+    _assert_safe_url(body.url)
     try:
         crawler = DynamicCrawlerAgent()
         extracted = await crawler.crawl_and_extract(
@@ -283,8 +318,10 @@ async def push_extracted_records(
     pipeline = Pipeline(db, tenant_id=current_user.tenant_id)
     promoted = queued = rejected = 0
     
-    # Pre-fetch source configurations to avoid multiple queries
-    sources = db.query(SourceConfig).all()
+    # Pre-fetch tenant-scoped source configurations
+    sources = db.query(SourceConfig).filter(
+        (SourceConfig.tenant_id == None) | (SourceConfig.tenant_id == current_user.tenant_id)
+    ).all()
     source_map = {s.source_code: s for s in sources}
 
     for rec in body.records:

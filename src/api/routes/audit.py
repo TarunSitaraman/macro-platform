@@ -6,7 +6,8 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from src.database import AuditLog, DataLineage, get_db, GoldRecord, SilverRecord, BronzeRecord
+from src.database import AuditLog, DataLineage, get_db, GoldRecord, SilverRecord, BronzeRecord, User
+from src.utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -17,9 +18,13 @@ def get_audit_log(
     days: int = Query(30, le=365),
     limit: int = Query(200, le=1000),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     since = datetime.now(timezone.utc) - timedelta(days=days)
-    q = db.query(AuditLog).filter(AuditLog.timestamp >= since)
+    q = db.query(AuditLog).filter(
+        AuditLog.timestamp >= since,
+        (AuditLog.tenant_id == None) | (AuditLog.tenant_id == current_user.tenant_id),
+    )
     if table:
         q = q.filter(AuditLog.table_name == table)
     rows = q.order_by(AuditLog.timestamp.desc()).limit(limit).all()
@@ -38,8 +43,11 @@ def get_audit_log(
 
 
 @router.get("/lineage/{record_id}")
-def get_lineage(record_id: str, db: Session = Depends(get_db)):
-    # Try to resolve records to flat values for UI convenience
+def get_lineage(
+    record_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     gold_id = record_id
     silver_id = "N/A"
     bronze_id = "N/A"
@@ -48,15 +56,20 @@ def get_lineage(record_id: str, db: Session = Depends(get_db)):
     dq_score = None
     source_code = "N/A"
 
-    # Try checking if this is a Gold Record
-    gold = db.query(GoldRecord).filter(GoldRecord.record_id == record_id).first()
+    gold = db.query(GoldRecord).filter(
+        GoldRecord.record_id == record_id,
+        (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == current_user.tenant_id),
+    ).first()
     if gold:
         value = str(gold.value)
         standard_unit = gold.standard_unit or ""
         source_code = gold.source_code or "N/A"
         if gold.silver_id:
             silver_id = str(gold.silver_id)
-            silver = db.query(SilverRecord).filter(SilverRecord.record_id == gold.silver_id).first()
+            silver = db.query(SilverRecord).filter(
+                SilverRecord.record_id == gold.silver_id,
+                (SilverRecord.tenant_id == None) | (SilverRecord.tenant_id == current_user.tenant_id),
+            ).first()
             if silver:
                 dq_score = silver.dq_score
                 if silver.bronze_id:

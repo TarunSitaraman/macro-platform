@@ -1,6 +1,7 @@
 """Chatbot REST endpoints."""
 
 import os
+import secrets
 from datetime import datetime
 from typing import Optional
 
@@ -135,8 +136,9 @@ async def compile_research_report(
         agent = ResearcherAgent(db, tenant_id=current_user.tenant_id)
         report = await agent.compile_report(body.topic)
         
-        # Generate PDF report
-        pdf_filename = f"research_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        # Filename encodes owner identity so the download endpoint can verify it
+        owner_token = str(current_user.user_id).replace("-", "")
+        pdf_filename = f"research_{owner_token}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(8)}.pdf"
         os.makedirs("temp", exist_ok=True)
         pdf_path = os.path.join("temp", pdf_filename)
         generate_pdf_report(body.topic, report["content"], pdf_path)
@@ -155,15 +157,23 @@ def download_research_pdf(
     current_user: User = Depends(get_current_user)
 ):
     """Serve compiled research report PDF file."""
-    # Safety check: prevent path traversal attacks by validating filename layout
     clean_filename = os.path.basename(filename)
     if not clean_filename.startswith("research_") or not clean_filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Invalid filename format")
-        
+
+    # Verify ownership: filename is research_<owner_id_no_dashes>_<timestamp>_<nonce>.pdf
+    parts = clean_filename[len("research_"):-len(".pdf")].split("_")
+    if len(parts) < 3:
+        raise HTTPException(status_code=403, detail="Access denied")
+    owner_token = parts[0]
+    expected_token = str(current_user.user_id).replace("-", "")
+    if owner_token != expected_token:
+        raise HTTPException(status_code=403, detail="Access denied")
+
     pdf_path = os.path.join("temp", clean_filename)
     if not os.path.exists(pdf_path):
         raise HTTPException(status_code=404, detail="Research report not found")
-        
+
     return FileResponse(
         pdf_path,
         media_type="application/pdf",
