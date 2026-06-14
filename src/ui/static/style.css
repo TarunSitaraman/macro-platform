@@ -46,10 +46,10 @@
 
     /* ── Text ── */
     --text-bright:    #f1f5f9;
-    --text-main:      #94a3b8;
-    --text-secondary: #64748b;
-    --text-muted:     #475569;
-    --text-dim:       #1e293b;
+    --text-main:      #c4cfd9;
+    --text-secondary: #8fa3b3;
+    --text-muted:     #628091;
+    --text-dim:       #2d3f4d;
 
     /* ── Typography ── */
     --font-ui:   'Plus Jakarta Sans', 'Inter', sans-serif;
@@ -76,7 +76,7 @@
     padding: 0;
 }
 
-html { font-size: 14px; }
+html { font-size: 15px; }
 
 body {
     background-color: var(--bg-base);
@@ -438,11 +438,11 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 9px 10px;
     border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    color: var(--text-main);
     font-family: var(--font-ui);
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 500;
     cursor: pointer;
     margin-bottom: 1px;
@@ -638,11 +638,11 @@ body {
 }
 
 .kpi-header span {
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 500;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     line-height: 1.35;
-    max-width: 120px;
+    max-width: 130px;
 }
 
 .kpi-icon {
@@ -667,8 +667,8 @@ body {
 }
 
 .kpi-sub {
-    font-size: 10.5px;
-    color: var(--text-muted);
+    font-size: 12px;
+    color: var(--text-secondary);
     line-height: 1.4;
 }
 
@@ -701,9 +701,9 @@ body {
 }
 
 .section-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.5;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
     margin-bottom: 18px;
 }
 
@@ -817,12 +817,12 @@ body {
 }
 
 .data-table thead th {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0 12px 12px;
+    letter-spacing: 0.05em;
+    padding: 0 14px 13px;
     text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.06);
     white-space: nowrap;
@@ -836,7 +836,8 @@ body {
 .data-table tbody tr:hover { background: rgba(255,255,255,0.025); }
 
 .data-table tbody td {
-    padding: 10px 12px;
+    padding: 11px 14px;
+    font-size: 13px;
     color: var(--text-main);
     vertical-align: middle;
 }
@@ -1304,21 +1305,22 @@ body {
 
 .heatmap-col-header {
     font-family: var(--font-mono);
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.07em;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-align: center;
-    padding: 4px 2px 8px;
+    padding: 4px 2px 10px;
 }
 
 .heatmap-row-header {
     font-family: var(--font-ui);
-    font-size: 11px;
-    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-main);
     text-align: right;
-    padding: 0 10px 0 0;
+    padding: 0 12px 0 0;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -1328,7 +1330,8 @@ body {
 
 .heatmap-cell {
     border-radius: var(--radius-sm);
-    min-height: 46px;
+    min-height: 62px;
+    min-width: 52px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1337,7 +1340,7 @@ body {
     border: 1px solid rgba(255,255,255,0.04);
     transition: transform 0.12s var(--ease), box-shadow 0.12s var(--ease);
     position: relative;
-    gap: 2px;
+    gap: 3px;
 }
 
 .heatmap-cell:not(.heatmap-cell-empty):hover {
@@ -1354,7 +1357,7 @@ body {
 
 .heatmap-sigma {
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 13px;
     font-weight: 700;
     color: #fff;
     line-height: 1;
@@ -1363,8 +1366,8 @@ body {
 
 .heatmap-year {
     font-family: var(--font-mono);
-    font-size: 8.5px;
-    color: rgba(255,255,255,0.5);
+    font-size: 9.5px;
+    color: rgba(255,255,255,0.6);
     line-height: 1;
 }
 
@@ -1924,3 +1927,111 @@ body {
 .explorer-charts-grid.grid-1 { grid-template-columns: 1fr; }
 .explorer-charts-grid.grid-2 { grid-template-columns: 1fr 1fr; }
 .explorer-charts-grid.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Expand button on chart cards */
+.exp-expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+.exp-expand-btn:hover {
+    background: rgba(99,102,241,0.14);
+    border-color: rgba(99,102,241,0.25);
+    color: #a5b4fc;
+}
+.exp-expand-btn svg { width: 13px; height: 13px; }
+
+/* ════════════════════════════════════════════════════════════
+   CHART EXPAND MODAL
+   ════════════════════════════════════════════════════════════ */
+.chart-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    animation: fadeIn 0.18s var(--ease) both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.chart-modal {
+    width: 100%;
+    max-width: 1100px;
+    height: 80vh;
+    max-height: 700px;
+    background: #16161f;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.22s var(--ease) both;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chart-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+}
+
+.chart-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-bright);
+    font-family: var(--font-ui);
+}
+
+.chart-modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 18px;
+    line-height: 1;
+}
+.chart-modal-close:hover { background: var(--danger-dim); color: var(--danger); border-color: rgba(248,113,113,0.2); }
+
+.chart-modal-body {
+    flex: 1;
+    padding: 24px;
+    position: relative;
+    min-height: 0;
+}
+
+.chart-modal-body canvas {
+    width: 100% !important;
+    height: 100% !important;
+}

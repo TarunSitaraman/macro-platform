@@ -682,7 +682,7 @@ function renderIndicatorChart(indCode, colorOffset) {
             backgroundColor: color + '18',
             borderWidth: 2,
             pointBackgroundColor: color,
-            pointBorderColor: '#020407',
+            pointBorderColor: '#0d0d12',
             pointRadius: 3,
             pointHoverRadius: 5,
             tension: 0.35,
@@ -694,7 +694,12 @@ function renderIndicatorChart(indCode, colorOffset) {
     card.innerHTML = `
         <div class="exp-chart-header">
             <span class="exp-chart-title">${escHtml(indName)}</span>
-            <span class="exp-chart-unit">${escHtml(unit)}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+                <span class="exp-chart-unit">${escHtml(unit)}</span>
+                <button class="exp-expand-btn" title="Expand chart" onclick="openChartModal('${escHtml(indCode)}','${escHtml(indName)}','${escHtml(unit)}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+            </div>
         </div>
         <div class="exp-canvas-wrap"><canvas id="canvas-${indCode}"></canvas></div>
     `;
@@ -728,19 +733,20 @@ function renderIndicatorChart(indCode, colorOffset) {
                     display: datasets.length <= 12,
                     position: 'bottom',
                     labels: {
-                        boxWidth: 8,
-                        padding: 12,
-                        color: '#7a8fa6',
-                        font: { family: "'JetBrains Mono'", size: 10 }
+                        boxWidth: 10,
+                        padding: 14,
+                        color: '#c4cfd9',
+                        font: { family: "'Plus Jakarta Sans'", size: 12 }
                     }
                 },
                 tooltip: {
-                    backgroundColor: '#0a0f1a',
-                    titleColor: '#00c8ff',
-                    bodyColor: '#a0b4c8',
-                    borderColor: 'rgba(0,200,255,0.15)',
+                    backgroundColor: '#1a1a28',
+                    titleColor: '#a5b4fc',
+                    bodyColor: '#c4cfd9',
+                    borderColor: 'rgba(99,102,241,0.25)',
                     borderWidth: 1,
-                    padding: 10,
+                    padding: 12,
+                    cornerRadius: 8,
                     callbacks: {
                         label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : 'N/A'} ${unit}`
                     }
@@ -748,18 +754,87 @@ function renderIndicatorChart(indCode, colorOffset) {
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(0,200,255,0.04)' },
-                    ticks: { color: '#4a6070', font: { family: "'JetBrains Mono'", size: 10 } }
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                    ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } }
                 },
                 y: {
-                    grid: { color: 'rgba(0,200,255,0.04)' },
-                    ticks: { color: '#4a6070', font: { family: "'JetBrains Mono'", size: 10 } },
-                    title: { display: !!unit, text: unit, color: '#4a6070', font: { family: "'JetBrains Mono'", size: 10 } }
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                    ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } },
+                    title: { display: !!unit, text: unit, color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } }
                 }
             }
         }
     });
     state.chartInstances.push(instance);
+}
+
+function openChartModal(indCode, indName, unit) {
+    // Rebuild chart config from cached data
+    const allRecs = state.goldDataCache[indCode] || [];
+    const recs = state.selectedCountries.length > 0
+        ? allRecs.filter(r => state.selectedCountries.includes(r.country_code))
+        : allRecs;
+
+    const byCountry = {};
+    recs.forEach(r => {
+        const year = r.period.slice(0, 4);
+        if (!byCountry[r.country_code]) byCountry[r.country_code] = {};
+        if (!byCountry[r.country_code][year]) byCountry[r.country_code][year] = [];
+        byCountry[r.country_code][year].push(r.value);
+    });
+    const allYears = [...new Set(recs.map(r => r.period.slice(0, 4)))].sort();
+    const datasets = Object.keys(byCountry).map((cty, i) => {
+        const color = EXPLORER_COLORS[i % EXPLORER_COLORS.length];
+        const values = allYears.map(yr => {
+            const vals = byCountry[cty][yr];
+            return vals && vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+        });
+        return { label: cty, data: values, borderColor: color, backgroundColor: color + '18',
+                 borderWidth: 2.5, pointBackgroundColor: color, pointBorderColor: '#0d0d12',
+                 pointRadius: 4, pointHoverRadius: 6, tension: 0.35, spanGaps: true };
+    });
+
+    // Create modal DOM
+    const backdrop = document.createElement('div');
+    backdrop.className = 'chart-modal-backdrop';
+    backdrop.innerHTML = `
+        <div class="chart-modal">
+            <div class="chart-modal-header">
+                <span class="chart-modal-title">${escHtml(indName)}</span>
+                <button class="chart-modal-close" title="Close">✕</button>
+            </div>
+            <div class="chart-modal-body">
+                <canvas id="modal-canvas"></canvas>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    const close = () => { if (modalChart) modalChart.destroy(); backdrop.remove(); };
+    backdrop.querySelector('.chart-modal-close').addEventListener('click', close);
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) close(); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
+
+    const ctx = document.getElementById('modal-canvas').getContext('2d');
+    const modalChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: allYears, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: true, position: 'bottom', labels: { boxWidth: 10, padding: 16, color: '#c4cfd9', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
+                tooltip: { backgroundColor: '#1a1a28', titleColor: '#a5b4fc', bodyColor: '#c4cfd9', borderColor: 'rgba(99,102,241,0.25)', borderWidth: 1, padding: 12, cornerRadius: 8,
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : 'N/A'} ${unit}` } }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } },
+                     title: { display: !!unit, text: unit, color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } } }
+            }
+        }
+    });
 }
 
 function renderExplorerTable() {
