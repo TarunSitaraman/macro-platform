@@ -696,13 +696,15 @@ function renderIndicatorChart(indCode, colorOffset) {
             <span class="exp-chart-title">${escHtml(indName)}</span>
             <div style="display:flex;align-items:center;gap:8px">
                 <span class="exp-chart-unit">${escHtml(unit)}</span>
-                <button class="exp-expand-btn" title="Expand chart" onclick="openChartModal('${escHtml(indCode)}','${escHtml(indName)}','${escHtml(unit)}')">
+                <button class="exp-expand-btn" title="Expand chart">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                 </button>
             </div>
         </div>
-        <div class="exp-canvas-wrap"><canvas id="canvas-${indCode}"></canvas></div>
+        <div class="exp-canvas-wrap"><canvas id="canvas-${escHtml(indCode)}"></canvas></div>
     `;
+    // Bind expand handler via closure — never embed dynamic values in onclick attributes
+    card.querySelector('.exp-expand-btn').addEventListener('click', () => openChartModal(indCode, indName, unit));
 
     if (allYears.length === 0 || datasets.length === 0) {
         card.innerHTML += `<div class="exp-empty-state">No data for selected economies</div>`;

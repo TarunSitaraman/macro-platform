@@ -40,20 +40,37 @@ _BLOCKED_NETWORKS = [
 
 
 def _assert_safe_url(url: str) -> None:
-    """Raise HTTP 400 if url points to a private/reserved address (SSRF guard)."""
+    """Raise HTTP 400 if url points to a private/reserved address (SSRF guard).
+
+    Checks every address returned by getaddrinfo (IPv4 + IPv6) so that
+    multi-record DNS responses and IPv6-mapped addresses cannot bypass the
+    blocklist via a single-record gethostbyname call.
+    """
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise HTTPException(status_code=400, detail="URL must use http or https scheme")
     hostname = parsed.hostname
     if not hostname:
         raise HTTPException(status_code=400, detail="Invalid URL: missing hostname")
+    # Normalise: strip trailing dot and lowercase
+    hostname = hostname.lower().rstrip(".")
     try:
-        ip = ipaddress.ip_address(socket.gethostbyname(hostname))
-    except (socket.gaierror, ValueError):
+        results = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
         raise HTTPException(status_code=400, detail="Could not resolve hostname")
-    for network in _BLOCKED_NETWORKS:
-        if ip in network:
-            raise HTTPException(status_code=400, detail="URL resolves to a private or reserved address")
+    if not results:
+        raise HTTPException(status_code=400, detail="Could not resolve hostname")
+    for (_fam, _type, _proto, _canon, sockaddr) in results:
+        try:
+            ip = ipaddress.ip_address(sockaddr[0])
+        except ValueError:
+            continue
+        for network in _BLOCKED_NETWORKS:
+            if ip in network:
+                raise HTTPException(
+                    status_code=400,
+                    detail="URL resolves to a private or reserved address",
+                )
 
 
 class IngestResult(BaseModel):

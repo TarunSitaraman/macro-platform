@@ -2,14 +2,70 @@
 
 import asyncio
 import concurrent.futures
+import ipaddress
 import logging
+import socket
 from typing import Optional
+from urllib.parse import urlparse, urljoin
 
 from src.agents.llm_client import get_llm_client
 from src.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+_BLOCKED_NETWORKS = [
+    ipaddress.ip_network("0.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+    ipaddress.ip_network("fe80::/10"),
+]
+
+
+def _is_safe_url(url: str) -> bool:
+    """Return False if url resolves to any private/reserved address."""
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = (parsed.hostname or "").lower().rstrip(".")
+        if not hostname:
+            return False
+        for (_fam, _type, _proto, _canon, sockaddr) in socket.getaddrinfo(hostname, None):
+            try:
+                ip = ipaddress.ip_address(sockaddr[0])
+            except ValueError:
+                continue
+            if any(ip in net for net in _BLOCKED_NETWORKS):
+                return False
+        return True
+    except Exception:
+        return False
+
+
+async def _safe_get_text(client, url: str, *, headers: Optional[dict] = None, max_redirects: int = 5) -> Optional[str]:
+    """GET url with manual redirect following, re-checking SSRF safety at each hop."""
+    current_url = url
+    for _ in range(max_redirects + 1):
+        resp = await client.get(current_url, headers=headers or {})
+        if resp.is_redirect:
+            location = resp.headers.get("location", "")
+            next_url = urljoin(current_url, location)
+            if not _is_safe_url(next_url):
+                logger.warning("SSRF: blocked redirect to %s", next_url)
+                return None
+            current_url = next_url
+            continue
+        resp.raise_for_status()
+        return resp.text
+    logger.warning("Too many redirects for %s", url)
+    return None
 
 
 def _html_in_thread(url: str, headless: bool) -> Optional[str]:
@@ -137,10 +193,9 @@ class DynamicCrawlerAgent:
             try:
                 import httpx
                 async with httpx.AsyncClient(
-                    headers={"User-Agent": "Mozilla/5.0"}, follow_redirects=True, timeout=15
+                    headers={"User-Agent": "Mozilla/5.0"}, follow_redirects=False, timeout=15
                 ) as client:
-                    resp = await client.get(source_url)
-                    html = resp.text if resp.status_code == 200 else None
+                    html = await _safe_get_text(client, source_url)
             except Exception:
                 pass
 
@@ -222,10 +277,10 @@ class DynamicCrawlerAgent:
         import httpx
         import re
         try:
-            async with httpx.AsyncClient(timeout=settings.crawl_timeout, follow_redirects=True) as client:
-                resp = await client.get(url, headers={"User-Agent": "MacroPlatform/1.0"})
-                resp.raise_for_status()
-                html = resp.text
+            async with httpx.AsyncClient(timeout=settings.crawl_timeout, follow_redirects=False) as client:
+                html = await _safe_get_text(client, url, headers={"User-Agent": "MacroPlatform/1.0"})
+                if html is None:
+                    return None
                 # Remove script/style blocks including their content before stripping tags
                 html = re.sub(r"<(script|style)[^>]*>.*?</(script|style)>", " ", html, flags=re.DOTALL | re.IGNORECASE)
                 text = re.sub(r"<[^>]+>", " ", html)
