@@ -97,7 +97,7 @@
                     </li>
                     <li class="menu-item" data-tab="chatbot">
                         <i data-lucide="message-square"></i>
-                        <span>AI RAG Chatbot</span>
+                        <span>Macro Intelligence Chat</span>
                     </li>
                     <li class="menu-item" data-tab="summaries">
                         <i data-lucide="file-text"></i>
@@ -197,9 +197,8 @@
                 <!-- Orchestration Control & Medallion Overview -->
                 <div class="two-column-grid">
                     <!-- Medallion Pipeline Architecture -->
-                    <div class="glass-panel main-info-card">
+                    <div class="glass-panel main-info-card medallion-compact">
                         <h3>Medallion Data Architecture</h3>
-                        <p class="section-desc">Automated ingestion, translation, quality profiling & publishing.</p>
                         
                         <div class="pipeline-flow">
                             <div class="flow-step">
@@ -265,17 +264,11 @@
                             </div>
                         </div>
                         
-                        <div id="orchestrator-console" class="terminal-console">
-                            <div class="console-header">
-                                <span class="console-dot red"></span>
-                                <span class="console-dot yellow"></span>
-                                <span class="console-dot green"></span>
-                                <span class="console-title">Orchestrator Terminal</span>
-                            </div>
-                            <div id="console-output" class="console-output">
-                                <p class="sys-msg">[SYSTEM] Ready. Select an orchestration task above to start.</p>
-                            </div>
+                        <div id="orchestrator-status" class="orchestrator-status hidden">
+                            <div class="orch-status-icon"><i data-lucide="loader"></i></div>
+                            <span id="orchestrator-status-text">Running pipeline…</span>
                         </div>
+                        <div id="orchestrator-result" class="orchestrator-result hidden"></div>
                     </div>
                 </div>
 
@@ -661,18 +654,6 @@
                         </button>
                     </form>
 
-                    <!-- Console log -->
-                    <div id="research-console" class="terminal-console margin-top hidden">
-                        <div class="console-header">
-                            <span class="console-dot red"></span>
-                            <span class="console-dot yellow"></span>
-                            <span class="console-dot green"></span>
-                            <span class="console-title">Autonomous Agent Console</span>
-                        </div>
-                        <div id="research-console-output" class="console-output" style="height: 100px;">
-                            <p class="sys-msg">[SYSTEM] Starting research lead agent...</p>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Report Result View -->
@@ -691,6 +672,16 @@
                     <div id="research-body" class="report-body markdown-content" style="padding-top: 15px; line-height: 1.6; max-height: 500px; overflow-y: auto;">
                         <!-- Markdown text gets rendered here -->
                     </div>
+                </div>
+
+                <!-- Research Data Charts -->
+                <div id="research-charts-card" class="glass-panel main-info-card margin-top hidden">
+                    <div class="card-header-with-badge">
+                        <h3>Supporting Data: Key Macro Indicators</h3>
+                        <span class="badge badge-cyan">G7 Economies · 2015–2024</span>
+                    </div>
+                    <p class="section-desc">Live gold-layer data charts contextualising the research topic.</p>
+                    <div id="research-charts-grid" class="research-charts-grid"></div>
                 </div>
             </section>
 

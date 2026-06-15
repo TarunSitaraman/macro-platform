@@ -436,22 +436,26 @@ async function updatePendingBadge() {
     }
 }
 
-// ── ORCHESTRATION TERMINAL UTILITIES ──
+// ── ORCHESTRATION STATUS UTILITIES ──
 function writeToConsole(message, type = 'sys') {
-    const consoleOut = document.getElementById('console-output');
-    const timestamp = new Date().toLocaleTimeString();
-    
-    let cssClass = 'sys-msg';
-    if (type === 'error') cssClass = 'err-msg';
-    if (type === 'success') cssClass = 'success-msg';
-    
-    const p = document.createElement('p');
-    p.className = cssClass;
-    p.innerHTML = `[${timestamp}] ${message}`;
-    consoleOut.appendChild(p);
-    
-    // Auto-scroll terminal
-    consoleOut.scrollTop = consoleOut.scrollHeight;
+    const statusEl = document.getElementById('orchestrator-status');
+    const resultEl = document.getElementById('orchestrator-result');
+    if (!statusEl || !resultEl) return;
+
+    if (type === 'success' || type === 'error') {
+        statusEl.classList.add('hidden');
+        resultEl.classList.remove('hidden');
+        resultEl.className = `orchestrator-result ${type === 'error' ? 'orch-error' : 'orch-success'}`;
+        const icon = type === 'error' ? 'x-circle' : 'check-circle';
+        resultEl.innerHTML = `<i data-lucide="${icon}"></i><span>${message}</span>`;
+        if (window.lucide) window.lucide.createIcons();
+    } else {
+        statusEl.classList.remove('hidden');
+        resultEl.classList.add('hidden');
+        const textEl = document.getElementById('orchestrator-status-text');
+        if (textEl) textEl.textContent = message.replace(/&rarr;/g, '→').replace(/<[^>]+>/g, '');
+        if (window.lucide) window.lucide.createIcons();
+    }
 }
 
 function setPipelineWorking(statusText = 'Orchestrator working') {
@@ -1686,7 +1690,6 @@ async function loadDetectedAnomalies(force = false) {
 }
 
 function renderAnomalyHeatmap(anomalies, container) {
-    // Short display names for indicator codes
     const IND_LABELS = {
         CPI_INFLATION:              'CPI Inflation',
         GDP_GROWTH:                 'GDP Growth',
@@ -1695,100 +1698,108 @@ function renderAnomalyHeatmap(anomalies, container) {
         EXPORTS_PCT_GDP:            'Exports / GDP',
         IMPORTS_PCT_GDP:            'Imports / GDP',
         UNEMPLOYMENT_RATE:          'Unemployment',
-        CURRENT_ACCOUNT_PCT_GDP:    'Current Acct',
+        CURRENT_ACCOUNT_PCT_GDP:    'Current Account',
         POPULATION:                 'Population',
-        POPULATION_GROWTH:          'Pop. Growth',
+        POPULATION_GROWTH:          'Pop Growth',
         FDI_NET_INFLOWS:            'FDI Inflows',
         INTEREST_RATE:              'Interest Rate',
         EXCHANGE_RATE:              'Exchange Rate',
         DEBT_PCT_GDP:               'Debt / GDP',
-        GOVT_DEBT_PCT_GDP:          'Govt Debt / GDP',
+        GOVT_DEBT_PCT_GDP:          'Govt Debt',
         TRADE_BALANCE:              'Trade Balance',
     };
-    const fmtInd = code => IND_LABELS[code] || code.replace(/_/g, ' ').toLowerCase()
-        .replace(/\b(\w)/g, (_, c) => c.toUpperCase());
+    const fmtInd = code => IND_LABELS[code] || code.replace(/_/g, ' ').replace(/\b(\w)/g, (_, c) => c.toUpperCase());
 
-    // Build lookup: indicator → country → sorted anomaly entries (worst sigma first)
+    // Build lookup: indicator → country → worst-sigma entry
     const lookup = {};
     for (const a of anomalies) {
-        if (!lookup[a.indicator_code]) lookup[a.indicator_code] = {};
-        if (!lookup[a.indicator_code][a.country_code]) lookup[a.indicator_code][a.country_code] = [];
-        lookup[a.indicator_code][a.country_code].push(a);
-    }
-    for (const ind in lookup) {
-        for (const cc in lookup[ind]) {
-            lookup[ind][cc].sort((a, b) => Math.abs(b.sigma) - Math.abs(a.sigma));
+        const ind = a.indicator_code;
+        const cc  = a.country_code;
+        if (!lookup[ind]) lookup[ind] = {};
+        if (!lookup[ind][cc] || Math.abs(a.sigma) > Math.abs(lookup[ind][cc].sigma)) {
+            lookup[ind][cc] = a;
         }
     }
 
-    // Only include indicators/countries that actually appear in the data
-    const indicators = [...new Set(anomalies.map(a => a.indicator_code))].sort();
-    const countries  = [...new Set(anomalies.map(a => a.country_code))].sort();
+    // Rank countries by max absolute sigma across all indicators (show top 20)
+    const countryScores = {};
+    for (const ind in lookup) {
+        for (const cc in lookup[ind]) {
+            countryScores[cc] = Math.max(countryScores[cc] ?? 0, Math.abs(lookup[ind][cc].sigma));
+        }
+    }
+    const countries = Object.entries(countryScores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([cc]) => cc);
 
-    // Sigma → background color (diverging: amber/red above, cyan/blue below)
+    // Rank indicators by coverage (how many countries have an anomaly)
+    const indCoverage = {};
+    for (const ind in lookup) {
+        indCoverage[ind] = Object.keys(lookup[ind]).filter(cc => countries.includes(cc)).length;
+    }
+    const indicators = Object.entries(indCoverage)
+        .filter(([, cnt]) => cnt > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([ind]) => ind);
+
+    // Sigma → CSS color
     const sigmaColor = sigma => {
         const abs = Math.abs(sigma);
-        if (abs < 0.5) return null;
-        const t = Math.min(abs / 8, 1);
-        const alpha = 0.22 + t * 0.72;
+        if (abs < 0.5) return 'rgba(255,255,255,0.03)';
+        const t = Math.min(abs / 7, 1);
+        const alpha = 0.18 + t * 0.68;
         if (sigma > 0) {
-            const g = Math.round(170 * (1 - t * 0.9));
-            return `rgba(255, ${g}, 35, ${alpha})`;
+            const g = Math.round(150 * (1 - t));
+            return `rgba(255,${g},40,${alpha})`;
         } else {
-            const g = Math.round(210 - t * 110);
-            return `rgba(20, ${g}, 255, ${alpha})`;
+            const b = Math.round(200 + t * 55);
+            return `rgba(30,160,${b},${alpha})`;
         }
     };
 
-    // Build grid HTML
     const cols = countries.length;
-    let html = `<div class="heatmap-wrapper"><div class="heatmap-grid" style="grid-template-columns:150px repeat(${cols},minmax(38px,1fr))">`;
+    let html = `<div class="heatmap-wrapper"><div class="heatmap-grid" style="grid-template-columns:140px repeat(${cols},minmax(44px,1fr))">`;
 
     // Header row
-    html += `<div class="heatmap-corner"></div>`;
-    html += countries.map(cc => `<div class="heatmap-col-header">${escHtml(cc)}</div>`).join('');
+    html += `<div class="heatmap-corner"><span>Indicator</span></div>`;
+    html += countries.map(cc => `<div class="heatmap-col-header" title="${escHtml(cc)}">${escHtml(cc)}</div>`).join('');
 
     // Data rows
     for (const ind of indicators) {
         html += `<div class="heatmap-row-header">${escHtml(fmtInd(ind))}</div>`;
         for (const cc of countries) {
-            const entries = lookup[ind]?.[cc];
-            if (!entries?.length) {
+            const entry = lookup[ind]?.[cc];
+            if (!entry) {
                 html += `<div class="heatmap-cell heatmap-cell-empty"></div>`;
                 continue;
             }
-            const worst = entries[0];
-            const sig   = worst.sigma ?? 0;
-            const bg    = sigmaColor(sig) || 'rgba(255,255,255,0.04)';
+            const sig    = entry.sigma ?? 0;
+            const bg     = sigmaColor(sig);
             const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(1);
-            const yr     = worst.date.slice(0, 4);
-            const extra  = entries.length > 1 ? entries.length - 1 : 0;
-            // Tooltip: all years for this cell
-            const tip = entries.map(e => `${e.date.slice(0,4)}: ${e.sigma >= 0 ? '+' : ''}${e.sigma.toFixed(1)}s actual=${e.actual.toFixed(1)}`).join(' | ');
+            const yr     = (entry.date || '').slice(0, 4);
+            const tip    = `${fmtInd(ind)} · ${cc} · ${yr}: ${sigStr}σ (actual=${(entry.actual ?? 0).toFixed(2)})`;
             html += `<div class="heatmap-cell" style="background:${bg}" title="${escHtml(tip)}">
-                ${extra ? `<span class="heatmap-more">+${extra}</span>` : ''}
                 <span class="heatmap-sigma">${escHtml(sigStr)}σ</span>
                 <span class="heatmap-year">${escHtml(yr)}</span>
             </div>`;
         }
     }
-
     html += `</div>`; // .heatmap-grid
 
     // Legend
     html += `
     <div class="heatmap-legend">
         <div class="legend-scale">
-            <div class="legend-bar" style="background:linear-gradient(to right,rgba(20,210,255,0.25),rgba(20,100,255,0.9))"></div>
-            <div class="legend-labels"><span>−8σ</span><span>Below trend</span></div>
+            <div class="legend-bar" style="background:linear-gradient(to right,rgba(30,160,200,0.2),rgba(30,160,255,0.85))"></div>
+            <div class="legend-labels"><span>−7σ</span><span>Below trend</span></div>
         </div>
-        <div class="legend-zero">0σ</div>
+        <div class="legend-zero">0σ neutral</div>
         <div class="legend-scale">
-            <div class="legend-bar" style="background:linear-gradient(to right,rgba(255,170,35,0.3),rgba(255,20,35,0.9))"></div>
-            <div class="legend-labels"><span>Above trend</span><span>+8σ</span></div>
+            <div class="legend-bar" style="background:linear-gradient(to right,rgba(255,150,40,0.25),rgba(255,40,40,0.85))"></div>
+            <div class="legend-labels"><span>Above trend</span><span>+7σ</span></div>
         </div>
     </div>`;
-
     html += `</div>`; // .heatmap-wrapper
     container.innerHTML = html;
 }
@@ -1798,19 +1809,18 @@ function renderAnomalyHeatmap(anomalies, container) {
 async function runAutonomousResearcher(e) {
     e.preventDefault();
     const topic = document.getElementById('research-topic').value.trim();
-    const consoleEl = document.getElementById('research-console');
-    const outputEl = document.getElementById('research-console-output');
     const viewCard = document.getElementById('research-view-card');
+    const chartsCard = document.getElementById('research-charts-card');
     const btn = document.getElementById('research-btn');
-    
+
     if (!topic) return;
-    
+
     btn.disabled = true;
-    consoleEl.classList.remove('hidden');
+    btn.innerHTML = '<i data-lucide="loader-2"></i><span>Researching…</span>';
+    if (window.lucide) window.lucide.createIcons();
     viewCard.classList.add('hidden');
-    outputEl.innerHTML = `<p class="sys-msg">[SYSTEM] Starting research lead agent for: ${topic}</p>`;
-    outputEl.innerHTML += `<p class="sys-msg">[SYSTEM] Searching web index databases (DuckDuckGo)...</p>`;
-    
+    chartsCard.classList.add('hidden');
+
     try {
         const response = await fetch(`${API_URL}/researcher/compile`, {
             method: 'POST',
@@ -1820,19 +1830,14 @@ async function runAutonomousResearcher(e) {
             },
             body: JSON.stringify({ topic: topic })
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             state.compiledReport = data;
-            
-            outputEl.innerHTML += `<p class="sys-msg">[SYSTEM] Synthesizing investment report with Gemini...</p>`;
-            outputEl.innerHTML += `<p class="success-msg">[SUCCESS] Complete. Generated report PDF: ${data.pdf_filename}</p>`;
-            outputEl.scrollTop = outputEl.scrollHeight;
-            
+
             document.getElementById('research-title').textContent = data.topic;
-            document.getElementById('research-metadata').textContent = `Brain Model: ${data.model} | Compiled: ${new Date(data.generated_at).toLocaleString()}`;
-            
-            // Escape HTML first, then apply markdown substitutions on safe text only
+            document.getElementById('research-metadata').textContent = `${data.model} · ${new Date(data.generated_at).toLocaleString()}`;
+
             let html = escHtml(data.content);
             html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
@@ -1843,21 +1848,100 @@ async function runAutonomousResearcher(e) {
             html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
             html = html.replace(/\n\n/g, '</p><p>');
             html = html.replace(/\n/g, '<br>');
-            html = `<p>${html}</p>`;
-            document.getElementById('research-body').innerHTML = html;
-            
+            document.getElementById('research-body').innerHTML = `<p>${html}</p>`;
+
             viewCard.classList.remove('hidden');
             viewCard.scrollIntoView({ behavior: 'smooth' });
+
+            // Load supporting data charts
+            loadResearchCharts(['GDP_GROWTH', 'CPI_INFLATION']);
         } else {
-            outputEl.innerHTML += `<p class="err-msg">[ERROR] Report compiler encountered a failure.</p>`;
+            alert('Report compilation failed. Please try again.');
         }
     } catch (err) {
         console.error("Researcher failed:", err);
-        outputEl.innerHTML += `<p class="err-msg">[ERROR] Connection failed.</p>`;
+        alert('Connection failed. Please check the API server.');
     } finally {
         btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i><span>Start Research</span>';
+        if (window.lucide) window.lucide.createIcons();
     }
-    outputEl.scrollTop = outputEl.scrollHeight;
+}
+
+async function loadResearchCharts(indicatorCodes) {
+    const chartsCard = document.getElementById('research-charts-card');
+    const grid = document.getElementById('research-charts-grid');
+    if (!chartsCard || !grid) return;
+
+    const G7 = ['USA', 'GBR', 'DEU', 'FRA', 'JPN', 'CAN', 'ITA'];
+    const COLORS = ['#818cf8','#34d399','#fb923c','#f472b6','#a78bfa','#38bdf8','#facc15'];
+    const IND_LABELS = { GDP_GROWTH: 'GDP Growth Rate (%)', CPI_INFLATION: 'CPI Inflation (%)' };
+
+    chartsCard.classList.remove('hidden');
+    grid.innerHTML = indicatorCodes.map(c => `
+        <div class="research-chart-card glass-panel-nested">
+            <div class="research-chart-title">${IND_LABELS[c] || c}</div>
+            <div class="research-chart-wrap"><canvas id="rc-canvas-${c}"></canvas></div>
+        </div>`).join('');
+
+    for (const indCode of indicatorCodes) {
+        try {
+            const resp = await fetch(`${API_URL}/gold-data?limit=500&indicator=${indCode}&year_from=2015&actuals_only=true`, {
+                headers: { 'Authorization': `Bearer ${state.token}` }
+            });
+            if (!resp.ok) continue;
+            const records = await resp.json();
+
+            // Group by country
+            const byCountry = {};
+            for (const r of records) {
+                if (!G7.includes(r.country_code)) continue;
+                if (!byCountry[r.country_code]) byCountry[r.country_code] = [];
+                byCountry[r.country_code].push(r);
+            }
+
+            // Build sorted year labels
+            const allYears = [...new Set(records.map(r => r.period))].sort();
+            const datasets = G7
+                .filter(cc => byCountry[cc]?.length)
+                .map((cc, i) => {
+                    const pts = byCountry[cc].sort((a, b) => a.period.localeCompare(b.period));
+                    const dataMap = Object.fromEntries(pts.map(p => [p.period, p.standardised_value ?? p.raw_value]));
+                    return {
+                        label: cc,
+                        data: allYears.map(yr => dataMap[yr] ?? null),
+                        borderColor: COLORS[i % COLORS.length],
+                        backgroundColor: COLORS[i % COLORS.length] + '18',
+                        borderWidth: 1.5,
+                        pointRadius: 2,
+                        tension: 0.3,
+                        spanGaps: true,
+                    };
+                });
+
+            const canvas = document.getElementById(`rc-canvas-${indCode}`);
+            if (!canvas) continue;
+            new Chart(canvas, {
+                type: 'line',
+                data: { labels: allYears, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { color: '#c4cfd9', font: { family: "'Plus Jakarta Sans'", size: 11 }, boxWidth: 12, padding: 12 } },
+                        tooltip: { backgroundColor: '#1a1a28', titleColor: '#a5b4fc', bodyColor: '#c4cfd9' },
+                    },
+                    scales: {
+                        x: { ticks: { color: '#8fa3b3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#8fa3b3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                    },
+                },
+            });
+        } catch (err) {
+            console.error('Research chart load failed for', indCode, err);
+        }
+    }
 }
 
 async function downloadCompiledPDF() {
