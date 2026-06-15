@@ -102,7 +102,7 @@ if not df.empty and ind_sel:
 
         base = alt.Chart(ind_df).encode(
             x=alt.X("Period:O", axis=alt.Axis(labelAngle=-45, title="Year")),
-            y=alt.Y("Value:Q", title=unit),
+            y=alt.Y("Value:Q", title=unit, axis=alt.Axis(format=".2s", labelExpr="datum.label")),
             color=alt.Color("Country:N", legend=alt.Legend(orient="bottom", columns=5)),
             opacity=alt.condition(highlight, alt.value(1.0), alt.value(0.15)),
             tooltip=[
