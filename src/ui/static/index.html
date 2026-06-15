@@ -313,30 +313,30 @@
                 <!-- ── Selection Controls ── -->
                 <div class="glass-panel exp-controls">
 
-                    <!-- Indicators row -->
+                    <!-- Indicators dropdown -->
                     <div class="exp-ctrl-row">
                         <div class="exp-ctrl-label">
                             <i data-lucide="trending-up"></i>
                             <span>INDICATORS</span>
                             <span id="ind-count" class="badge badge-cyan hidden">0</span>
                         </div>
-                        <div id="indicator-chip-set" class="chip-set">
-                            <span class="chip-placeholder">Loading indicators…</span>
-                        </div>
+                        <select id="indicator-select" multiple class="custom-select" style="height: auto; min-height: 36px;">
+                            <option value="">Loading indicators…</option>
+                        </select>
                     </div>
 
                     <div class="exp-ctrl-divider"></div>
 
-                    <!-- Countries row -->
+                    <!-- Countries dropdown -->
                     <div class="exp-ctrl-row">
                         <div class="exp-ctrl-label">
                             <i data-lucide="globe"></i>
                             <span>ECONOMIES</span>
                             <span id="country-count" class="badge badge-cyan hidden">0</span>
                         </div>
-                        <div id="country-chip-set" class="chip-set">
-                            <!-- populated by JS -->
-                        </div>
+                        <select id="country-select" multiple class="custom-select" style="height: auto; min-height: 36px;">
+                            <option value="">Loading economies…</option>
+                        </select>
                     </div>
 
                     <div class="exp-ctrl-divider"></div>

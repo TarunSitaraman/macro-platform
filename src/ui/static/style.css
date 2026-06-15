@@ -1039,11 +1039,7 @@ body {
 }
 
 .chip-set {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 250px;
-    overflow-y: auto;
+    display: none;
 }
 
 .chip {

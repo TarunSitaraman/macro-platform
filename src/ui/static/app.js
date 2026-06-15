@@ -540,59 +540,80 @@ const EXPLORER_COUNTRIES = [
 const EXPLORER_COLORS = ['#00c8ff','#f5a623','#a78bfa','#00e887','#ff3b5c','#f472b6','#38bdf8','#fb923c','#34d399','#fbbf24'];
 
 function loadExplorerSetup() {
-    const indSet = document.getElementById('indicator-chip-set');
-    const ctySet = document.getElementById('country-chip-set');
-    if (!indSet || !ctySet) return;
+    const indSelect = document.getElementById('indicator-select');
+    const ctySelect = document.getElementById('country-select');
+    if (!indSelect || !ctySelect) return;
 
-    // Populate indicator chips from state.indicators
+    // Populate indicator dropdown from state.indicators
     if (!state.indicatorsLoaded) {
-        indSet.innerHTML = '<span class="chip-placeholder">Loading indicators…</span>';
+        indSelect.innerHTML = '<option value="">Loading indicators…</option>';
         loadIndicators();
     } else {
-        indSet.innerHTML = '';
+        indSelect.innerHTML = '';
         if ((state.indicators || []).length === 0) {
-            indSet.innerHTML = '<span class="chip-placeholder text-danger">No indicators found in database</span>';
+            indSelect.innerHTML = '<option value="" disabled>No indicators found</option>';
         } else {
             state.indicators.forEach(ind => {
-                const chip = document.createElement('button');
-                chip.className = 'exp-chip';
-                chip.dataset.code = ind.indicator_code;
-                chip.title = ind.indicator_name;
-                chip.textContent = ind.indicator_code;
-                chip.addEventListener('click', () => toggleChip(chip, 'indicator'));
-                indSet.appendChild(chip);
+                const option = document.createElement('option');
+                option.value = ind.indicator_code;
+                option.textContent = ind.indicator_code;
+                option.title = ind.indicator_name;
+                indSelect.appendChild(option);
             });
         }
     }
 
-    // Populate country chips from static list
-    ctySet.innerHTML = '';
+    // Populate country dropdown from static list
+    ctySelect.innerHTML = '';
     EXPLORER_COUNTRIES.forEach(c => {
-        const chip = document.createElement('button');
-        chip.className = 'exp-chip';
-        chip.dataset.code = c.code;
-        chip.title = c.name;
-        chip.textContent = c.code;
-        chip.addEventListener('click', () => toggleChip(chip, 'country'));
-        ctySet.appendChild(chip);
+        const option = document.createElement('option');
+        option.value = c.code;
+        option.textContent = c.code;
+        option.title = c.name;
+        ctySelect.appendChild(option);
+    });
+
+    // Add change listeners to update selection state
+    indSelect.addEventListener('change', () => {
+        state.selectedIndicators = Array.from(indSelect.selectedOptions, opt => opt.value);
+        updateExplorerMeta();
+    });
+    ctySelect.addEventListener('change', () => {
+        state.selectedCountries = Array.from(ctySelect.selectedOptions, opt => opt.value);
+        updateExplorerMeta();
     });
 }
 
-function toggleChip(chip, kind) {
-    chip.classList.toggle('active');
-    if (kind === 'indicator') {
-        const code = chip.dataset.code;
-        if (chip.classList.contains('active')) {
-            if (!state.selectedIndicators.includes(code)) state.selectedIndicators.push(code);
+function updateExplorerMeta() {
+    const indCount = state.selectedIndicators.length;
+    const ctyCount = state.selectedCountries.length;
+    const indBadge = document.getElementById('ind-count');
+    const ctyBadge = document.getElementById('country-count');
+    
+    if (indBadge) {
+        if (indCount > 0) {
+            indBadge.textContent = indCount;
+            indBadge.classList.remove('hidden');
         } else {
-            state.selectedIndicators = state.selectedIndicators.filter(c => c !== code);
+            indBadge.classList.add('hidden');
         }
-    } else {
-        const code = chip.dataset.code;
-        if (chip.classList.contains('active')) {
-            if (!state.selectedCountries.includes(code)) state.selectedCountries.push(code);
+    }
+    
+    if (ctyBadge) {
+        if (ctyCount > 0) {
+            ctyBadge.textContent = ctyCount;
+            ctyBadge.classList.remove('hidden');
         } else {
-            state.selectedCountries = state.selectedCountries.filter(c => c !== code);
+            ctyBadge.classList.add('hidden');
+        }
+    }
+    
+    const metaText = document.getElementById('exp-meta-text');
+    if (metaText) {
+        if (indCount === 0 && ctyCount === 0) {
+            metaText.textContent = 'Select indicators and economies above.';
+        } else {
+            metaText.textContent = `${indCount} indicator${indCount !== 1 ? 's' : ''} • ${ctyCount} econom${ctyCount !== 1 ? 'ies' : 'y'} selected`;
         }
     }
 }
@@ -876,7 +897,8 @@ function renderExplorerTable() {
 function clearExplorerSelection() {
     state.selectedIndicators = [];
     state.selectedCountries = [];
-    document.querySelectorAll('.exp-chip.active').forEach(c => c.classList.remove('active'));
+    document.getElementById('indicator-select').value = '';
+    document.getElementById('country-select').value = '';
     state.chartInstances.forEach(c => c.destroy());
     state.chartInstances = [];
     state.goldDataCache = {};
@@ -887,6 +909,7 @@ function clearExplorerSelection() {
     }
     const tableCard = document.getElementById('explorer-table-card');
     if (tableCard) tableCard.classList.add('hidden');
+    updateExplorerMeta();
 }
 
 // ── REVIEW QUEUE FUNCTIONS ──
