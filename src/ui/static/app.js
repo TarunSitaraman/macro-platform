@@ -41,28 +41,9 @@ function safeHref(url) {
     return /^https?:\/\//i.test(String(url)) ? String(url) : '#';
 }
 
-// Renders assistant message content safely: plain text with [Source: X] turned into DOM badges.
+// Renders assistant message content safely using markdown parser.
 function renderMsgContent(el, text) {
-    const SOURCE_RE = /\[Source: ([^\]]+)\]/g;
-    let last = 0;
-    let match;
-    while ((match = SOURCE_RE.exec(text)) !== null) {
-        if (match.index > last) {
-            el.appendChild(document.createTextNode(text.slice(last, match.index)));
-        }
-        const badge = document.createElement('span');
-        badge.className = 'badge badge-emerald';
-        badge.textContent = match[1];
-        el.appendChild(badge);
-        last = SOURCE_RE.lastIndex;
-    }
-    if (last < text.length) {
-        // Render remaining text with newline → <br> via DOM (no innerHTML on user data)
-        text.slice(last).split('\n').forEach((line, i, arr) => {
-            el.appendChild(document.createTextNode(line));
-            if (i < arr.length - 1) el.appendChild(document.createElement('br'));
-        });
-    }
+    renderMarkdownToElement(el, text);
 }
 
 // Builds a complete .chat-message element safely for both user and assistant roles.
@@ -206,6 +187,16 @@ function setupEventListeners() {
     
     // Logout button
     document.getElementById('logout-btn').addEventListener('click', logout);
+
+    // Sidebar collapse toggle
+    document.getElementById('sidebar-collapse-btn').addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        const collapsed = sidebar.classList.toggle('collapsed');
+        localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+    });
+    if (localStorage.getItem('sidebarCollapsed') === '1') {
+        document.getElementById('sidebar').classList.add('collapsed');
+    }
     
     // Sidebar Navigation Tabs
     const menuItems = document.querySelectorAll('.menu-item');
@@ -245,6 +236,10 @@ function setupEventListeners() {
 
     // Anomalies Elements
     document.getElementById('anomalies-refresh-btn').addEventListener('click', () => loadDetectedAnomalies(true));
+    document.getElementById('anomaly-filter-clear').addEventListener('click', () => {
+        _lv.activeIndicator = null;
+        if (state.detectedAnomalies) renderLinkedViews(state.detectedAnomalies);
+    });
 
     // Researcher Elements
     document.getElementById('research-form').addEventListener('submit', runAutonomousResearcher);
@@ -746,10 +741,10 @@ function renderIndicatorChart(indCode, colorOffset) {
                     }
                 },
                 tooltip: {
-                    backgroundColor: '#1a1a28',
-                    titleColor: '#a5b4fc',
-                    bodyColor: '#c4cfd9',
-                    borderColor: 'rgba(99,102,241,0.25)',
+                    backgroundColor: '#FAF5EC',
+                    titleColor: '#1C1510',
+                    bodyColor: '#3a2e24',
+                    borderColor: 'rgba(196,98,58,0.25)',
                     borderWidth: 1,
                     padding: 12,
                     cornerRadius: 8,
@@ -760,13 +755,13 @@ function renderIndicatorChart(indCode, colorOffset) {
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(255,255,255,0.04)' },
-                    ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } }
+                    grid: { color: 'rgba(0,0,0,0.06)' },
+                    ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 11 } }
                 },
                 y: {
-                    grid: { color: 'rgba(255,255,255,0.04)' },
-                    ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } },
-                    title: { display: !!unit, text: unit, color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 11 } }
+                    grid: { color: 'rgba(0,0,0,0.06)' },
+                    ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 11 } },
+                    title: { display: !!unit, text: unit, color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 11 } }
                 }
             }
         }
@@ -830,14 +825,14 @@ function openChartModal(indCode, indName, unit) {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { display: true, position: 'bottom', labels: { boxWidth: 10, padding: 16, color: '#c4cfd9', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
-                tooltip: { backgroundColor: '#1a1a28', titleColor: '#a5b4fc', bodyColor: '#c4cfd9', borderColor: 'rgba(99,102,241,0.25)', borderWidth: 1, padding: 12, cornerRadius: 8,
+                legend: { display: true, position: 'bottom', labels: { boxWidth: 10, padding: 16, color: '#6a5a48', font: { family: 'Inter', size: 12 } } },
+                tooltip: { backgroundColor: '#FAF5EC', titleColor: '#1C1510', bodyColor: '#3a2e24', borderColor: 'rgba(196,98,58,0.25)', borderWidth: 1, padding: 12, cornerRadius: 8,
                     callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : 'N/A'} ${unit}` } }
             },
             scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } },
-                     title: { display: !!unit, text: unit, color: '#8fa3b3', font: { family: "'Plus Jakarta Sans'", size: 12 } } }
+                x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
+                y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } },
+                     title: { display: !!unit, text: unit, color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } } }
             }
         }
     });
@@ -1222,7 +1217,6 @@ async function viewSummaryReport(summaryId) {
             // Wait! Since list_summaries content is truncated (r.content[:500] in chat.py),
             // let's fetch the detail. Ah! Let's check: actually the summarizer content can be retrieved.
             // Let's create a custom viewer inside app.js. If the content is truncated, we can display what is returned or let them regenerate.
-            // Let's see if we can find the full item. Wait! Summaries table is queried via DB. Since there is no single GET,
             // we can fetch the full list if we query. Let's see what is stored in summaries list.
             const match = list.find(r => r.summary_id === summaryId);
             if (match) {
@@ -1234,12 +1228,210 @@ async function viewSummaryReport(summaryId) {
     }
 }
 
+function renderMarkdownToElement(element, content) {
+    if (!element) return;
+    
+    let rawContent = content || '';
+    
+    // ── PRE-PROCESS: Extract mermaid blocks BEFORE marked.js parsing ──
+    // LLMs sometimes output 3 or 4 backticks. We normalize all mermaid fenced
+    // blocks into placeholders, then restore them after marked parsing so they
+    // don't get mangled by the markdown parser.
+    const mermaidStore = [];
+    // Match ```mermaid or ````mermaid (3-4+ backticks) blocks
+    rawContent = rawContent.replace(/`{3,}\s*mermaid\s*\n([\s\S]*?)\n`{3,}/gi, (_match, code) => {
+        const idx = mermaidStore.length;
+        mermaidStore.push(code.trim());
+        return `\n<div class="mermaid-placeholder" data-mermaid-idx="${idx}"></div>\n`;
+    });
+    
+    // Parse markdown to HTML using marked.js
+    let rawHtml = marked.parse(rawContent);
+    
+    element.innerHTML = rawHtml;
+    
+    // Restore mermaid blocks from placeholders
+    element.querySelectorAll('.mermaid-placeholder').forEach(ph => {
+        const idx = parseInt(ph.getAttribute('data-mermaid-idx'), 10);
+        if (idx >= 0 && idx < mermaidStore.length) {
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+            div.textContent = sanitizeMermaidCode(mermaidStore[idx]);
+            ph.replaceWith(div);
+        }
+    });
+    
+    // Also catch any mermaid code blocks that marked.js DID parse normally
+    element.querySelectorAll('pre code.language-mermaid').forEach(block => {
+        const div = document.createElement('div');
+        div.className = 'mermaid';
+        div.id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+        div.textContent = sanitizeMermaidCode(block.textContent);
+        block.parentElement.replaceWith(div);
+    });
+    
+    // Safely process [text](Source: XYZ) which marked parsed as <a href="Source: XYZ">text</a>
+    element.querySelectorAll('a').forEach(a => {
+        let href = a.getAttribute('href') || '';
+        if (href.trim().toLowerCase().startsWith('source:')) {
+            let sourceText = href.trim().substring(7).trim();
+            let text = a.innerHTML;
+            let span = document.createElement('span');
+            span.className = 'source-tooltip-container';
+            span.innerHTML = `${text}<span class="source-tooltip">${sourceText}</span>`;
+            a.replaceWith(span);
+        }
+    });
+
+    // Safely process standalone [Source: XYZ] in text nodes (excluding code/pre)
+    const walk = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    const textNodes = [];
+    while ((node = walk.nextNode())) {
+        if (node.parentNode && !node.parentNode.closest('pre, code, .mermaid')) {
+            if (/\[Source:\s*([^\]]+)\]/i.test(node.nodeValue)) {
+                textNodes.push(node);
+            }
+        }
+    }
+    
+    textNodes.forEach(textNode => {
+        const regex = /\[Source:\s*([^\]]+)\]/gi;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match;
+        const text = textNode.nodeValue;
+        
+        while ((match = regex.exec(text)) !== null) {
+            if (match.index > lastIndex) {
+                fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+            }
+            const span = document.createElement('span');
+            span.className = 'source-tooltip-container source-icon-only';
+            span.innerHTML = `<i data-lucide="info" style="width:14px;height:14px;color:var(--text-muted);vertical-align:middle;margin-left:4px;cursor:help;"></i><span class="source-tooltip">${match[1]}</span>`;
+            fragment.appendChild(span);
+            lastIndex = regex.lastIndex;
+        }
+        if (lastIndex < text.length) {
+            fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+        }
+        textNode.parentNode.replaceChild(fragment, textNode);
+    });
+
+    // Add classes to tables
+    const tables = element.querySelectorAll('table');
+    tables.forEach(t => t.classList.add('data-table'));
+
+    // Process blockquotes to detect and style GitHub alerts
+    const blockquotes = element.querySelectorAll('blockquote');
+    blockquotes.forEach(bq => {
+        const firstP = bq.querySelector('p');
+        if (firstP) {
+            const htmlContent = firstP.innerHTML.trim();
+            const alertMatch = htmlContent.match(/^\[!(IMPORTANT|WARNING|NOTE|TIP|CAUTION)\]\s*(?:<br>)?([\s\S]*)$/i);
+            if (alertMatch) {
+                const type = alertMatch[1].toUpperCase();
+                const remainder = alertMatch[2].trim();
+                
+                bq.className = `github-alert alert-${type.toLowerCase()}`;
+                
+                let iconName = 'info';
+                if (type === 'IMPORTANT') iconName = 'alert-circle';
+                else if (type === 'WARNING') iconName = 'alert-triangle';
+                else if (type === 'CAUTION') iconName = 'alert-octagon';
+                else if (type === 'TIP') iconName = 'lightbulb';
+                
+                if (remainder) {
+                    firstP.innerHTML = remainder;
+                } else {
+                    firstP.remove();
+                }
+                
+                const innerHtml = bq.innerHTML;
+                bq.innerHTML = `
+                    <div class="alert-header">
+                        <i data-lucide="${iconName}"></i>
+                        <span>${type}</span>
+                    </div>
+                    <div class="alert-content">
+                        ${innerHtml}
+                    </div>
+                `;
+            }
+        }
+    });
+
+    // ── RENDER MERMAID DIAGRAMS ──
+    // Render each diagram individually so one bad diagram doesn't break others
+    if (window.mermaid) {
+        mermaid.initialize({
+            theme: 'dark',
+            securityLevel: 'loose',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+        });
+        
+        const mermaidNodes = element.querySelectorAll('.mermaid');
+        if (mermaidNodes.length > 0) {
+            renderMermaidDiagrams(mermaidNodes);
+        }
+    }
+    
+    // Initialize Lucide icons dynamically added
+    initLucide();
+}
+
+/**
+ * Sanitize LLM-generated mermaid code to fix common syntax issues.
+ */
+function sanitizeMermaidCode(code) {
+    let sanitized = code;
+    
+    // Remove [Source: ...] citations that LLMs sometimes insert
+    sanitized = sanitized.replace(/\[Source:\s*[^\]]*\]/gi, '');
+    
+    // Remove empty lines that might break the graph definition
+    sanitized = sanitized.replace(/\n{3,}/g, '\n\n');
+    
+    // Trim trailing whitespace from each line
+    sanitized = sanitized.split('\n').map(l => l.trimEnd()).join('\n');
+    
+    return sanitized.trim();
+}
+
+/**
+ * Render each mermaid diagram individually with error handling.
+ * If a diagram fails, show a styled fallback instead of the raw mermaid error.
+ */
+async function renderMermaidDiagrams(nodes) {
+    for (const node of nodes) {
+        const code = node.textContent;
+        try {
+            const { svg } = await mermaid.render(node.id + '-svg', code);
+            node.innerHTML = svg;
+        } catch (e) {
+            console.warn('Mermaid diagram failed to render:', e.message || e);
+            // Show a graceful fallback with the raw code
+            node.innerHTML = '';
+            node.classList.add('mermaid-error');
+            const header = document.createElement('div');
+            header.className = 'mermaid-error-header';
+            header.innerHTML = '<i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Diagram could not be rendered';
+            const pre = document.createElement('pre');
+            pre.textContent = code;
+            node.appendChild(header);
+            node.appendChild(pre);
+        }
+    }
+}
+
 function displayReportCard(data) {
     const card = document.getElementById('report-view-card');
     document.getElementById('report-title').textContent = `${data.country_code} Ingestion Brief: ${data.summary_type.replace(/_/g, ' ')}`;
     document.getElementById('report-metadata').textContent = `Generated by ${data.model_used} on ${new Date(data.generated_at).toLocaleString()}`;
-    const reportHtml = escHtml(data.content).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-    document.getElementById('report-body').innerHTML = `<p>${reportHtml}</p>`;
+    
+    // Render Markdown beautifully
+    renderMarkdownToElement(document.getElementById('report-body'), data.content);
     
     card.classList.remove('hidden');
     card.scrollIntoView({ behavior: 'smooth' });
@@ -1335,7 +1527,7 @@ async function traceLineage() {
 
 // Global loaders helper
 function showLoadingState() {
-    writeToConsole("Connecting to platform server...");
+    // Placeholder for loading state initialization
 }
 
 function hideLoadingState() {
@@ -1619,7 +1811,7 @@ async function loadAnomaliesTab() {
             
             listEl.innerHTML = alerts.map(a => {
                 const color = a.type === 'CRITICAL' ? '🔴' : '🟠';
-                return `<div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+                return `<div style="padding:10px 14px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:13px;">
                     <strong>${color} ${escHtml(new Date(a.timestamp).toLocaleString())}</strong> — ${escHtml(a.reason)}
                 </div>`;
             }).join('');
@@ -1633,11 +1825,12 @@ async function loadAnomaliesTab() {
 }
 
 async function loadDetectedAnomalies(force = false) {
-    const heatmapEl = document.getElementById('anomaly-heatmap');
+    const stripEl   = document.getElementById('anomaly-strip-panel');
+    const rankedEl  = document.getElementById('anomaly-ranked-panel');
     const statusText = document.getElementById('anomalies-status-text');
 
-    if (!heatmapEl.dataset.populated) {
-        heatmapEl.innerHTML = '<div class="heatmap-loading">Loading anomalies…</div>';
+    if (stripEl && !stripEl.dataset.populated) {
+        stripEl.innerHTML = '<div class="strip-loading">Loading anomalies…</div>';
     }
 
     try {
@@ -1651,14 +1844,14 @@ async function loadDetectedAnomalies(force = false) {
             const lastCalc = response.headers.get('X-Last-Calculated');
 
             if (anomalies.length === 0 && isCalculating) {
-                heatmapEl.innerHTML = '<div class="heatmap-loading">Prophet model running — results will appear shortly…</div>';
-                delete heatmapEl.dataset.populated;
+                if (stripEl) stripEl.innerHTML = '<div class="strip-loading">Prophet model running — results will appear shortly…</div>';
+                if (stripEl) delete stripEl.dataset.populated;
             } else if (anomalies.length === 0) {
-                heatmapEl.innerHTML = '<div class="heatmap-loading text-success">No anomalies detected inside Prophet confidence boundaries.</div>';
-                heatmapEl.dataset.populated = '1';
+                if (stripEl) { stripEl.innerHTML = '<div class="strip-loading text-success">No anomalies detected inside Prophet confidence boundaries.</div>'; stripEl.dataset.populated = '1'; }
             } else {
-                renderAnomalyHeatmap(anomalies, heatmapEl);
-                heatmapEl.dataset.populated = '1';
+                renderLinkedViews(anomalies);
+                updateSidebarTicker(anomalies);
+                if (stripEl) stripEl.dataset.populated = '1';
             }
 
             if (statusText) {
@@ -1681,15 +1874,20 @@ async function loadDetectedAnomalies(force = false) {
                 state.anomalyPollInterval = null;
             }
         } else {
-            heatmapEl.innerHTML = '<div class="heatmap-loading text-danger">Failed to load anomalies.</div>';
+            if (stripEl) stripEl.innerHTML = '<div class="strip-loading text-danger">Failed to load anomalies.</div>';
         }
     } catch (err) {
         console.error('Anomaly query failed:', err);
-        heatmapEl.innerHTML = '<div class="heatmap-loading text-danger">Connection lost.</div>';
+        if (document.getElementById('anomaly-strip-panel')) {
+            document.getElementById('anomaly-strip-panel').innerHTML = '<div class="strip-loading text-danger">Connection lost.</div>';
+        }
     }
 }
 
-function renderAnomalyHeatmap(anomalies, container) {
+// ── Linked Views state ──
+const _lv = { activeIndicator: null };
+
+function renderLinkedViews(anomalies) {
     const IND_LABELS = {
         CPI_INFLATION:              'CPI Inflation',
         GDP_GROWTH:                 'GDP Growth',
@@ -1713,95 +1911,135 @@ function renderAnomalyHeatmap(anomalies, container) {
     // Build lookup: indicator → country → worst-sigma entry
     const lookup = {};
     for (const a of anomalies) {
-        const ind = a.indicator_code;
-        const cc  = a.country_code;
+        const ind = a.indicator_code, cc = a.country_code;
         if (!lookup[ind]) lookup[ind] = {};
-        if (!lookup[ind][cc] || Math.abs(a.sigma) > Math.abs(lookup[ind][cc].sigma)) {
-            lookup[ind][cc] = a;
-        }
+        if (!lookup[ind][cc] || Math.abs(a.sigma) > Math.abs(lookup[ind][cc].sigma)) lookup[ind][cc] = a;
     }
 
-    // Rank countries by max absolute sigma across all indicators (show top 20)
-    const countryScores = {};
-    for (const ind in lookup) {
-        for (const cc in lookup[ind]) {
-            countryScores[cc] = Math.max(countryScores[cc] ?? 0, Math.abs(lookup[ind][cc].sigma));
-        }
-    }
-    const countries = Object.entries(countryScores)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 20)
-        .map(([cc]) => cc);
+    // Sort indicators by coverage
+    const indicators = Object.keys(lookup).sort((a, b) => Object.keys(lookup[b]).length - Object.keys(lookup[a]).length);
 
-    // Rank indicators by coverage (how many countries have an anomaly)
-    const indCoverage = {};
-    for (const ind in lookup) {
-        indCoverage[ind] = Object.keys(lookup[ind]).filter(cc => countries.includes(cc)).length;
-    }
-    const indicators = Object.entries(indCoverage)
-        .filter(([, cnt]) => cnt > 0)
-        .sort((a, b) => b[1] - a[1])
-        .map(([ind]) => ind);
+    // σ axis range: -7 to +7
+    const AXIS_MIN = -7, AXIS_MAX = 7;
+    const pct = s => ((Math.max(AXIS_MIN, Math.min(AXIS_MAX, s)) - AXIS_MIN) / (AXIS_MAX - AXIS_MIN) * 100).toFixed(1);
+    const dotClass = s => Math.abs(s) < 0.5 ? 'dot-neu' : s > 0 ? 'dot-hi' : 'dot-lo';
 
-    // Sigma → CSS color
-    const sigmaColor = sigma => {
-        const abs = Math.abs(sigma);
-        if (abs < 0.5) return 'rgba(255,255,255,0.03)';
-        const t = Math.min(abs / 7, 1);
-        const alpha = 0.18 + t * 0.68;
-        if (sigma > 0) {
-            const g = Math.round(150 * (1 - t));
-            return `rgba(255,${g},40,${alpha})`;
-        } else {
-            const b = Math.round(200 + t * 55);
-            return `rgba(30,160,${b},${alpha})`;
-        }
-    };
-
-    const cols = countries.length;
-    let html = `<div class="heatmap-wrapper"><div class="heatmap-grid" style="grid-template-columns:140px repeat(${cols},minmax(44px,1fr))">`;
-
-    // Header row
-    html += `<div class="heatmap-corner"><span>Indicator</span></div>`;
-    html += countries.map(cc => `<div class="heatmap-col-header" title="${escHtml(cc)}">${escHtml(cc)}</div>`).join('');
-
-    // Data rows
+    // Build strip panel
+    const stripEl = document.getElementById('anomaly-strip-panel');
+    if (!stripEl) return;
+    let sHtml = '';
     for (const ind of indicators) {
-        html += `<div class="heatmap-row-header">${escHtml(fmtInd(ind))}</div>`;
-        for (const cc of countries) {
-            const entry = lookup[ind]?.[cc];
-            if (!entry) {
-                html += `<div class="heatmap-cell heatmap-cell-empty"></div>`;
-                continue;
-            }
-            const sig    = entry.sigma ?? 0;
-            const bg     = sigmaColor(sig);
+        const isActive = _lv.activeIndicator === ind;
+        sHtml += `<div class="strip-row${isActive ? ' strip-active' : ''}" data-ind="${escHtml(ind)}">
+            <div class="strip-label" title="${escHtml(fmtInd(ind))}">${escHtml(fmtInd(ind))}</div>
+            <div class="strip-axis">`;
+
+        for (const [cc, entry] of Object.entries(lookup[ind])) {
+            const sig = entry.sigma ?? 0;
             const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(1);
-            const yr     = (entry.date || '').slice(0, 4);
-            const tip    = `${fmtInd(ind)} · ${cc} · ${yr}: ${sigStr}σ (actual=${(entry.actual ?? 0).toFixed(2)})`;
-            html += `<div class="heatmap-cell" style="background:${bg}" title="${escHtml(tip)}">
-                <span class="heatmap-sigma">${escHtml(sigStr)}σ</span>
-                <span class="heatmap-year">${escHtml(yr)}</span>
-            </div>`;
+            const yr = (entry.date || '').slice(0, 4);
+            const tip = `${cc}: ${sigStr}σ (${yr})`;
+            sHtml += `<div class="strip-dot ${escHtml(dotClass(sig))}"
+                style="left:${pct(sig)}%"
+                title="${escHtml(tip)}"
+                data-ind="${escHtml(ind)}"
+                data-cc="${escHtml(cc)}"></div>`;
+        }
+
+        sHtml += `<div class="strip-axis-labels"><span>−7σ</span><span>0</span><span>+7σ</span></div>
+            </div>
+        </div>`;
+    }
+    stripEl.innerHTML = sHtml;
+
+    // Attach dot click handlers
+    stripEl.querySelectorAll('.strip-dot').forEach(dot => {
+        dot.addEventListener('click', e => {
+            e.stopPropagation();
+            const ind = dot.dataset.ind;
+            _lv.activeIndicator = _lv.activeIndicator === ind ? null : ind;
+            renderLinkedViews(anomalies);
+        });
+    });
+
+    // Strip row click (entire row selects that indicator)
+    stripEl.querySelectorAll('.strip-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const ind = row.dataset.ind;
+            _lv.activeIndicator = _lv.activeIndicator === ind ? null : ind;
+            renderLinkedViews(anomalies);
+        });
+    });
+
+    // Filter bar
+    const filterBar = document.getElementById('anomaly-filter-bar');
+    const filterLabel = document.getElementById('anomaly-filter-label');
+    if (filterBar && filterLabel) {
+        if (_lv.activeIndicator) {
+            filterLabel.textContent = `Filtered: ${fmtInd(_lv.activeIndicator)}`;
+            filterBar.classList.remove('hidden');
+        } else {
+            filterBar.classList.add('hidden');
         }
     }
-    html += `</div>`; // .heatmap-grid
 
-    // Legend
-    html += `
-    <div class="heatmap-legend">
-        <div class="legend-scale">
-            <div class="legend-bar" style="background:linear-gradient(to right,rgba(30,160,200,0.2),rgba(30,160,255,0.85))"></div>
-            <div class="legend-labels"><span>−7σ</span><span>Below trend</span></div>
-        </div>
-        <div class="legend-zero">0σ neutral</div>
-        <div class="legend-scale">
-            <div class="legend-bar" style="background:linear-gradient(to right,rgba(255,150,40,0.25),rgba(255,40,40,0.85))"></div>
-            <div class="legend-labels"><span>Above trend</span><span>+7σ</span></div>
-        </div>
-    </div>`;
-    html += `</div>`; // .heatmap-wrapper
-    container.innerHTML = html;
+    // Ranked table — build rows from filtered anomalies
+    const rankedEl = document.getElementById('anomaly-ranked-panel');
+    if (!rankedEl) return;
+
+    let rows = [];
+    for (const ind of indicators) {
+        if (_lv.activeIndicator && ind !== _lv.activeIndicator) continue;
+        for (const [cc, entry] of Object.entries(lookup[ind])) {
+            rows.push({ ind, cc, entry, absSigma: Math.abs(entry.sigma ?? 0) });
+        }
+    }
+    rows.sort((a, b) => b.absSigma - a.absSigma);
+
+    const MAX_SIGMA = 7;
+    let tHtml = `<table class="ranked-table">
+        <thead><tr>
+            <th>Country</th>
+            <th>Indicator</th>
+            <th>σ</th>
+            <th class="ranked-bar-cell">Deviation</th>
+            <th>Year</th>
+        </tr></thead><tbody>`;
+
+    for (const { ind, cc, entry } of rows) {
+        const sig = entry.sigma ?? 0;
+        const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(2);
+        const yr = (entry.date || '').slice(0, 4);
+        const barPct = Math.min(Math.abs(sig) / MAX_SIGMA * 50, 50).toFixed(1);
+        const dir = sig >= 0 ? 'hi' : 'lo';
+        tHtml += `<tr>
+            <td><span class="ranked-country">${escHtml(cc)}</span></td>
+            <td><span class="ranked-indicator">${escHtml(fmtInd(ind))}</span></td>
+            <td><span class="ranked-sigma ${dir}">${escHtml(sigStr)}σ</span></td>
+            <td class="ranked-bar-cell">
+                <div class="ranked-bar-wrap">
+                    <div class="ranked-bar-fill ${dir}" style="width:${barPct}%"></div>
+                </div>
+            </td>
+            <td><span class="ranked-year">${escHtml(yr)}</span></td>
+        </tr>`;
+    }
+    tHtml += '</tbody></table>';
+    rankedEl.innerHTML = tHtml;
+}
+
+// Keep old name as alias for any remaining callers
+function renderAnomalyHeatmap(anomalies) { renderLinkedViews(anomalies); }
+
+function updateSidebarTicker(anomalies) {
+    const el = document.getElementById('ticker-content');
+    if (!el || !anomalies || anomalies.length === 0) return;
+    const top = [...anomalies].sort((a, b) => Math.abs(b.sigma) - Math.abs(a.sigma)).slice(0, 4);
+    el.innerHTML = top.map(a => {
+        const sig = (a.sigma >= 0 ? '+' : '') + a.sigma.toFixed(1);
+        const cls = a.sigma > 0 ? 'color:#C4623A' : 'color:#5A7A38';
+        return `<span style="${cls};font-weight:700">${escHtml(sig)}σ</span> <span style="color:#5a4a38">${escHtml(a.country_code)}·${escHtml(a.indicator_code.slice(0,8))}</span>`;
+    }).join('<br>');
 }
 
 // ── AUTONOMOUS RESEARCHER ──
@@ -1838,17 +2076,8 @@ async function runAutonomousResearcher(e) {
             document.getElementById('research-title').textContent = data.topic;
             document.getElementById('research-metadata').textContent = `${data.model} · ${new Date(data.generated_at).toLocaleString()}`;
 
-            let html = escHtml(data.content);
-            html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-            html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
-            html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
-            html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-            html = html.replace(/^&gt; (.*)$/gm, '<blockquote>$1</blockquote>');
-            html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
-            html = html.replace(/\n\n/g, '</p><p>');
-            html = html.replace(/\n/g, '<br>');
-            document.getElementById('research-body').innerHTML = `<p>${html}</p>`;
+            // Render Markdown beautifully
+            renderMarkdownToElement(document.getElementById('research-body'), data.content);
 
             viewCard.classList.remove('hidden');
             viewCard.scrollIntoView({ behavior: 'smooth' });
@@ -1874,7 +2103,7 @@ async function loadResearchCharts(indicatorCodes) {
     if (!chartsCard || !grid) return;
 
     const G7 = ['USA', 'GBR', 'DEU', 'FRA', 'JPN', 'CAN', 'ITA'];
-    const COLORS = ['#818cf8','#34d399','#fb923c','#f472b6','#a78bfa','#38bdf8','#facc15'];
+    const COLORS = ['#C4623A','#5A7A38','#C4823A','#8B6B4A','#A04020','#7A9E5A','#9A6A2A'];
     const IND_LABELS = { GDP_GROWTH: 'GDP Growth Rate (%)', CPI_INFLATION: 'CPI Inflation (%)' };
 
     chartsCard.classList.remove('hidden');
@@ -1933,8 +2162,8 @@ async function loadResearchCharts(indicatorCodes) {
                         tooltip: { backgroundColor: '#1a1a28', titleColor: '#a5b4fc', bodyColor: '#c4cfd9' },
                     },
                     scales: {
-                        x: { ticks: { color: '#8fa3b3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                        y: { ticks: { color: '#8fa3b3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        x: { ticks: { color: '#6a5a48', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.06)' } },
+                        y: { ticks: { color: '#6a5a48', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.06)' } },
                     },
                 },
             });
