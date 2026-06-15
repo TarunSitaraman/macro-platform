@@ -13,6 +13,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Mermaid.js for graphs and diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <!-- CSS Style -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -63,59 +67,66 @@
     <div id="app-container" class="app-container hidden">
         
         <!-- ── Left Sidebar Navigation ── -->
-        <aside class="sidebar glass-panel">
+        <aside class="sidebar glass-panel" id="sidebar">
             <div class="sidebar-brand">
                 <div class="logo">
                     <i data-lucide="bar-chart-2" class="glow-icon"></i>
-                    <span>MACRO HUB</span>
+                    <span class="sb-text">MACRO HUB</span>
                 </div>
-                <span class="badge badge-accent">v1.0.0</span>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Collapse sidebar">
+                    <i data-lucide="chevrons-left"></i>
+                </button>
             </div>
             
             <nav class="sidebar-menu">
                 <ul>
-                    <li class="menu-item active" data-tab="overview">
+                    <li class="sidebar-section">Markets</li>
+                    <li class="menu-item active" data-tab="overview" data-label="Overview">
                         <i data-lucide="home"></i>
                         <span>Overview</span>
                     </li>
-                    <li class="menu-item" data-tab="crawler">
-                        <i data-lucide="bug"></i>
-                        <span>Dynamic Crawler</span>
-                    </li>
-                    <li class="menu-item" data-tab="explorer">
+                    <li class="menu-item" data-tab="explorer" data-label="Data Explorer">
                         <i data-lucide="line-chart"></i>
                         <span>Data Explorer</span>
                     </li>
-                    <li class="menu-item" data-tab="anomalies">
-                        <i data-lucide="alert-triangle"></i>
-                        <span>Anomaly Detection</span>
+                    <li class="menu-item" data-tab="anomalies" data-label="Anomaly Signals">
+                        <i data-lucide="activity"></i>
+                        <span>Anomaly Signals</span>
                     </li>
-                    <li class="menu-item" data-tab="review">
+
+                    <li class="sidebar-section">Analysis</li>
+                    <li class="menu-item" data-tab="researcher" data-label="Researcher">
+                        <i data-lucide="search"></i>
+                        <span>Researcher</span>
+                    </li>
+                    <li class="menu-item" data-tab="chatbot" data-label="Macro Chat">
+                        <i data-lucide="message-square"></i>
+                        <span>Macro Chat</span>
+                    </li>
+                    <li class="menu-item" data-tab="summaries" data-label="Summaries">
+                        <i data-lucide="file-text"></i>
+                        <span>Summaries</span>
+                    </li>
+
+                    <li class="sidebar-section">Tools</li>
+                    <li class="menu-item" data-tab="crawler" data-label="Crawler">
+                        <i data-lucide="bug"></i>
+                        <span>Crawler</span>
+                    </li>
+                    <li class="menu-item" data-tab="review" data-label="Review Queue">
                         <i data-lucide="eye"></i>
                         <span>Review Queue</span>
                         <span id="review-badge" class="badge badge-danger hidden">0</span>
                     </li>
-                    <li class="menu-item" data-tab="chatbot">
-                        <i data-lucide="message-square"></i>
-                        <span>Macro Intelligence Chat</span>
-                    </li>
-                    <li class="menu-item" data-tab="summaries">
-                        <i data-lucide="file-text"></i>
-                        <span>Summary Engine</span>
-                    </li>
-                    <li class="menu-item" data-tab="researcher">
-                        <i data-lucide="search"></i>
-                        <span>Autonomous Researcher</span>
-                    </li>
-                    <li class="menu-item" data-tab="audits">
+                    <li class="menu-item" data-tab="audits" data-label="Audit & Lineage">
                         <i data-lucide="git-branch"></i>
                         <span>Audit & Lineage</span>
                     </li>
                 </ul>
             </nav>
-            
+
             <!-- User Status / Logout -->
-            <div class="sidebar-user glass-panel-nested">
+            <div class="sidebar-user">
                 <div class="user-info">
                     <div class="user-avatar">
                         <i data-lucide="user"></i>
@@ -623,20 +634,36 @@
                     </div>
                 </div>
 
-                <!-- Prophetic Deviations Heatmap -->
+                <!-- Linked Views: Strip Overview + Ranked Table -->
                 <div class="glass-panel main-info-card margin-top">
-                    <div class="card-header-with-badge" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <h3>Macro Deviation Heatmap</h3>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span id="anomalies-status-text" class="status-text hidden" style="font-size:12px;color:var(--warning);font-weight:600;">Recalculating in background...</span>
+                    <!-- Header -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <div>
+                            <h3 style="margin-bottom:2px;">Deviation Signals</h3>
+                            <p class="section-desc" style="margin-bottom:0;">Prophet CI-normalised σ — each dot is a country. Click to filter.</p>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span id="anomalies-status-text" class="status-text hidden" style="font-size:12px;color:var(--warning);font-weight:600;">Recalculating...</span>
                             <button id="anomalies-refresh-btn" class="btn btn-secondary">
                                 <i data-lucide="refresh-cw"></i>
                                 <span>Recalculate</span>
                             </button>
                         </div>
                     </div>
-                    <p class="section-desc" style="margin-bottom:16px;">Prophet CI-normalised sigma per series — amber/red = above trend, cyan = below trend. Worst year shown per cell.</p>
-                    <div id="anomaly-heatmap" class="anomaly-heatmap-root"></div>
+
+                    <!-- Strip chart: one row per indicator, countries as dots on σ axis -->
+                    <div id="anomaly-strip-panel" class="anomaly-strip-panel"></div>
+
+                    <!-- Filter state indicator -->
+                    <div id="anomaly-filter-bar" class="anomaly-filter-bar hidden">
+                        <span id="anomaly-filter-label"></span>
+                        <button id="anomaly-filter-clear" class="btn btn-secondary" style="padding:3px 10px;font-size:11px;">
+                            <i data-lucide="x"></i> Clear filter
+                        </button>
+                    </div>
+
+                    <!-- Ranked detail table -->
+                    <div id="anomaly-ranked-panel" class="anomaly-ranked-panel"></div>
                 </div>
             </section>
 
