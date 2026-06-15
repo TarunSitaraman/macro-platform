@@ -1040,16 +1040,18 @@ body {
 
 .chip-set {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 6px;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 .chip {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    padding: 5px 12px;
-    border-radius: 999px;
-    font-size: 11.5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: 500;
     font-family: var(--font-ui);
     cursor: pointer;
@@ -1058,6 +1060,8 @@ body {
     color: var(--text-secondary);
     transition: var(--transition);
     user-select: none;
+    width: 100%;
+    justify-content: flex-start;
 }
 
 .chip:hover {

@@ -27,9 +27,9 @@ with col2:
         default=["USA", "GBR", "CHN"],
     )
 with col3:
-    year_from = st.number_input("From Year", value=2015, min_value=2000, max_value=2024)
+    year_from = st.number_input("From Year", value=2010, min_value=2000, max_value=2025)
 with col4:
-    year_to = st.number_input("To Year", value=2024, min_value=2000, max_value=2030)
+    year_to = st.number_input("To Year", value=2025, min_value=2000, max_value=2030)
 
 
 @st.cache_data(ttl=120)
@@ -86,6 +86,9 @@ if not df.empty and ind_sel:
     # Ensure native pandas for Altair
     chart_df = df.copy()
     
+    # Filter out forecast data before charting
+    chart_df = chart_df[~chart_df["Forecast"]]
+    
     for ind in ind_sel:
         ind_df = chart_df[chart_df["Indicator"] == ind].copy()
         if ind_df.empty:
@@ -111,14 +114,8 @@ if not df.empty and ind_sel:
             ],
         ).add_params(highlight)
 
-        lines = base.mark_line().encode(
-            strokeDash=alt.condition(
-                alt.datum.Forecast, alt.value([5, 5]), alt.value([0])
-            )
-        )
-        points = base.mark_point(filled=True, size=55).encode(
-            shape=alt.condition(alt.datum.Forecast, alt.value("square"), alt.value("circle"))
-        )
+        lines = base.mark_line()
+        points = base.mark_point(filled=True, size=55)
 
         chart = (lines + points).properties(
             height=380,
