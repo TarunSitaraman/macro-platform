@@ -214,6 +214,7 @@ function setupEventListeners() {
     // Explorer
     document.getElementById('exp-search-btn').addEventListener('click', visualizeExplorer);
     document.getElementById('exp-clear-btn').addEventListener('click', clearExplorerSelection);
+    setupMultiselectToggle();
     
     // Chatbot conversations
     document.getElementById('new-chat-btn').addEventListener('click', createNewChatSession);
@@ -540,47 +541,123 @@ const EXPLORER_COUNTRIES = [
 const EXPLORER_COLORS = ['#00c8ff','#f5a623','#a78bfa','#00e887','#ff3b5c','#f472b6','#38bdf8','#fb923c','#34d399','#fbbf24'];
 
 function loadExplorerSetup() {
-    const indSelect = document.getElementById('indicator-select');
-    const ctySelect = document.getElementById('country-select');
-    if (!indSelect || !ctySelect) return;
+    // Populate indicator custom multiselect
+    populateCustomMultiselect('indicator', state.indicators || []);
+    
+    // Populate country custom multiselect
+    populateCustomMultiselect('country', EXPLORER_COUNTRIES);
+}
 
-    // Populate indicator dropdown from state.indicators
-    if (!state.indicatorsLoaded) {
-        indSelect.innerHTML = '<option value="">Loading indicators…</option>';
-        loadIndicators();
-    } else {
-        indSelect.innerHTML = '';
-        if ((state.indicators || []).length === 0) {
-            indSelect.innerHTML = '<option value="" disabled>No indicators found</option>';
+function populateCustomMultiselect(type, items) {
+    const optionsContainer = document.getElementById(`${type}-options`);
+    if (!optionsContainer) return;
+    
+    optionsContainer.innerHTML = '';
+    
+    if (!items || items.length === 0) {
+        optionsContainer.innerHTML = '<div class="loading-msg">No options available</div>';
+        return;
+    }
+    
+    items.forEach(item => {
+        const code = item.indicator_code || item.code;
+        const name = item.indicator_name || item.name || code;
+        
+        const label = document.createElement('label');
+        label.className = 'multiselect-option';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = code;
+        
+        const text = document.createElement('span');
+        text.textContent = code;
+        text.title = name;
+        
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        
+        checkbox.addEventListener('change', () => {
+            const selected = type === 'indicator' ? state.selectedIndicators : state.selectedCountries;
+            const index = selected.indexOf(code);
+            
+            if (checkbox.checked) {
+                label.classList.add('selected');
+                if (index === -1) selected.push(code);
+            } else {
+                label.classList.remove('selected');
+                if (index !== -1) selected.splice(index, 1);
+            }
+            
+            updateMultiselectLabel(type);
+            updateExplorerMeta();
+        });
+        
+        optionsContainer.appendChild(label);
+    });
+}
+
+function updateMultiselectLabel(type) {
+    const selected = type === 'indicator' ? state.selectedIndicators : state.selectedCountries;
+    const label = document.getElementById(`${type}-label`);
+    const trigger = document.getElementById(`${type}-trigger`);
+    
+    if (label) {
+        if (selected.length === 0) {
+            label.textContent = type === 'indicator' ? 'Select indicators…' : 'Select economies…';
         } else {
-            state.indicators.forEach(ind => {
-                const option = document.createElement('option');
-                option.value = ind.indicator_code;
-                option.textContent = ind.indicator_code;
-                option.title = ind.indicator_name;
-                indSelect.appendChild(option);
-            });
+            label.textContent = `${selected.length} selected`;
         }
     }
+    
+    // Update checkbox states
+    const options = document.getElementById(`${type}-options`);
+    if (options) {
+        const checkboxes = options.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            const label = cb.closest('label');
+            if (selected.includes(cb.value)) {
+                cb.checked = true;
+                label.classList.add('selected');
+            } else {
+                cb.checked = false;
+                label.classList.remove('selected');
+            }
+        });
+    }
+}
 
-    // Populate country dropdown from static list
-    ctySelect.innerHTML = '';
-    EXPLORER_COUNTRIES.forEach(c => {
-        const option = document.createElement('option');
-        option.value = c.code;
-        option.textContent = c.code;
-        option.title = c.name;
-        ctySelect.appendChild(option);
-    });
-
-    // Add change listeners to update selection state
-    indSelect.addEventListener('change', () => {
-        state.selectedIndicators = Array.from(indSelect.selectedOptions, opt => opt.value);
-        updateExplorerMeta();
-    });
-    ctySelect.addEventListener('change', () => {
-        state.selectedCountries = Array.from(ctySelect.selectedOptions, opt => opt.value);
-        updateExplorerMeta();
+function setupMultiselectToggle() {
+    // Indicator multiselect toggle
+    const indTrigger = document.getElementById('indicator-trigger');
+    const indDropdown = document.getElementById('indicator-dropdown');
+    if (indTrigger && indDropdown) {
+        indTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            indDropdown.classList.toggle('hidden');
+            countryDropdown?.classList.add('hidden');
+            indTrigger.classList.toggle('open', !indDropdown.classList.contains('hidden'));
+        });
+    }
+    
+    // Country multiselect toggle
+    const ctyTrigger = document.getElementById('country-trigger');
+    const countryDropdown = document.getElementById('country-dropdown');
+    if (ctyTrigger && countryDropdown) {
+        ctyTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            countryDropdown.classList.toggle('hidden');
+            indDropdown?.classList.add('hidden');
+            ctyTrigger.classList.toggle('open', !countryDropdown.classList.contains('hidden'));
+        });
+    }
+    
+    // Close on document click
+    document.addEventListener('click', () => {
+        indDropdown?.classList.add('hidden');
+        countryDropdown?.classList.add('hidden');
+        indTrigger?.classList.remove('open');
+        ctyTrigger?.classList.remove('open');
     });
 }
 
@@ -897,8 +974,11 @@ function renderExplorerTable() {
 function clearExplorerSelection() {
     state.selectedIndicators = [];
     state.selectedCountries = [];
-    document.getElementById('indicator-select').value = '';
-    document.getElementById('country-select').value = '';
+    
+    // Reset multiselect labels and checkbox states
+    updateMultiselectLabel('indicator');
+    updateMultiselectLabel('country');
+    
     state.chartInstances.forEach(c => c.destroy());
     state.chartInstances = [];
     state.goldDataCache = {};

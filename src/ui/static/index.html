@@ -313,30 +313,46 @@
                 <!-- ── Selection Controls ── -->
                 <div class="glass-panel exp-controls">
 
-                    <!-- Indicators dropdown -->
+                    <!-- Indicators multi-select dropdown -->
                     <div class="exp-ctrl-row">
                         <div class="exp-ctrl-label">
                             <i data-lucide="trending-up"></i>
                             <span>INDICATORS</span>
                             <span id="ind-count" class="badge badge-cyan hidden">0</span>
                         </div>
-                        <select id="indicator-select" multiple class="custom-select" style="height: auto; min-height: 36px;">
-                            <option value="">Loading indicators…</option>
-                        </select>
+                        <div class="custom-multiselect" id="indicator-multiselect">
+                            <button class="multiselect-trigger" id="indicator-trigger">
+                                <span id="indicator-label">Select indicators…</span>
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <div class="multiselect-dropdown hidden" id="indicator-dropdown">
+                                <div id="indicator-options" class="multiselect-options">
+                                    <div class="loading-msg">Loading indicators…</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="exp-ctrl-divider"></div>
 
-                    <!-- Countries dropdown -->
+                    <!-- Countries multi-select dropdown -->
                     <div class="exp-ctrl-row">
                         <div class="exp-ctrl-label">
                             <i data-lucide="globe"></i>
                             <span>ECONOMIES</span>
                             <span id="country-count" class="badge badge-cyan hidden">0</span>
                         </div>
-                        <select id="country-select" multiple class="custom-select" style="height: auto; min-height: 36px;">
-                            <option value="">Loading economies…</option>
-                        </select>
+                        <div class="custom-multiselect" id="country-multiselect">
+                            <button class="multiselect-trigger" id="country-trigger">
+                                <span id="country-label">Select economies…</span>
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <div class="multiselect-dropdown hidden" id="country-dropdown">
+                                <div id="country-options" class="multiselect-options">
+                                    <div class="loading-msg">Loading economies…</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="exp-ctrl-divider"></div>
