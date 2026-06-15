@@ -2086,49 +2086,54 @@ function renderLinkedViews(anomalies) {
         }
     }
 
-    // Ranked table — build rows from filtered anomalies
+    // Ranked table — only render if a filter is active
     const rankedEl = document.getElementById('anomaly-ranked-panel');
     if (!rankedEl) return;
 
-    let rows = [];
-    for (const ind of indicators) {
-        if (_lv.activeIndicator && ind !== _lv.activeIndicator) continue;
-        for (const [cc, entry] of Object.entries(lookup[ind])) {
-            rows.push({ ind, cc, entry, absSigma: Math.abs(entry.sigma ?? 0) });
+    if (!_lv.activeIndicator) {
+        // No filter active, hide the table
+        rankedEl.innerHTML = '';
+        rankedEl.style.display = 'none';
+    } else {
+        // Build rows only from the active indicator
+        let rows = [];
+        for (const [cc, entry] of Object.entries(lookup[_lv.activeIndicator])) {
+            rows.push({ ind: _lv.activeIndicator, cc, entry, absSigma: Math.abs(entry.sigma ?? 0) });
         }
-    }
-    rows.sort((a, b) => b.absSigma - a.absSigma);
+        rows.sort((a, b) => b.absSigma - a.absSigma);
 
-    const MAX_SIGMA = 7;
-    let tHtml = `<table class="ranked-table">
-        <thead><tr>
-            <th>Country</th>
-            <th>Indicator</th>
-            <th>σ</th>
-            <th class="ranked-bar-cell">Deviation</th>
-            <th>Year</th>
-        </tr></thead><tbody>`;
+        const MAX_SIGMA = 7;
+        let tHtml = `<table class="ranked-table">
+            <thead><tr>
+                <th>Country</th>
+                <th>Indicator</th>
+                <th>σ</th>
+                <th class="ranked-bar-cell">Deviation</th>
+                <th>Year</th>
+            </tr></thead><tbody>`;
 
-    for (const { ind, cc, entry } of rows) {
-        const sig = entry.sigma ?? 0;
-        const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(2);
-        const yr = (entry.date || '').slice(0, 4);
-        const barPct = Math.min(Math.abs(sig) / MAX_SIGMA * 50, 50).toFixed(1);
-        const dir = sig >= 0 ? 'hi' : 'lo';
-        tHtml += `<tr>
-            <td><span class="ranked-country">${escHtml(cc)}</span></td>
-            <td><span class="ranked-indicator">${escHtml(fmtInd(ind))}</span></td>
-            <td><span class="ranked-sigma ${dir}">${escHtml(sigStr)}σ</span></td>
-            <td class="ranked-bar-cell">
-                <div class="ranked-bar-wrap">
-                    <div class="ranked-bar-fill ${dir}" style="width:${barPct}%"></div>
-                </div>
-            </td>
-            <td><span class="ranked-year">${escHtml(yr)}</span></td>
-        </tr>`;
+        for (const { ind, cc, entry } of rows) {
+            const sig = entry.sigma ?? 0;
+            const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(2);
+            const yr = (entry.date || '').slice(0, 4);
+            const barPct = Math.min(Math.abs(sig) / MAX_SIGMA * 50, 50).toFixed(1);
+            const dir = sig >= 0 ? 'hi' : 'lo';
+            tHtml += `<tr>
+                <td><span class="ranked-country">${escHtml(cc)}</span></td>
+                <td><span class="ranked-indicator">${escHtml(fmtInd(ind))}</span></td>
+                <td><span class="ranked-sigma ${dir}">${escHtml(sigStr)}σ</span></td>
+                <td class="ranked-bar-cell">
+                    <div class="ranked-bar-wrap">
+                        <div class="ranked-bar-fill ${dir}" style="width:${barPct}%"></div>
+                    </div>
+                </td>
+                <td><span class="ranked-year">${escHtml(yr)}</span></td>
+            </tr>`;
+        }
+        tHtml += '</tbody></table>';
+        rankedEl.innerHTML = tHtml;
+        rankedEl.style.display = 'block';
     }
-    tHtml += '</tbody></table>';
-    rankedEl.innerHTML = tHtml;
 }
 
 // Keep old name as alias for any remaining callers

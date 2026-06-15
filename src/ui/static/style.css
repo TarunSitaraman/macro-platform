@@ -1617,6 +1617,7 @@ body {
 /* ── Ranked detail table ── */
 .anomaly-ranked-panel {
     overflow-x: auto;
+    margin-top: 20px;
 }
 
 .ranked-table {
