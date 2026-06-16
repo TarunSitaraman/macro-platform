@@ -13,25 +13,36 @@ from src.database import GoldRecord, Summary
 logger = logging.getLogger(__name__)
 
 SUMMARY_PROMPTS = {
-    "COUNTRY_SNAPSHOT": """You are a senior macroeconomist. Write a 3-4 paragraph economic snapshot for {country}.
-Use ONLY the data provided below. Cite every numeric value as [Source: <source_name>, <period>].
-Highlight key trends, notable changes, and forward-looking commentary where data supports it.
-Write for a financial professional audience. Be precise and objective.
+    "COUNTRY_SNAPSHOT": """You are a senior macroeconomist. Write a concise but analytical economic snapshot for {country}.
+Use ONLY the data provided below. Cite key figures as [Source: <source_name>, <period>].
+Use GitHub-flavored Markdown. Include:
+- A markdown table of 4–6 key indicators (leave blank lines before/after).
+- Where genuinely useful, one Mermaid diagram (```mermaid, graph TD only). MERMAID RULES: quote ALL node labels e.g. A["GDP 3.2 pct"]; no %, (), [], : inside labels; no [Source:] inside diagrams; simple A/B/C node IDs only.
+- GitHub alerts (`> [!IMPORTANT]` or `> [!WARNING]`) for 1–2 critical risks.
+Write for a financial professional. Be precise and analytical. Aim for 400–600 words.
 
 Data:
 {data_block}""",
 
-    "INDICATOR_BRIEF": """You are a senior macroeconomist. Write a focused 2-3 paragraph analysis of {indicator} across countries or time periods.
-Use ONLY the data provided. Cite every number as [Source: <source_name>, <period>].
-Compare across countries where relevant. Identify outliers and trends.
+    "INDICATOR_BRIEF": """You are a senior macroeconomist. Write a concise cross-country analysis of {indicator}.
+Use ONLY the data provided. Cite key figures as [Source: <source_name>, <period>].
+Use GitHub-flavored Markdown. Include:
+- A markdown table comparing this indicator across countries or periods (blank lines before/after).
+- Where genuinely useful, one Mermaid diagram (```mermaid, graph TD only). MERMAID RULES: quote ALL node labels e.g. A["High 8 pct"]; no %, (), [], : inside labels; no [Source:] inside diagrams; simple A/B/C node IDs only.
+- GitHub alerts for 1–2 notable outliers or risks.
+Identify outliers, trends, and structural shifts. Aim for 400–600 words.
 
 Data:
 {data_block}""",
 
-    "SECTOR_ANALYSIS": """You are a senior macroeconomist. Write a 3-4 paragraph cross-indicator analysis examining {context}.
-Synthesise the relationships between GDP growth, inflation, unemployment, trade, and fiscal position.
-Use ONLY the data provided. Cite every number as [Source: <source_name>, <period>].
-Focus on macro linkages and policy implications.
+    "SECTOR_ANALYSIS": """You are a senior macroeconomist. Write a concise cross-indicator analysis of {context}.
+Synthesise relationships between GDP growth, inflation, unemployment, trade, and fiscal position.
+Use ONLY the data provided. Cite key figures as [Source: <source_name>, <period>].
+Use GitHub-flavored Markdown. Include:
+- A markdown table of key macro linkages (blank lines before/after).
+- Where genuinely useful, one Mermaid diagram (```mermaid, graph TD only). MERMAID RULES: quote ALL node labels e.g. A["Debt 60 pct GDP"]; no %, (), [], : inside labels; no [Source:] inside diagrams; simple A/B/C node IDs only.
+- GitHub alerts for 1–2 policy risks or structural vulnerabilities.
+Focus on macro linkages and policy implications. Aim for 400–600 words.
 
 Data:
 {data_block}""",
@@ -68,12 +79,38 @@ class SummarizerAgent:
                                   "CURRENT_ACCOUNT_PCT_GDP", "GOVT_DEBT_PCT_GDP"],
     }
 
+    _CACHE_TTL_HOURS = 24
+    _RECORD_LIMIT = 50
+
+    def _get_cached(self, country_code: str, summary_type: str) -> Optional[Summary]:
+        """Return an existing summary if one was generated within the TTL window."""
+        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=self._CACHE_TTL_HOURS)
+        row = (
+            self.db.query(Summary)
+            .filter(
+                Summary.country_code == country_code,
+                Summary.summary_type == summary_type,
+                (Summary.tenant_id == None) | (Summary.tenant_id == self.tenant_id),
+                Summary.generated_at >= cutoff,
+            )
+            .order_by(Summary.generated_at.desc())
+            .first()
+        )
+        if row:
+            self.db.expunge(row)
+        return row
+
     async def generate_country_snapshot(
         self,
         country: str,
         year_from: int = 2018,
         indicators: Optional[list[str]] = None,
     ) -> Summary:
+        cached = self._get_cached(country, "COUNTRY_SNAPSHOT")
+        if cached:
+            logger.info("Cache hit: COUNTRY_SNAPSHOT / %s", country)
+            return cached
         query = self.db.query(GoldRecord).filter(
             GoldRecord.country_code == country,
             GoldRecord.period >= str(year_from),
@@ -81,7 +118,7 @@ class SummarizerAgent:
         )
         if indicators:
             query = query.filter(GoldRecord.indicator_code.in_(indicators))
-        records = query.order_by(GoldRecord.period.desc()).limit(120).all()
+        records = query.order_by(GoldRecord.period.desc()).limit(self._RECORD_LIMIT).all()
         return await self._generate(
             country_code=country,
             summary_type="COUNTRY_SNAPSHOT",
@@ -95,6 +132,10 @@ class SummarizerAgent:
         countries: Optional[list[str]] = None,
         year_from: int = 2018,
     ) -> Summary:
+        cached = self._get_cached("MULTI", "INDICATOR_BRIEF")
+        if cached:
+            logger.info("Cache hit: INDICATOR_BRIEF / %s", indicator_code)
+            return cached
         query = self.db.query(GoldRecord).filter(
             GoldRecord.indicator_code == indicator_code,
             GoldRecord.period >= str(year_from),
@@ -102,7 +143,7 @@ class SummarizerAgent:
         )
         if countries:
             query = query.filter(GoldRecord.country_code.in_(countries))
-        records = query.order_by(GoldRecord.period.desc()).limit(120).all()
+        records = query.order_by(GoldRecord.period.desc()).limit(self._RECORD_LIMIT).all()
         return await self._generate(
             country_code="MULTI",
             summary_type="INDICATOR_BRIEF",
@@ -115,6 +156,10 @@ class SummarizerAgent:
         country: str,
         sector_theme: str = "Full Macro Overview",
     ) -> Summary:
+        cached = self._get_cached(country, "SECTOR_ANALYSIS")
+        if cached:
+            logger.info("Cache hit: SECTOR_ANALYSIS / %s / %s", sector_theme, country)
+            return cached
         ind_codes = self.SECTOR_INDICATORS.get(
             sector_theme, self.SECTOR_INDICATORS["Full Macro Overview"]
         )
@@ -126,7 +171,7 @@ class SummarizerAgent:
                 (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == self.tenant_id)
             )
             .order_by(GoldRecord.period.desc())
-            .limit(120)
+            .limit(self._RECORD_LIMIT)
             .all()
         )
         label = f"{sector_theme} — {country}"

@@ -16,7 +16,7 @@
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Mermaid.js for graphs and diagrams -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <!-- CSS Style -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -24,43 +24,122 @@
 
     <!-- ── Authentication Overlay ── -->
     <div id="auth-overlay" class="auth-overlay">
-        <div class="auth-card glass-panel">
-            <div class="auth-header">
-                <div class="logo">
-                    <i data-lucide="bar-chart-2" class="glow-icon"></i>
+
+        <!-- Left: branding panel -->
+        <div class="auth-hero">
+            <div class="auth-hero-inner">
+                <div class="auth-hero-logo">
+                    <i data-lucide="bar-chart-2"></i>
                     <span>MACRO INTELLIGENCE</span>
                 </div>
-                <p>Enter credentials to access the platform</p>
+
+                <h1 class="auth-hero-title">Global macro<br>data, unified.</h1>
+                <p class="auth-hero-desc">
+                    One platform for ingesting, validating, and analysing
+                    macroeconomic indicators across economies — powered by AI.
+                </p>
+
+                <ul class="auth-features">
+                    <li>
+                        <span class="auth-feat-icon"><i data-lucide="database"></i></span>
+                        <div>
+                            <strong>Medallion Data Pipeline</strong>
+                            <span>Bronze → Silver → Gold with automated DQ scoring</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="auth-feat-icon"><i data-lucide="activity"></i></span>
+                        <div>
+                            <strong>Anomaly Detection</strong>
+                            <span>Prophet-based σ alerts across 150+ indicators</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="auth-feat-icon"><i data-lucide="link-2"></i></span>
+                        <div>
+                            <strong>Full Data Lineage</strong>
+                            <span>UUID-linked gold records traceable to source</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="auth-feat-icon"><i data-lucide="bot"></i></span>
+                        <div>
+                            <strong>AI Research Assistant</strong>
+                            <span>RAG-powered analyst with live data context</span>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="auth-stats">
+                    <div class="auth-stat"><strong>150+</strong><span>Indicators</span></div>
+                    <div class="auth-stat"><strong>180+</strong><span>Economies</span></div>
+                    <div class="auth-stat"><strong>Gold</strong><span>DQ Standard</span></div>
+                </div>
             </div>
-            
-            <form id="login-form" class="auth-form">
-                <div class="form-group">
-                    <label for="login-email">Email Address</label>
-                    <div class="input-wrapper">
-                        <i data-lucide="mail"></i>
-                        <input type="email" id="login-email" required placeholder="admin@example.com" value="admin@example.com">
-                    </div>
+
+            <!-- Decorative chart bars -->
+            <div class="auth-deco" aria-hidden="true">
+                <div class="deco-bars">
+                    <div class="deco-bar" style="--h:35%"></div>
+                    <div class="deco-bar" style="--h:58%"></div>
+                    <div class="deco-bar" style="--h:42%"></div>
+                    <div class="deco-bar" style="--h:75%"></div>
+                    <div class="deco-bar" style="--h:51%"></div>
+                    <div class="deco-bar" style="--h:88%"></div>
+                    <div class="deco-bar" style="--h:63%"></div>
+                    <div class="deco-bar" style="--h:40%"></div>
+                    <div class="deco-bar" style="--h:72%"></div>
+                    <div class="deco-bar" style="--h:55%"></div>
+                    <div class="deco-bar" style="--h:91%"></div>
+                    <div class="deco-bar" style="--h:48%"></div>
+                    <div class="deco-bar" style="--h:66%"></div>
+                    <div class="deco-bar" style="--h:38%"></div>
+                    <div class="deco-bar" style="--h:79%"></div>
+                    <div class="deco-bar" style="--h:52%"></div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <div class="input-wrapper">
-                        <i data-lucide="lock"></i>
-                        <input type="password" id="login-password" required placeholder="••••••••" value="admin123">
-                    </div>
-                </div>
-                
-                <div id="auth-error" class="error-msg hidden">
-                    <i data-lucide="alert-triangle"></i>
-                    <span id="auth-error-text">Invalid email or password</span>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    <span>Login</span>
-                    <i data-lucide="log-in"></i>
-                </button>
-            </form>
+            </div>
         </div>
+
+        <!-- Right: login form panel -->
+        <div class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <p class="auth-welcome">Welcome back</p>
+                    <h2 class="auth-card-title">Sign in to your workspace</h2>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="mail"></i>
+                            <input type="email" id="login-email" required placeholder="admin@example.com" value="admin@example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="lock"></i>
+                            <input type="password" id="login-password" required placeholder="••••••••" value="admin123">
+                        </div>
+                    </div>
+
+                    <div id="auth-error" class="error-msg hidden">
+                        <i data-lucide="alert-triangle"></i>
+                        <span id="auth-error-text">Invalid email or password</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Sign in</span>
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </form>
+
+                <p class="auth-footer-note">Macro Intelligence Platform · Secure Access</p>
+            </div>
+        </div>
+
     </div>
 
     <!-- ── Main Application Container ── -->
@@ -273,6 +352,16 @@
                                     <span>Refresh Embeds</span>
                                 </button>
                             </div>
+                            <div class="action-row">
+                                <div class="action-info">
+                                    <strong>Repair Unit-Scale Violations</strong>
+                                    <span>Fix gold records ingested in raw units instead of the standard unit (e.g. absolute USD stored as USD_BN)</span>
+                                </div>
+                                <button id="repair-unit-scale-btn" class="btn btn-secondary" onclick="runUnitScaleRepair()">
+                                    <i data-lucide="wrench"></i>
+                                    <span>Repair Scales</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <div id="orchestrator-status" class="orchestrator-status hidden">
@@ -382,23 +471,38 @@
                         <h3>Gold Layer Records</h3>
                         <span id="explorer-record-count" class="badge badge-cyan">0 records</span>
                     </div>
+                    <div class="exp-table-filters">
+                        <div class="exp-table-search-wrap">
+                            <i data-lucide="search" class="exp-table-search-icon"></i>
+                            <input type="text" id="exp-table-search" class="exp-table-search" placeholder="Filter by indicator, country, period…">
+                        </div>
+                        <select id="exp-table-type-filter" class="exp-table-select">
+                            <option value="all">All types</option>
+                            <option value="actual">Actual only</option>
+                            <option value="forecast">Forecast only</option>
+                        </select>
+                        <button id="exp-table-clear-btn" class="exp-table-clear-btn hidden">Clear filters</button>
+                    </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Indicator</th>
-                                    <th>Country</th>
-                                    <th>Period</th>
-                                    <th>Value</th>
+                                    <th data-sort="indicator_code" class="sortable-col">Indicator</th>
+                                    <th data-sort="country_code" class="sortable-col">Country</th>
+                                    <th data-sort="period" class="sortable-col sort-active sort-desc">Period</th>
+                                    <th data-sort="value" class="sortable-col">Value</th>
                                     <th>Unit</th>
                                     <th>Type</th>
-                                    <th>DQ Score</th>
+                                    <th data-sort="dq_score" class="sortable-col">DQ Score</th>
                                     <th>Source</th>
+                                    <th data-sort="promoted_at" class="sortable-col">Promoted At</th>
+                                    <th>Record ID</th>
                                 </tr>
                             </thead>
                             <tbody id="explorer-table-body"></tbody>
                         </table>
                     </div>
+                    <div id="exp-table-footer" class="exp-table-footer"></div>
                 </div>
 
             </section>
@@ -571,7 +675,7 @@
                         <div id="crawler-metadata" class="margin-top hidden">
                             <p><strong>Crawl URL:</strong> <a id="crawler-source-url" href="#" target="_blank" class="table-link">Link</a></p>
                             <p class="margin-top"><strong>Extraction Guidelines:</strong></p>
-                            <pre id="crawler-prompt" class="terminal-console" style="padding: 10px; font-size: 11px; white-space: pre-wrap; word-break: break-all; margin-top: 5px; height: 100px; overflow-y: auto; color: #a5b4fc;"></pre>
+                            <pre id="crawler-prompt" class="terminal-console" style="padding: 10px; font-size: 11px; white-space: pre-wrap; word-break: break-all; margin-top: 5px; height: 100px; overflow-y: auto; color: #86efac;"></pre>
                         </div>
                     </div>
                     

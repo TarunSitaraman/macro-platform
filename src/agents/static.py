@@ -9,7 +9,7 @@ import aiohttp
 
 from src.config import (
     FRED_SERIES, IMF_INDICATORS, INDICATOR_CATALOGUE,
-    PHASE1_COUNTRIES, WORLD_BANK_INDICATORS, get_settings,
+    PHASE1_COUNTRIES, SOURCE_VALUE_MULTIPLIERS, WORLD_BANK_INDICATORS, get_settings,
 )
 
 logger = logging.getLogger(__name__)
@@ -45,17 +45,19 @@ class WorldBankAgent:
         if len(data) < 2 or not data[1]:
             return []
 
+        mult = SOURCE_VALUE_MULTIPLIERS.get(("WORLD_BANK", indicator_code), 1.0)
         records = []
         for entry in data[1]:
             val = entry.get("value")
             year = str(entry.get("date", ""))
             if val is None or not year:
                 continue
+            scaled = float(val) * mult
             records.append({
                 "indicator_code": indicator_code,
                 "country_code": country,
                 "period": year,
-                "raw_value": str(val),
+                "raw_value": str(scaled),
                 "raw_unit": INDICATOR_CATALOGUE[indicator_code]["standard_unit"],
                 "source_url": url,
                 "raw_json": entry,
@@ -115,6 +117,7 @@ class IMFAgent:
             return []
 
         all_countries = data.get("values", {}).get(imf_code, {})
+        mult = SOURCE_VALUE_MULTIPLIERS.get(("IMF", indicator_code), 1.0)
         records = []
         for country, year_map in all_countries.items():
             if country not in self._PHASE1_SET:
@@ -122,11 +125,12 @@ class IMFAgent:
             for year, val in year_map.items():
                 if val is None:
                     continue
+                scaled = float(val) * mult
                 records.append({
                     "indicator_code": indicator_code,
                     "country_code": country,
                     "period": str(year),
-                    "raw_value": str(val),
+                    "raw_value": str(scaled),
                     "raw_unit": INDICATOR_CATALOGUE[indicator_code]["standard_unit"],
                     "source_url": url,
                     "raw_json": {"country": country, "year": year, "value": val},
@@ -177,17 +181,19 @@ class FREDAgent:
             logger.error("FRED fetch failed: %s | %s", url, exc)
             return []
 
+        mult = SOURCE_VALUE_MULTIPLIERS.get(("FRED", indicator_code), 1.0)
         records = []
         for obs in data.get("observations", []):
             val = obs.get("value", ".")
             if val in (".", ""):
                 continue
             year = obs.get("date", "")[:4]
+            scaled = float(val) * mult if mult != 1.0 else val
             records.append({
                 "indicator_code": indicator_code,
                 "country_code": "USA",
                 "period": year,
-                "raw_value": val,
+                "raw_value": str(scaled),
                 "raw_unit": INDICATOR_CATALOGUE[indicator_code]["standard_unit"],
                 "source_url": url,
                 "raw_json": obs,

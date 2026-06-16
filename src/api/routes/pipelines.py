@@ -16,8 +16,8 @@ from sqlalchemy.orm import Session
 from src.agents.pipeline import Pipeline
 from src.agents.static import FREDAgent, IMFAgent, WorldBankAgent
 from src.agents.crawler import DynamicCrawlerAgent
-from src.config import INDICATOR_CATALOGUE, get_settings
-from src.database import SourceConfig, User, get_db, SessionLocal
+from src.config import INDICATOR_CATALOGUE, SOURCE_VALUE_MULTIPLIERS, get_settings
+from src.database import GoldRecord, SourceConfig, User, get_db, SessionLocal
 from src.utils.auth import get_current_user, check_role
 from src.utils.anomaly_cache import AnomalyCacheManager
 
@@ -388,3 +388,46 @@ async def push_extracted_records(
         background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, current_user.tenant_id)
 
     return {"promoted": promoted, "queued": queued, "rejected": rejected}
+
+
+@router.post("/pipelines/repair-unit-scale")
+def repair_unit_scale(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    One-time repair: fix gold records that were ingested with the wrong scale
+    (e.g. World Bank GDP stored as raw absolute USD instead of billions).
+
+    Detects violations by comparing stored value against the standard unit's
+    expected magnitude and applies the correct divisor in-place.
+    """
+    # Map each standard_unit to the magnitude threshold above which the value
+    # must be in the base unit (not the target unit), and the corrective divisor.
+    REPAIR_RULES: list[tuple[str, float, float]] = [
+        # (standard_unit, threshold_value_meaning_wrong_scale, divisor_to_apply)
+        ("USD_BN",   1e9,  1e9),   # raw absolute USD → divide by 1 billion
+        ("MILLIONS", 1e6,  1e6),   # raw count      → divide by 1 million
+    ]
+
+    fixed = 0
+    skipped = 0
+    for standard_unit, threshold, divisor in REPAIR_RULES:
+        bad_records = (
+            db.query(GoldRecord)
+            .filter(
+                GoldRecord.standard_unit == standard_unit,
+                GoldRecord.value >= threshold,
+                (GoldRecord.tenant_id == None) | (GoldRecord.tenant_id == current_user.tenant_id),
+            )
+            .all()
+        )
+        for rec in bad_records:
+            rec.value = rec.value / divisor
+            fixed += 1
+
+    if fixed:
+        db.commit()
+        logger.info("repair-unit-scale: corrected %d gold records", fixed)
+
+    return {"fixed": fixed, "skipped": skipped}

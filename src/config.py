@@ -245,3 +245,17 @@ FRED_SERIES = {
     "UNEMPLOYMENT_RATE": "UNRATE",
     "POPULATION": "POPTHM",
 }
+
+# Per-source scale factors: multiply the raw API value by this to get the standard unit.
+# World Bank returns absolute USD → divide by 1e9 to get USD_BN.
+# World Bank returns raw population count → divide by 1e6 to get MILLIONS.
+# FRED POPTHM is in thousands → divide by 1e3 to get MILLIONS.
+# All PCT/PCT_GDP indicators are already in percentage points from every source → 1.0.
+SOURCE_VALUE_MULTIPLIERS: dict[tuple[str, str], float] = {
+    ("WORLD_BANK", "GDP_CURRENT_USD"): 1e-9,
+    ("WORLD_BANK", "POPULATION"):      1e-6,
+    ("FRED",       "GDP_CURRENT_USD"): 1.0,
+    ("FRED",       "POPULATION"):      1e-3,
+    ("IMF",        "GDP_CURRENT_USD"): 1.0,
+    ("IMF",        "POPULATION"):      1.0,
+}

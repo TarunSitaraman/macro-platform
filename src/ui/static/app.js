@@ -41,6 +41,25 @@ function safeHref(url) {
     return /^https?:\/\//i.test(String(url)) ? String(url) : '#';
 }
 
+function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        if (!btn) return;
+        const orig = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = orig; }, 1200);
+    }).catch(() => {});
+}
+
+function fmtAxisVal(v) {
+    if (v == null) return 'N/A';
+    const abs = Math.abs(v);
+    if (abs >= 1e12) return (v / 1e12).toLocaleString(undefined, {maximumFractionDigits: abs >= 100e12 ? 0 : 2}) + 'T';
+    if (abs >= 1e9)  return (v / 1e9).toLocaleString(undefined,  {maximumFractionDigits: abs >= 100e9  ? 0 : 2}) + 'B';
+    if (abs >= 1e6)  return (v / 1e6).toLocaleString(undefined,  {maximumFractionDigits: abs >= 100e6  ? 0 : 2}) + 'M';
+    if (abs >= 1e3)  return (v / 1e3).toLocaleString(undefined,  {maximumFractionDigits: abs >= 100e3  ? 0 : 2}) + 'K';
+    return v.toLocaleString(undefined, {maximumFractionDigits: 2});
+}
+
 // Renders assistant message content safely using markdown parser.
 function renderMsgContent(el, text) {
     renderMarkdownToElement(el, text);
@@ -73,6 +92,13 @@ function buildMsgElement(role, content) {
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.mermaid) {
+        mermaid.initialize({
+            theme: 'dark',
+            securityLevel: 'loose',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+        });
+    }
     initLucide();
     setupEventListeners();
     checkAuth();
@@ -525,6 +551,34 @@ async function runEmbeddingsRefresher() {
     }
 }
 
+async function runUnitScaleRepair() {
+    const btn = document.getElementById('repair-unit-scale-btn');
+    if (btn) btn.disabled = true;
+    writeToConsole("Scanning gold layer for unit-scale violations (e.g. raw USD stored as USD_BN)…");
+    try {
+        const response = await fetch(`${API_URL}/pipelines/repair-unit-scale`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (response.ok) {
+            const res = await response.json();
+            if (res.fixed > 0) {
+                writeToConsole(`Unit-scale repair complete — corrected ${res.fixed} gold record(s).`, 'success');
+                loadOverviewStats();
+            } else {
+                writeToConsole('Unit-scale scan complete — no violations found. All values look correct.', 'success');
+            }
+        } else {
+            const err = await response.json();
+            writeToConsole(`Repair failed: ${err.detail || 'Server error'}`, 'error');
+        }
+    } catch {
+        writeToConsole('Repair failed: connection lost.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
 // ── DATA EXPLORER & CHARTS ──
 const EXPLORER_COUNTRIES = [
     { code: 'USA', name: 'United States' }, { code: 'GBR', name: 'United Kingdom' },
@@ -722,7 +776,16 @@ async function visualizeExplorer() {
 
     // Fetch each indicator (with cache), then render
     await Promise.all(state.selectedIndicators.map(code => fetchIndicatorData(code)));
-    state.selectedIndicators.forEach((code, idx) => renderIndicatorChart(code, idx));
+
+    // Build a stable country→color map across ALL indicators so the same
+    // country always gets the same colour regardless of which chart it's in.
+    const allCountries = [...new Set(
+        state.selectedIndicators.flatMap(code => (state.goldDataCache[code] || []).map(r => r.country_code))
+    )].sort();
+    const countryColorMap = {};
+    allCountries.forEach((cc, i) => { countryColorMap[cc] = EXPLORER_COLORS[i % EXPLORER_COLORS.length]; });
+
+    state.selectedIndicators.forEach(code => renderIndicatorChart(code, countryColorMap));
 
     // Also refresh the data table for the first indicator
     renderExplorerTable();
@@ -741,7 +804,7 @@ async function fetchIndicatorData(indCode) {
     }
 }
 
-function renderIndicatorChart(indCode, colorOffset) {
+function renderIndicatorChart(indCode, countryColorMap) {
     const card = document.getElementById(`chart-card-${indCode}`);
     if (!card) return;
 
@@ -766,7 +829,7 @@ function renderIndicatorChart(indCode, colorOffset) {
     const allYears = [...new Set(recs.map(r => r.period.slice(0, 4)))].sort();
 
     const datasets = Object.keys(byCountry).map((cty, i) => {
-        const color = EXPLORER_COLORS[(colorOffset + i) % EXPLORER_COLORS.length];
+        const color = countryColorMap?.[cty] ?? EXPLORER_COLORS[i % EXPLORER_COLORS.length];
         const values = allYears.map(yr => {
             const vals = byCountry[cty][yr];
             if (!vals || vals.length === 0) return null;
@@ -847,7 +910,12 @@ function renderIndicatorChart(indCode, colorOffset) {
                     padding: 12,
                     cornerRadius: 8,
                     callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : 'N/A'} ${unit}`
+                        label: ctx => ` ${ctx.dataset.label}: ${fmtAxisVal(ctx.parsed.y)} ${unit}`,
+                        afterLabel: ctx => {
+                            const ids = ctx.dataset.recordIds?.[ctx.dataIndex];
+                            if (!ids || ids.length === 0) return null;
+                            return ids.length === 1 ? ` ⬡ ${ids[0].slice(0, 8)}…` : ` ⬡ ${ids.length} records`;
+                        }
                     }
                 }
             },
@@ -858,7 +926,11 @@ function renderIndicatorChart(indCode, colorOffset) {
                 },
                 y: {
                     grid: { color: 'rgba(0,0,0,0.06)' },
-                    ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 11 } },
+                    ticks: {
+                        color: '#6a5a48',
+                        font: { family: "'Plus Jakarta Sans'", size: 11 },
+                        callback: v => fmtAxisVal(v)
+                    },
                     title: { display: !!unit, text: unit, color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 11 } }
                 }
             }
@@ -925,13 +997,75 @@ function openChartModal(indCode, indName, unit) {
             plugins: {
                 legend: { display: true, position: 'bottom', labels: { boxWidth: 10, padding: 16, color: '#6a5a48', font: { family: 'Inter', size: 12 } } },
                 tooltip: { backgroundColor: '#FAF5EC', titleColor: '#1C1510', bodyColor: '#3a2e24', borderColor: 'rgba(196,98,58,0.25)', borderWidth: 1, padding: 12, cornerRadius: 8,
-                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : 'N/A'} ${unit}` } }
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtAxisVal(ctx.parsed.y)} ${unit}` } }
             },
             scales: {
                 x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } } },
-                y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } },
+                y: { grid: { color: 'rgba(0,0,0,0.06)' },
+                     ticks: { color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 }, callback: v => fmtAxisVal(v) },
                      title: { display: !!unit, text: unit, color: '#6a5a48', font: { family: "'Plus Jakarta Sans'", size: 12 } } }
             }
+        }
+    });
+}
+
+// Explorer table state — persists across re-renders within the session
+const _expTable = { search: '', typeFilter: 'all', sortCol: 'period', sortDir: 'desc', initialized: false };
+
+function initExplorerTableControls() {
+    if (_expTable.initialized) return;
+    _expTable.initialized = true;
+
+    const searchEl = document.getElementById('exp-table-search');
+    const typeEl   = document.getElementById('exp-table-type-filter');
+    const clearBtn = document.getElementById('exp-table-clear-btn');
+
+    searchEl?.addEventListener('input', () => {
+        _expTable.search = searchEl.value;
+        _updateClearBtn();
+        renderExplorerTable();
+    });
+    typeEl?.addEventListener('change', () => {
+        _expTable.typeFilter = typeEl.value;
+        _updateClearBtn();
+        renderExplorerTable();
+    });
+    clearBtn?.addEventListener('click', () => {
+        _expTable.search = '';
+        _expTable.typeFilter = 'all';
+        if (searchEl) searchEl.value = '';
+        if (typeEl) typeEl.value = 'all';
+        _updateClearBtn();
+        renderExplorerTable();
+    });
+
+    document.querySelectorAll('#explorer-table-card thead .sortable-col').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.sort;
+            if (_expTable.sortCol === col) {
+                _expTable.sortDir = _expTable.sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                _expTable.sortCol = col;
+                _expTable.sortDir = col === 'period' || col === 'promoted_at' ? 'desc' : 'asc';
+            }
+            _updateSortHeaders();
+            renderExplorerTable();
+        });
+    });
+}
+
+function _updateClearBtn() {
+    const clearBtn = document.getElementById('exp-table-clear-btn');
+    if (!clearBtn) return;
+    const active = _expTable.search !== '' || _expTable.typeFilter !== 'all';
+    clearBtn.classList.toggle('hidden', !active);
+}
+
+function _updateSortHeaders() {
+    document.querySelectorAll('#explorer-table-card thead .sortable-col').forEach(th => {
+        th.classList.remove('sort-active', 'sort-asc', 'sort-desc');
+        if (th.dataset.sort === _expTable.sortCol) {
+            th.classList.add('sort-active', _expTable.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
         }
     });
 }
@@ -941,8 +1075,10 @@ function renderExplorerTable() {
     const tableCard = document.getElementById('explorer-table-card');
     if (!tableBody) return;
 
+    initExplorerTableControls();
+
     const allRecs = state.selectedIndicators.flatMap(code => state.goldDataCache[code] || []);
-    const recs = state.selectedCountries.length > 0
+    let recs = state.selectedCountries.length > 0
         ? allRecs.filter(r => state.selectedCountries.includes(r.country_code))
         : allRecs;
 
@@ -952,12 +1088,46 @@ function renderExplorerTable() {
     }
     if (tableCard) tableCard.classList.remove('hidden');
 
-    tableBody.innerHTML = recs.slice(0, 200).map(rec => {
+    // Apply search filter
+    const q = _expTable.search.trim().toLowerCase();
+    if (q) {
+        recs = recs.filter(r =>
+            r.indicator_code.toLowerCase().includes(q) ||
+            r.country_code.toLowerCase().includes(q) ||
+            (r.period || '').toLowerCase().includes(q)
+        );
+    }
+
+    // Apply type filter
+    if (_expTable.typeFilter === 'actual')   recs = recs.filter(r => !r.is_forecast);
+    if (_expTable.typeFilter === 'forecast') recs = recs.filter(r =>  r.is_forecast);
+
+    // Apply sort
+    const { sortCol, sortDir } = _expTable;
+    const mult = sortDir === 'asc' ? 1 : -1;
+    recs = [...recs].sort((a, b) => {
+        let av = a[sortCol], bv = b[sortCol];
+        if (sortCol === 'value' || sortCol === 'dq_score') {
+            return mult * ((av ?? 0) - (bv ?? 0));
+        }
+        av = (av ?? '').toString();
+        bv = (bv ?? '').toString();
+        return mult * av.localeCompare(bv);
+    });
+
+    _updateSortHeaders();
+
+    const PAGE = 300;
+    const shown = recs.slice(0, PAGE);
+
+    tableBody.innerHTML = '';
+    shown.forEach(rec => {
+        const tr = document.createElement('tr');
         const forecastTag = rec.is_forecast
             ? '<span class="badge badge-accent">Forecast</span>'
             : '<span class="badge badge-purple">Actual</span>';
         const dqClass = rec.dq_score >= 90 ? 'text-success' : 'text-warning';
-        return `<tr>
+        tr.innerHTML = `
             <td><strong>${escHtml(rec.indicator_code)}</strong></td>
             <td>${escHtml(rec.country_code)}</td>
             <td><code>${escHtml(rec.period)}</code></td>
@@ -967,13 +1137,42 @@ function renderExplorerTable() {
             <td><strong class="${dqClass}">${rec.dq_score.toFixed(1)}%</strong></td>
             <td><a href="${safeHref(rec.source_url)}" target="_blank" class="table-link">${escHtml(rec.source_name)}</a></td>
             <td>${new Date(rec.promoted_at).toLocaleDateString()}</td>
-        </tr>`;
-    }).join('');
+            <td class="uuid-cell">
+                ${rec.record_id
+                    ? `<code class="uuid-full" title="Click to copy">${escHtml(rec.record_id)}</code>
+                       <button class="uuid-copy-btn" title="Copy UUID">⬡</button>`
+                    : '<span style="color:var(--text-muted)">—</span>'}
+            </td>`;
+        if (rec.record_id) {
+            tr.querySelector('.uuid-copy-btn').addEventListener('click', function() {
+                copyToClipboard(rec.record_id, this);
+            });
+        }
+        tableBody.appendChild(tr);
+    });
+
+    const footer = document.getElementById('exp-table-footer');
+    if (footer) {
+        const total = allRecs.length;
+        const filtered = recs.length;
+        if (filtered < total || q || _expTable.typeFilter !== 'all') {
+            footer.textContent = `Showing ${Math.min(filtered, PAGE)} of ${filtered} filtered records (${total} total)`;
+        } else {
+            footer.textContent = `Showing ${Math.min(filtered, PAGE)} of ${total} records`;
+        }
+    }
 }
 
 function clearExplorerSelection() {
     state.selectedIndicators = [];
     state.selectedCountries = [];
+    _expTable.search = '';
+    _expTable.typeFilter = 'all';
+    const searchEl = document.getElementById('exp-table-search');
+    const typeEl   = document.getElementById('exp-table-type-filter');
+    if (searchEl) searchEl.value = '';
+    if (typeEl)   typeEl.value = 'all';
+    _updateClearBtn();
     
     // Reset multiselect labels and checkbox states
     updateMultiselectLabel('indicator');
@@ -1466,14 +1665,9 @@ function renderMarkdownToElement(element, content) {
     });
 
     // ── RENDER MERMAID DIAGRAMS ──
-    // Render each diagram individually so one bad diagram doesn't break others
+    // Render each diagram individually so one bad diagram doesn't break others.
+    // mermaid.initialize() is called once at DOMContentLoaded — not here.
     if (window.mermaid) {
-        mermaid.initialize({
-            theme: 'dark',
-            securityLevel: 'loose',
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-        });
-        
         const mermaidNodes = element.querySelectorAll('.mermaid');
         if (mermaidNodes.length > 0) {
             renderMermaidDiagrams(mermaidNodes);
@@ -1988,9 +2182,10 @@ async function loadDetectedAnomalies(force = false) {
 }
 
 // ── Linked Views state ──
-const _lv = { activeIndicator: null };
+const _lv = { activeIndicator: null, sortCol: 'sigma', sortDir: 'desc', anomalies: null };
 
 function renderLinkedViews(anomalies) {
+    _lv.anomalies = anomalies;
     const IND_LABELS = {
         CPI_INFLATION:              'CPI Inflation',
         GDP_GROWTH:                 'GDP Growth',
@@ -2011,10 +2206,46 @@ function renderLinkedViews(anomalies) {
     };
     const fmtInd = code => IND_LABELS[code] || code.replace(/_/g, ' ').replace(/\b(\w)/g, (_, c) => c.toUpperCase());
 
-    // Build lookup: indicator → country → worst-sigma entry
+    // Determine the reference year per indicator — latest year where all
+    // countries that have ANY data for that indicator also have data in that year.
+    // Falls back to latest year with maximum coverage if no single year is complete.
+    function pickReferenceYear(ind) {
+        const allEntries = anomalies.filter(a => a.indicator_code === ind);
+        const allCountries = new Set(allEntries.map(a => a.country_code));
+        const total = allCountries.size;
+
+        const byCoverage = {};
+        for (const a of allEntries) {
+            const yr = (a.date || '').slice(0, 4);
+            if (!yr) continue;
+            if (!byCoverage[yr]) byCoverage[yr] = new Set();
+            byCoverage[yr].add(a.country_code);
+        }
+
+        const sortedYears = Object.keys(byCoverage).sort().reverse(); // newest first
+        // Prefer: latest year with 100% country coverage
+        for (const yr of sortedYears) {
+            if (byCoverage[yr].size === total) return yr;
+        }
+        // Fallback: latest year with maximum coverage
+        const maxCov = Math.max(...Object.values(byCoverage).map(s => s.size));
+        for (const yr of sortedYears) {
+            if (byCoverage[yr].size === maxCov) return yr;
+        }
+        return sortedYears[0] || null;
+    }
+
+    // Build lookup: indicator → country → entry from the reference year (not worst all-time)
+    const refYears = {};
     const lookup = {};
+    const allInds = [...new Set(anomalies.map(a => a.indicator_code))];
+    for (const ind of allInds) {
+        refYears[ind] = pickReferenceYear(ind);
+    }
     for (const a of anomalies) {
         const ind = a.indicator_code, cc = a.country_code;
+        const yr = (a.date || '').slice(0, 4);
+        if (yr !== refYears[ind]) continue; // only use reference year
         if (!lookup[ind]) lookup[ind] = {};
         if (!lookup[ind][cc] || Math.abs(a.sigma) > Math.abs(lookup[ind][cc].sigma)) lookup[ind][cc] = a;
     }
@@ -2037,21 +2268,27 @@ function renderLinkedViews(anomalies) {
             <div class="strip-label" title="${escHtml(fmtInd(ind))}">${escHtml(fmtInd(ind))}</div>
             <div class="strip-axis">`;
 
-        for (const [cc, entry] of Object.entries(lookup[ind])) {
+        // Sort dots by sigma so lane assignment spreads nearby values across rows
+        const dots = Object.entries(lookup[ind])
+            .map(([cc, entry]) => ({ cc, entry }))
+            .sort((a, b) => (a.entry.sigma ?? 0) - (b.entry.sigma ?? 0));
+        const LANES = [20, 46, 72]; // % top positions for 3 vertical lanes
+        for (let i = 0; i < dots.length; i++) {
+            const { cc, entry } = dots[i];
             const sig = entry.sigma ?? 0;
             const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(1);
-            const yr = (entry.date || '').slice(0, 4);
-            const tip = `${cc}: ${sigStr}σ (${yr})`;
+            const tip = `${cc}: ${sigStr}σ`;
+            const topPct = LANES[i % LANES.length];
             sHtml += `<div class="strip-dot ${escHtml(dotClass(sig))}"
-                style="left:${pct(sig)}%"
+                style="left:${pct(sig)}%;top:${topPct}%"
                 title="${escHtml(tip)}"
                 data-ind="${escHtml(ind)}"
-                data-cc="${escHtml(cc)}"></div>`;
+                data-cc="${escHtml(cc)}"><span class="dot-label">${escHtml(cc.slice(0, 3))}</span></div>`;
         }
 
-        sHtml += `<div class="strip-axis-labels"><span>−7σ</span><span>0</span><span>+7σ</span></div>
-            </div>
-        </div>`;
+        sHtml += `<div class="strip-axis-labels">
+                <span>−7σ</span><span>−3σ</span><span>0</span><span>+3σ</span><span>+7σ</span>
+            </div></div></div>`;
     }
     stripEl.innerHTML = sHtml;
 
@@ -2091,36 +2328,49 @@ function renderLinkedViews(anomalies) {
     if (!rankedEl) return;
 
     if (!_lv.activeIndicator) {
-        // No filter active, hide the table
         rankedEl.innerHTML = '';
         rankedEl.style.display = 'none';
     } else {
-        // Build rows only from the active indicator
         let rows = [];
         for (const [cc, entry] of Object.entries(lookup[_lv.activeIndicator])) {
             rows.push({ ind: _lv.activeIndicator, cc, entry, absSigma: Math.abs(entry.sigma ?? 0) });
         }
-        rows.sort((a, b) => b.absSigma - a.absSigma);
 
+        // Apply current sort
+        const sortMult = _lv.sortDir === 'asc' ? 1 : -1;
+        rows.sort((a, b) => {
+            if (_lv.sortCol === 'country') return sortMult * a.cc.localeCompare(b.cc);
+            if (_lv.sortCol === 'year')    return sortMult * ((a.entry.date || '').localeCompare(b.entry.date || ''));
+            // default: sigma (signed — +7σ first when desc, −7σ first when asc)
+            return sortMult * ((a.entry.sigma ?? 0) - (b.entry.sigma ?? 0));
+        });
+
+        const colHdr = (col, label, extraClass = '') => {
+            const active = _lv.sortCol === col;
+            const cls = [extraClass, active ? `sort-${_lv.sortDir}` : ''].filter(Boolean).join(' ');
+            return `<th data-col="${col}" class="${cls}">${label}</th>`;
+        };
+
+        const refYear = refYears[_lv.activeIndicator] || '—';
         const MAX_SIGMA = 7;
         let tHtml = `<table class="ranked-table">
             <thead><tr>
-                <th>Country</th>
-                <th>Indicator</th>
-                <th>σ</th>
-                <th class="ranked-bar-cell">Deviation</th>
-                <th>Year</th>
+                <th class="ranked-rank-col">#</th>
+                ${colHdr('country', 'Country')}
+                ${colHdr('sigma', 'σ Deviation')}
+                <th class="ranked-bar-cell">Magnitude</th>
+                <th title="Reference year — latest year with full country coverage">${escHtml(refYear)} <span style="opacity:0.5;font-size:10px">ref yr</span></th>
             </tr></thead><tbody>`;
 
-        for (const { ind, cc, entry } of rows) {
+        rows.forEach(({ ind, cc, entry }, idx) => {
             const sig = entry.sigma ?? 0;
             const sigStr = (sig >= 0 ? '+' : '') + sig.toFixed(2);
             const yr = (entry.date || '').slice(0, 4);
             const barPct = Math.min(Math.abs(sig) / MAX_SIGMA * 50, 50).toFixed(1);
             const dir = sig >= 0 ? 'hi' : 'lo';
             tHtml += `<tr>
+                <td class="ranked-rank">${idx + 1}</td>
                 <td><span class="ranked-country">${escHtml(cc)}</span></td>
-                <td><span class="ranked-indicator">${escHtml(fmtInd(ind))}</span></td>
                 <td><span class="ranked-sigma ${dir}">${escHtml(sigStr)}σ</span></td>
                 <td class="ranked-bar-cell">
                     <div class="ranked-bar-wrap">
@@ -2129,10 +2379,24 @@ function renderLinkedViews(anomalies) {
                 </td>
                 <td><span class="ranked-year">${escHtml(yr)}</span></td>
             </tr>`;
-        }
+        });
         tHtml += '</tbody></table>';
         rankedEl.innerHTML = tHtml;
         rankedEl.style.display = 'block';
+
+        // Wire sortable column headers
+        rankedEl.querySelectorAll('th[data-col]').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.col;
+                if (_lv.sortCol === col) {
+                    _lv.sortDir = _lv.sortDir === 'desc' ? 'asc' : 'desc';
+                } else {
+                    _lv.sortCol = col;
+                    _lv.sortDir = col === 'country' || col === 'year' ? 'asc' : 'desc';
+                }
+                renderLinkedViews(_lv.anomalies);
+            });
+        });
     }
 }
 

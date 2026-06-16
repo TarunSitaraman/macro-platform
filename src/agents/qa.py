@@ -199,20 +199,37 @@ def parse_value(raw_value: str, standard_unit: str) -> Optional[float]:
 
     # Handle multiplier suffixes
     multiplier = 1.0
+    had_suffix = False
     if raw.endswith("t") or "trillion" in raw_value.lower():
         multiplier = 1_000.0  # to billions
         raw = raw.rstrip("t")
+        had_suffix = True
     elif raw.endswith("b") or "billion" in raw_value.lower():
         multiplier = 1.0
         raw = raw.rstrip("b")
+        had_suffix = True
     elif raw.endswith("m") or "million" in raw_value.lower():
         multiplier = 0.001  # to billions
         raw = raw.rstrip("m")
+        had_suffix = True
 
     # Remove remaining non-numeric (except . and -)
     raw = re.sub(r"[^\d.\-]", "", raw)
 
     try:
-        return float(raw) * multiplier
+        result = float(raw) * multiplier
     except ValueError:
         return None
+
+    # Magnitude safety net: if no suffix was present and the standard unit is
+    # USD_BN, a bare value > 1e9 is almost certainly raw absolute USD that
+    # missed its suffix (e.g. LLM extracted "15048964444000" without "trillion").
+    # Auto-scale it to billions so it stays comparable with other sources.
+    if not had_suffix and standard_unit == "USD_BN" and abs(result) >= 1e9:
+        result = result / 1e9
+
+    # Same for MILLIONS (e.g. raw population counts from scraped pages)
+    if not had_suffix and standard_unit == "MILLIONS" and abs(result) >= 1e6:
+        result = result / 1e6
+
+    return result
