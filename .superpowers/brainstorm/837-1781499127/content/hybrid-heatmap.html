@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Heatmap</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 28px 20px 60px;
+}
+h1 { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+.pg-sub { font-size: 13px; color: #666; margin-bottom: 30px; }
+.section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #C4823A;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid #2a2010;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.option-card {
+  border-radius: 10px; overflow: hidden;
+  border: 2px solid #222; cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.option-card:hover { transform: translateY(-3px); border-color: #444; }
+.option-card.selected { border-color: #C4623A; }
+.option-card.selected .oc-name::after { content: ' ✓'; color: #C4623A; }
+
+.oc-preview { background: #F0EBE0; padding: 18px; }
+.oc-name { padding: 12px 14px 4px; font-size: 13px; font-weight: 700; background: #1a1510; }
+.oc-desc { padding: 0 14px 12px; font-size: 11px; color: #777; line-height: 1.6; background: #1a1510; }
+
+/* ═══════════════════════════════════════
+   SHARED PLATFORM CHROME
+   ═══════════════════════════════════════ */
+.platform { display: flex; height: 520px; border-radius: 8px; overflow: hidden; }
+
+.sidebar {
+  width: 190px; min-width: 190px;
+  background: #1C1510;
+  display: flex; flex-direction: column;
+}
+.sb-top {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #2e2520;
+  display: flex; align-items: center; gap: 10px;
+}
+.sb-mark { font-size: 16px; color: #C4623A; }
+.sb-name-main { font-size: 11px; font-weight: 800; color: #F0EBE0; letter-spacing: 0.08em; text-transform: uppercase; }
+.sb-name-sub { font-size: 8px; color: #4a3a28; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+.sb-section { font-size: 8px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #3a2e24; padding: 10px 16px 3px; }
+.sb-item {
+  padding: 7px 16px; display: flex; align-items: center; gap: 10px;
+  font-size: 12px; font-family: Georgia, serif; font-style: italic;
+  color: #5a4a38; cursor: pointer;
+}
+.sb-item.active { color: #F0EBE0; background: rgba(196,98,58,0.15); border-left: 2px solid #C4623A; padding-left: 14px; }
+.sb-dash { width: 5px; height: 1px; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+.sb-item.active .sb-dash { background: #C4623A; opacity: 1; width: 8px; }
+.sb-ticker { margin-top: auto; border-top: 1px solid #2e2520; padding: 9px 16px; font-size: 8.5px; font-family: 'Courier New', monospace; color: #4a3a28; line-height: 1.9; }
+.sb-ticker-hi { color: #C4623A; font-weight: 700; }
+
+.main-content { flex: 1; background: #F0EBE0; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+
+.main-header { }
+.main-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #C4623A; font-family: 'Courier New', monospace; margin-bottom: 3px; }
+.main-title { font-size: 16px; font-weight: 700; color: #1C1510; font-family: Georgia, serif; }
+
+.stats-row { display: flex; gap: 8px; }
+.stat { flex: 1; background: #FAF5EC; border: 1px solid #DDD5C0; border-radius: 5px; padding: 8px 10px; }
+.stat-val { font-size: 18px; font-weight: 800; font-family: 'Courier New', monospace; color: #1C1510; }
+.stat-val.red { color: #A83220; }
+.stat-val.amber { color: #C4823A; }
+.stat-val.sage { color: #5A7A38; }
+.stat-label { font-size: 8.5px; color: #8a7a68; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+
+/* ═══════════════════════════════════════
+   OPTION A — Strip-in-Table
+   Each row = indicator. Visual strip embedded as a column.
+   Remaining columns = data sortable info.
+   ═══════════════════════════════════════ */
+.sit-table { background: #FAF5EC; border: 1px solid #DDD5C0; border-radius: 6px; overflow: hidden; flex: 1; }
+.sit-thead {
+  display: grid;
+  grid-template-columns: 80px 1fr 70px 52px 36px;
+  gap: 0;
+  background: #F0EBE0;
+  border-bottom: 1px solid #DDD5C0;
+  padding: 6px 10px;
+}
+.sit-th {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #9a8a78;
+  display: flex; align-items: center; gap: 3px; cursor: pointer;
+}
+.sit-th:hover { color: #C4823A; }
+.sit-th-sort { font-size: 7px; color: #9a8a78; }
+
+.sit-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 70px 52px 36px;
+  gap: 0;
+  padding: 7px 10px;
+  border-bottom: 1px solid #EDE8DC;
+  align-items: center;
+  transition: background 0.12s;
+}
+.sit-row:last-child { border-bottom: none; }
+.sit-row:hover { background: #F5F0E5; }
+
+.sit-ind { font-size: 10px; font-family: Georgia, serif; font-style: italic; color: #2a1e12; line-height: 1.3; }
+.sit-ind-sub { font-size: 8px; color: #9a8a78; font-style: normal; font-family: -apple-system, sans-serif; }
+
+/* The embedded strip */
+.sit-strip {
+  position: relative;
+  height: 28px;
+  margin: 0 8px;
+  border-radius: 3px;
+  background: #EDE8DC;
+}
+.sit-strip-zero {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: #C8C0B0;
+}
+.sit-dot {
+  position: absolute;
+  top: 50%; transform: translate(-50%, -50%);
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 6.5px; font-weight: 800; font-family: 'Courier New', monospace;
+  cursor: default;
+  z-index: 2;
+}
+/* axis ticks */
+.sit-strip-tick {
+  position: absolute; top: 0; bottom: 0;
+  width: 1px; background: rgba(0,0,0,0.06);
+}
+
+.sit-worst { }
+.sit-worst-cc { font-size: 11px; font-weight: 700; font-family: 'Courier New', monospace; }
+.sit-worst-cc.red { color: #A83220; }
+.sit-worst-cc.amber { color: #C4823A; }
+.sit-worst-cc.sage { color: #5A7A38; }
+.sit-worst-yr { font-size: 8px; color: #9a8a78; font-family: 'Courier New', monospace; }
+
+.sit-sigma { font-size: 13px; font-weight: 800; font-family: 'Courier New', monospace; text-align: right; }
+.sit-sigma.red { color: #A83220; }
+.sit-sigma.amber { color: #C4823A; }
+.sit-sigma.sage { color: #5A7A38; }
+
+.sit-count {
+  font-size: 10px; font-weight: 700; font-family: 'Courier New', monospace;
+  color: #9a8a78; text-align: center;
+  background: #EDE8DC; border-radius: 3px; padding: 2px 4px;
+}
+
+/* ═══════════════════════════════════════
+   OPTION B — Linked Views (strip + live table below)
+   ═══════════════════════════════════════ */
+.linked-wrap { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; }
+
+/* Strip overview at top */
+.linked-strip-panel {
+  background: #FAF5EC; border: 1px solid #DDD5C0; border-radius: 6px; padding: 10px 12px;
+}
+.lsp-title { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8a7a68; margin-bottom: 8px; font-family: -apple-system, sans-serif; display: flex; align-items: center; gap: 10px; }
+.lsp-title-hint { font-weight: 400; color: #b0a090; font-size: 8px; letter-spacing: 0.05em; text-transform: none; }
+
+.lstrip-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.lstrip-label { width: 66px; text-align: right; font-size: 9px; font-family: Georgia, serif; font-style: italic; color: #6a5a48; flex-shrink: 0; }
+.lstrip-track {
+  flex: 1; height: 22px; background: #EDE8DC; border-radius: 3px; position: relative;
+}
+.lstrip-track::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #C8C0B0; }
+.ldot {
+  position: absolute; top: 50%; transform: translate(-50%,-50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 6px; font-weight: 800; font-family: 'Courier New', monospace;
+  cursor: pointer; z-index: 2; transition: transform 0.12s;
+}
+.ldot:hover { transform: translate(-50%,-50%) scale(1.3); z-index: 10; }
+.ldot.active-dot { transform: translate(-50%,-50%) scale(1.35); box-shadow: 0 0 0 2px #C4623A; z-index: 10; }
+
+/* Live-updating table below strip */
+.linked-table {
+  background: #FAF5EC; border: 1px solid #DDD5C0; border-radius: 6px;
+  flex: 1; overflow: hidden; display: flex; flex-direction: column;
+}
+.lt-header {
+  padding: 7px 12px;
+  background: #F0EBE0;
+  border-bottom: 1px solid #DDD5C0;
+  display: flex; align-items: center; gap: 10px;
+}
+.lt-header-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8a7a68; }
+.lt-active-filter {
+  font-size: 9px; font-weight: 700;
+  background: rgba(196,98,58,0.15); color: #C4623A;
+  padding: 2px 8px; border-radius: 10px;
+  font-family: 'Courier New', monospace;
+}
+.lt-clear { margin-left: auto; font-size: 9px; color: #b0a090; cursor: pointer; }
+.lt-clear:hover { color: #C4623A; }
+
+.lt-row {
+  display: grid; grid-template-columns: 26px 1fr 44px 54px 90px;
+  gap: 0; padding: 5px 12px;
+  border-bottom: 1px solid #EDE8DC;
+  align-items: center;
+}
+.lt-row:last-child { border-bottom: none; }
+.lt-num { font-size: 9px; color: #9a8a78; font-family: 'Courier New', monospace; }
+.lt-desc { }
+.lt-desc-ind { font-size: 10px; font-family: Georgia, serif; font-style: italic; color: #2a1e12; }
+.lt-desc-cc { font-size: 8.5px; color: #8a7a68; font-family: 'Courier New', monospace; }
+.lt-cc { font-size: 11px; font-weight: 700; font-family: 'Courier New', monospace; }
+.lt-sigma { font-size: 12px; font-weight: 800; font-family: 'Courier New', monospace; text-align: right; }
+.lt-sigma.red { color: #A83220; }
+.lt-sigma.amber { color: #C4823A; }
+.lt-sigma.sage { color: #5A7A38; }
+.lt-bar-col { padding-left: 8px; }
+.lt-bar-track { height: 6px; background: #EDE8DC; border-radius: 3px; position: relative; }
+.lt-bar-fill { height: 100%; border-radius: 3px; }
+.lt-bar-label { font-size: 7px; color: #9a8a78; font-family: 'Courier New', monospace; margin-top: 1px; text-align: right; }
+
+.lt-thead {
+  display: grid; grid-template-columns: 26px 1fr 44px 54px 90px;
+  gap: 0; padding: 5px 12px;
+  background: #F5F0E5; border-bottom: 1px solid #DDD5C0;
+}
+.lt-th { font-size: 8px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9a8a78; cursor: pointer; }
+.lt-th:hover { color: #C4823A; }
+</style>
+<script>
+function pick(el) {
+  document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  try { fetch('/__companion/event', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type:'click', choice:el.dataset.choice, text:el.querySelector('.oc-name').textContent}) }); } catch(e){}
+}
+// Simulate click filtering in option B
+function filterByInd(dotEl, ind) {
+  document.querySelectorAll('.ldot').forEach(d => d.classList.remove('active-dot'));
+  dotEl.classList.add('active-dot');
+  document.getElementById('lt-active').textContent = ind;
+}
+</script>
+</head>
+<body>
+
+<h1>Hybrid Heatmap — Strip + Table, two approaches</h1>
+<p class="pg-sub">Both preserve sorting/filtering. Both keep the spatial strip visual. Click to choose.</p>
+
+<div class="two-col">
+
+  <!-- ══ OPTION A: Strip-in-Table ══ -->
+  <div class="option-card" data-choice="A" onclick="pick(this)">
+    <div class="oc-preview">
+      <div class="platform">
+        <div class="sidebar">
+          <div class="sb-top">
+            <div class="sb-mark">⬡</div>
+            <div><div class="sb-name-main">Macro</div><div class="sb-name-sub">Intelligence</div></div>
+          </div>
+          <div class="sb-section">Markets</div>
+          <div class="sb-item"><div class="sb-dash"></div>Overview</div>
+          <div class="sb-item"><div class="sb-dash"></div>Crawler</div>
+          <div class="sb-item active"><div class="sb-dash"></div>Anomalies</div>
+          <div class="sb-section">Analysis</div>
+          <div class="sb-item"><div class="sb-dash"></div>Explorer</div>
+          <div class="sb-item"><div class="sb-dash"></div>Researcher</div>
+          <div class="sb-section">Tools</div>
+          <div class="sb-item"><div class="sb-dash"></div>Chat</div>
+          <div class="sb-item"><div class="sb-dash"></div>Summaries</div>
+          <div class="sb-ticker">
+            CN/DEBT <span class="sb-ticker-hi">+5.8σ</span><br>
+            US/CPI <span class="sb-ticker-hi">+5.1σ</span><br>
+            IN/CPI <span class="sb-ticker-hi">+4.7σ</span>
+          </div>
+        </div>
+        <div class="main-content">
+          <div class="main-header">
+            <div class="main-eyebrow">Anomaly Detection</div>
+            <div class="main-title">Macro Deviation Signals</div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-val red">12</div><div class="stat-label">Critical >4σ</div></div>
+            <div class="stat"><div class="stat-val amber">23</div><div class="stat-label">Elevated</div></div>
+            <div class="stat"><div class="stat-val sage">12</div><div class="stat-label">Below trend</div></div>
+          </div>
+
+          <!-- Strip-in-Table -->
+          <div class="sit-table">
+            <div class="sit-thead">
+              <div class="sit-th">Indicator <span class="sit-th-sort">↕</span></div>
+              <div class="sit-th" style="padding-left:8px">Country distribution <span class="sit-th-sort">—</span></div>
+              <div class="sit-th">Worst <span class="sit-th-sort">↕</span></div>
+              <div class="sit-th" style="justify-content:flex-end">Max σ <span class="sit-th-sort">↕</span></div>
+              <div class="sit-th" style="justify-content:center">N <span class="sit-th-sort">↕</span></div>
+            </div>
+
+            <!-- CPI -->
+            <div class="sit-row">
+              <div class="sit-ind">CPI<br><span class="sit-ind-sub">Inflation</span></div>
+              <div>
+                <div class="sit-strip">
+                  <div class="sit-strip-zero"></div>
+                  <div class="sit-strip-tick" style="left:25%"></div>
+                  <div class="sit-strip-tick" style="left:75%"></div>
+                  <div class="sit-dot" style="left:85%;background:#C4623A28;color:#7A2010;border:1.5px solid #C4623A55" title="US +5.1σ">US</div>
+                  <div class="sit-dot" style="left:70%;background:#C4823A20;color:#7A4010;border:1.5px solid #C4823A44" title="CN +2.8σ">CN</div>
+                  <div class="sit-dot" style="left:82%;background:#C4623A24;color:#7A2010;border:1.5px solid #C4623A55" title="IN +4.7σ">IN</div>
+                  <div class="sit-dot" style="left:57%;background:#C4A23A14;color:#6A5010;border:1.5px solid #C4A23A33" title="DE +1.4σ">DE</div>
+                  <div class="sit-dot" style="left:35%;background:#5A826018;color:#2A4A20;border:1.5px solid #5A826033" title="JP −2.1σ">JP</div>
+                  <div class="sit-dot" style="left:51%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" title="GB +0.3σ">GB</div>
+                </div>
+              </div>
+              <div class="sit-worst"><div class="sit-worst-cc red">US</div><div class="sit-worst-yr">2022</div></div>
+              <div class="sit-sigma red">+5.1σ</div>
+              <div class="sit-count">4</div>
+            </div>
+
+            <!-- Debt -->
+            <div class="sit-row">
+              <div class="sit-ind">Debt<br><span class="sit-ind-sub">% of GDP</span></div>
+              <div>
+                <div class="sit-strip">
+                  <div class="sit-strip-zero"></div>
+                  <div class="sit-strip-tick" style="left:25%"></div>
+                  <div class="sit-strip-tick" style="left:75%"></div>
+                  <div class="sit-dot" style="left:90%;background:#C4623A2C;color:#7A2010;border:1.5px solid #C4623A66" title="CN +5.8σ">CN</div>
+                  <div class="sit-dot" style="left:73%;background:#C4823A1E;color:#7A4010;border:1.5px solid #C4823A44" title="US +3.1σ">US</div>
+                  <div class="sit-dot" style="left:57%;background:#C4A23A12;color:#6A5010;border:1.5px solid #C4A23A33" title="JP +1.9σ">JP</div>
+                  <div class="sit-dot" style="left:29%;background:#5A826020;color:#2A4A20;border:1.5px solid #5A826044" title="IN −2.7σ">IN</div>
+                  <div class="sit-dot" style="left:49%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" title="DE +0.2σ">DE</div>
+                </div>
+              </div>
+              <div class="sit-worst"><div class="sit-worst-cc red">CN</div><div class="sit-worst-yr">2023</div></div>
+              <div class="sit-sigma red">+5.8σ</div>
+              <div class="sit-count">3</div>
+            </div>
+
+            <!-- Unemployment -->
+            <div class="sit-row">
+              <div class="sit-ind">Unemploy<br><span class="sit-ind-sub">Rate</span></div>
+              <div>
+                <div class="sit-strip">
+                  <div class="sit-strip-zero"></div>
+                  <div class="sit-strip-tick" style="left:25%"></div>
+                  <div class="sit-strip-tick" style="left:75%"></div>
+                  <div class="sit-dot" style="left:79%;background:#C4623A20;color:#7A2010;border:1.5px solid #C4623A44" title="GB +4.2σ">GB</div>
+                  <div class="sit-dot" style="left:68%;background:#C4823A1A;color:#7A4010;border:1.5px solid #C4823A33" title="DE +2.6σ">DE</div>
+                  <div class="sit-dot" style="left:26%;background:#5A826022;color:#2A4A20;border:1.5px solid #5A826044" title="CN −3.4σ">CN</div>
+                  <div class="sit-dot" style="left:44%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" title="US −0.7σ">US</div>
+                  <div class="sit-dot" style="left:50%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" title="JP +0.1σ">JP</div>
+                </div>
+              </div>
+              <div class="sit-worst"><div class="sit-worst-cc amber">GB</div><div class="sit-worst-yr">2020</div></div>
+              <div class="sit-sigma amber">+4.2σ</div>
+              <div class="sit-count">2</div>
+            </div>
+
+            <!-- GDP -->
+            <div class="sit-row">
+              <div class="sit-ind">GDP<br><span class="sit-ind-sub">Growth</span></div>
+              <div>
+                <div class="sit-strip">
+                  <div class="sit-strip-zero"></div>
+                  <div class="sit-strip-tick" style="left:25%"></div>
+                  <div class="sit-strip-tick" style="left:75%"></div>
+                  <div class="sit-dot" style="left:62%;background:#6A9A3018;color:#2A5010;border:1.5px solid #6A9A3033" title="IN +2.3σ">IN</div>
+                  <div class="sit-dot" style="left:57%;background:#6A9A3014;color:#2A5010;border:1.5px solid #6A9A3022" title="US +1.8σ">US</div>
+                  <div class="sit-dot" style="left:24%;background:#C4623A24;color:#7A2010;border:1.5px solid #C4623A44" title="DE −3.2σ">DE</div>
+                  <div class="sit-dot" style="left:36%;background:#5A826016;color:#2A4A20;border:1.5px solid #5A826033" title="GB −1.6σ">GB</div>
+                  <div class="sit-dot" style="left:43%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B033" title="JP −0.9σ">JP</div>
+                </div>
+              </div>
+              <div class="sit-worst"><div class="sit-worst-cc red">DE</div><div class="sit-worst-yr">2020</div></div>
+              <div class="sit-sigma red">−3.2σ</div>
+              <div class="sit-count">2</div>
+            </div>
+
+            <!-- Exports -->
+            <div class="sit-row">
+              <div class="sit-ind">Exports<br><span class="sit-ind-sub">% of GDP</span></div>
+              <div>
+                <div class="sit-strip">
+                  <div class="sit-strip-zero"></div>
+                  <div class="sit-strip-tick" style="left:25%"></div>
+                  <div class="sit-strip-tick" style="left:75%"></div>
+                  <div class="sit-dot" style="left:72%;background:#C4823A1A;color:#7A4010;border:1.5px solid #C4823A33" title="DE +2.9σ">DE</div>
+                  <div class="sit-dot" style="left:31%;background:#5A826018;color:#2A4A20;border:1.5px solid #5A826033" title="US −2.4σ">US</div>
+                  <div class="sit-dot" style="left:55%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B033" title="CN +0.7σ">CN</div>
+                  <div class="sit-dot" style="left:62%;background:#C4A23A10;color:#6A5010;border:1.5px solid #C4A23A22" title="JP +1.5σ">JP</div>
+                </div>
+              </div>
+              <div class="sit-worst"><div class="sit-worst-cc amber">DE</div><div class="sit-worst-yr">2019</div></div>
+              <div class="sit-sigma amber">+2.9σ</div>
+              <div class="sit-count">2</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="oc-name">A — Strip-in-Table</div>
+    <div class="oc-desc">Each row is an indicator. The middle column IS the strip chart — all countries plotted on a sigma axis. Worst country, max sigma, and N shown as sortable columns. One unified component.</div>
+  </div>
+
+  <!-- ══ OPTION B: Linked Views ══ -->
+  <div class="option-card" data-choice="B" onclick="pick(this)">
+    <div class="oc-preview">
+      <div class="platform">
+        <div class="sidebar">
+          <div class="sb-top">
+            <div class="sb-mark">⬡</div>
+            <div><div class="sb-name-main">Macro</div><div class="sb-name-sub">Intelligence</div></div>
+          </div>
+          <div class="sb-section">Markets</div>
+          <div class="sb-item"><div class="sb-dash"></div>Overview</div>
+          <div class="sb-item"><div class="sb-dash"></div>Crawler</div>
+          <div class="sb-item active"><div class="sb-dash"></div>Anomalies</div>
+          <div class="sb-section">Analysis</div>
+          <div class="sb-item"><div class="sb-dash"></div>Explorer</div>
+          <div class="sb-item"><div class="sb-dash"></div>Researcher</div>
+          <div class="sb-section">Tools</div>
+          <div class="sb-item"><div class="sb-dash"></div>Chat</div>
+          <div class="sb-item"><div class="sb-dash"></div>Summaries</div>
+          <div class="sb-ticker">
+            CN/DEBT <span class="sb-ticker-hi">+5.8σ</span><br>
+            US/CPI <span class="sb-ticker-hi">+5.1σ</span><br>
+            IN/CPI <span class="sb-ticker-hi">+4.7σ</span>
+          </div>
+        </div>
+        <div class="main-content">
+          <div class="main-header">
+            <div class="main-eyebrow">Anomaly Detection</div>
+            <div class="main-title">Macro Deviation Signals</div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-val red">12</div><div class="stat-label">Critical >4σ</div></div>
+            <div class="stat"><div class="stat-val amber">23</div><div class="stat-label">Elevated</div></div>
+            <div class="stat"><div class="stat-val sage">12</div><div class="stat-label">Below trend</div></div>
+          </div>
+
+          <div class="linked-wrap">
+            <!-- Strip overview -->
+            <div class="linked-strip-panel">
+              <div class="lsp-title">Overview — all indicators <span class="lsp-title-hint">click a dot to filter table below</span></div>
+              <div class="lstrip-row">
+                <div class="lstrip-label">CPI</div>
+                <div class="lstrip-track">
+                  <div class="ldot active-dot" style="left:85%;background:#C4623A28;color:#7A2010;border:1.5px solid #C4623A" onclick="filterByInd(this,'CPI Inflation')" title="US +5.1σ">US</div>
+                  <div class="ldot" style="left:70%;background:#C4823A20;color:#7A4010;border:1.5px solid #C4823A55" onclick="filterByInd(this,'CPI Inflation')" title="CN +2.8σ">CN</div>
+                  <div class="ldot" style="left:82%;background:#C4623A24;color:#7A2010;border:1.5px solid #C4623A55" onclick="filterByInd(this,'CPI Inflation')" title="IN +4.7σ">IN</div>
+                  <div class="ldot" style="left:57%;background:#C4A23A14;color:#6A5010;border:1.5px solid #C4A23A33" onclick="filterByInd(this,'CPI Inflation')" title="DE +1.4σ">DE</div>
+                  <div class="ldot" style="left:35%;background:#5A826018;color:#2A4A20;border:1.5px solid #5A826033" onclick="filterByInd(this,'CPI Inflation')" title="JP −2.1σ">JP</div>
+                  <div class="ldot" style="left:51%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" onclick="filterByInd(this,'CPI Inflation')" title="GB +0.3σ">GB</div>
+                </div>
+              </div>
+              <div class="lstrip-row">
+                <div class="lstrip-label">Debt%</div>
+                <div class="lstrip-track">
+                  <div class="ldot" style="left:90%;background:#C4623A2C;color:#7A2010;border:1.5px solid #C4623A66" onclick="filterByInd(this,'Debt / GDP')" title="CN +5.8σ">CN</div>
+                  <div class="ldot" style="left:73%;background:#C4823A1E;color:#7A4010;border:1.5px solid #C4823A44" onclick="filterByInd(this,'Debt / GDP')" title="US +3.1σ">US</div>
+                  <div class="ldot" style="left:57%;background:#C4A23A12;color:#6A5010;border:1.5px solid #C4A23A33" onclick="filterByInd(this,'Debt / GDP')" title="JP +1.9σ">JP</div>
+                  <div class="ldot" style="left:29%;background:#5A826020;color:#2A4A20;border:1.5px solid #5A826044" onclick="filterByInd(this,'Debt / GDP')" title="IN −2.7σ">IN</div>
+                </div>
+              </div>
+              <div class="lstrip-row">
+                <div class="lstrip-label">Unemploy</div>
+                <div class="lstrip-track">
+                  <div class="ldot" style="left:79%;background:#C4623A20;color:#7A2010;border:1.5px solid #C4623A44" onclick="filterByInd(this,'Unemployment')" title="GB +4.2σ">GB</div>
+                  <div class="ldot" style="left:68%;background:#C4823A1A;color:#7A4010;border:1.5px solid #C4823A33" onclick="filterByInd(this,'Unemployment')" title="DE +2.6σ">DE</div>
+                  <div class="ldot" style="left:26%;background:#5A826022;color:#2A4A20;border:1.5px solid #5A826044" onclick="filterByInd(this,'Unemployment')" title="CN −3.4σ">CN</div>
+                  <div class="ldot" style="left:44%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B044" onclick="filterByInd(this,'Unemployment')" title="US −0.7σ">US</div>
+                </div>
+              </div>
+              <div class="lstrip-row" style="margin-bottom:0">
+                <div class="lstrip-label">GDP</div>
+                <div class="lstrip-track">
+                  <div class="ldot" style="left:62%;background:#6A9A3018;color:#2A5010;border:1.5px solid #6A9A3033" onclick="filterByInd(this,'GDP Growth')" title="IN +2.3σ">IN</div>
+                  <div class="ldot" style="left:24%;background:#C4623A24;color:#7A2010;border:1.5px solid #C4623A44" onclick="filterByInd(this,'GDP Growth')" title="DE −3.2σ">DE</div>
+                  <div class="ldot" style="left:36%;background:#5A826016;color:#2A4A20;border:1.5px solid #5A826033" onclick="filterByInd(this,'GDP Growth')" title="GB −1.6σ">GB</div>
+                  <div class="ldot" style="left:43%;background:#EDE8DC;color:#8a7a68;border:1.5px solid #C8C0B033" onclick="filterByInd(this,'GDP Growth')" title="JP −0.9σ">JP</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live table -->
+            <div class="linked-table">
+              <div class="lt-header">
+                <div class="lt-header-label">Detail — filtered by</div>
+                <div class="lt-active-filter" id="lt-active">CPI Inflation</div>
+                <div class="lt-clear">× clear</div>
+              </div>
+              <div class="lt-thead">
+                <div class="lt-th">#</div>
+                <div class="lt-th">Indicator · Country</div>
+                <div class="lt-th">CC</div>
+                <div class="lt-th" style="text-align:right">Sigma</div>
+                <div class="lt-th" style="padding-left:8px">Deviation</div>
+              </div>
+              <div class="lt-row">
+                <div class="lt-num">1</div>
+                <div class="lt-desc"><div class="lt-desc-ind">CPI Inflation</div><div class="lt-desc-cc">United States · 2022</div></div>
+                <div class="lt-cc" style="color:#A83220">US</div>
+                <div class="lt-sigma red">+5.1σ</div>
+                <div class="lt-bar-col"><div class="lt-bar-track"><div class="lt-bar-fill" style="width:73%;background:#C4623A"></div></div><div class="lt-bar-label">+510% CI</div></div>
+              </div>
+              <div class="lt-row">
+                <div class="lt-num">2</div>
+                <div class="lt-desc"><div class="lt-desc-ind">CPI Inflation</div><div class="lt-desc-cc">India · 2022</div></div>
+                <div class="lt-cc" style="color:#A83220">IN</div>
+                <div class="lt-sigma red">+4.7σ</div>
+                <div class="lt-bar-col"><div class="lt-bar-track"><div class="lt-bar-fill" style="width:67%;background:#C4823A"></div></div><div class="lt-bar-label">+470% CI</div></div>
+              </div>
+              <div class="lt-row">
+                <div class="lt-num">3</div>
+                <div class="lt-desc"><div class="lt-desc-ind">CPI Inflation</div><div class="lt-desc-cc">China · 2021</div></div>
+                <div class="lt-cc" style="color:#C4823A">CN</div>
+                <div class="lt-sigma amber">+2.8σ</div>
+                <div class="lt-bar-col"><div class="lt-bar-track"><div class="lt-bar-fill" style="width:40%;background:#C4923A"></div></div><div class="lt-bar-label">+280% CI</div></div>
+              </div>
+              <div class="lt-row">
+                <div class="lt-num">4</div>
+                <div class="lt-desc"><div class="lt-desc-ind">CPI Inflation</div><div class="lt-desc-cc">Japan · 2021</div></div>
+                <div class="lt-cc" style="color:#5A7A38">JP</div>
+                <div class="lt-sigma sage">−2.1σ</div>
+                <div class="lt-bar-col"><div class="lt-bar-track"><div class="lt-bar-fill" style="width:30%;background:#6A9A38;margin-left:auto"></div></div><div class="lt-bar-label">−210% CI</div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="oc-name">B — Linked Views</div>
+    <div class="oc-desc">Strip overview on top (all indicators at once). Clicking a dot filters the ranked table below to that indicator's full country list. Two components, one data story.</div>
+  </div>
+
+</div>
+
+<div style="margin-top:20px;padding:12px 16px;background:#1a1510;border-radius:6px;font-size:11px;color:#6a5a48;line-height:1.8;border-left:3px solid #C4623A">
+  <strong style="color:#C4823A">Tradeoff:</strong>
+  <strong style="color:#ddd">A (Strip-in-Table)</strong> — single unified component, scannable at a glance, fewer interactions needed. Recommended if the page is already busy.
+  <strong style="color:#ddd">B (Linked Views)</strong> — richer interaction, strip gives spatial overview then table gives full detail on demand. Better for power users who want to investigate one indicator deeply.
+</div>
+</body>
+</html>

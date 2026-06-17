@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro Platform — Creative Directions</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 28px 20px 48px;
+}
+h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 28px; }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+.card {
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid #222;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.card:hover { transform: translateY(-4px); border-color: #444; }
+.card.selected { border-color: #D4830A; }
+.card.selected .card-name::after {
+  content: ' ✓';
+  color: #D4830A;
+}
+
+.frame { height: 400px; display: flex; overflow: hidden; position: relative; }
+.card-name { padding: 13px 15px 11px; font-size: 14px; font-weight: 700; }
+.card-desc { padding: 0 15px 13px; font-size: 11px; color: #777; line-height: 1.5; }
+
+/* ══════════════════════════════════════════════
+   OPTION A — "THE CHRONICLE"
+   Newsprint beige · Ink sidebar · Rust accent
+   Financial Times meets research journal
+   ══════════════════════════════════════════════ */
+.a-frame { background: #F4EFE4; }
+
+.a-sidebar {
+  width: 170px; min-width: 170px;
+  background: #181310;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.a-masthead {
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid #2e2922;
+}
+.a-masthead-main {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #F4EFE4;
+}
+.a-masthead-sub {
+  font-size: 9px;
+  color: #6b5f4e;
+  letter-spacing: 0.12em;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+.a-nav-section {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #4a3f30;
+  padding: 12px 14px 4px;
+  font-family: -apple-system, sans-serif;
+}
+.a-nav-item {
+  padding: 7px 14px;
+  font-size: 11px;
+  color: #8a7a68;
+  font-family: Georgia, serif;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.a-nav-item.active {
+  color: #F4EFE4;
+  background: rgba(180,70,30,0.18);
+}
+.a-nav-item.active::after {
+  content: '▶';
+  font-size: 7px;
+  color: #C8512A;
+  font-style: normal;
+}
+.a-ticker {
+  margin-top: auto;
+  border-top: 1px solid #2e2922;
+  padding: 10px 14px;
+  font-size: 9px;
+  font-family: 'Courier New', monospace;
+  color: #5a4f40;
+  line-height: 1.7;
+}
+.a-ticker span { color: #C8512A; font-weight: 700; }
+
+.a-main {
+  flex: 1;
+  padding: 16px 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.a-kicker {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #C8512A;
+  font-family: -apple-system, sans-serif;
+  border-bottom: 2px solid #C8512A;
+  padding-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.a-kicker-rule { flex: 1; height: 1px; background: #DDD5C4; }
+.a-headline {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: Georgia, serif;
+  color: #1A130A;
+  line-height: 1.2;
+}
+.a-byline {
+  font-size: 10px;
+  color: #8a7a68;
+  font-family: -apple-system, sans-serif;
+}
+.a-stats-row {
+  display: flex;
+  gap: 0;
+  border: 1px solid #D5CCBC;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.a-stat {
+  flex: 1;
+  padding: 9px 10px;
+  border-right: 1px solid #D5CCBC;
+  background: #FBF8F2;
+}
+.a-stat:last-child { border-right: none; }
+.a-stat-val { font-size: 19px; font-weight: 800; font-family: 'Courier New', monospace; color: #1A130A; }
+.a-stat-val.red { color: #B83220; }
+.a-stat-val.amber { color: #C8722A; }
+.a-stat-label { font-size: 9px; color: #8a7a68; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+.a-heatmap-box {
+  background: #FBF8F2;
+  border: 1px solid #D5CCBC;
+  border-radius: 4px;
+  padding: 10px 12px;
+  flex: 1;
+}
+.a-hmap-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5a4f40;
+  margin-bottom: 8px;
+  font-family: -apple-system, sans-serif;
+}
+.a-hgrid { display: grid; grid-template-columns: 64px repeat(6, 1fr); gap: 2px; }
+.a-hh { font-size: 8px; font-weight: 700; color: #9a8a78; text-align: center; font-family: 'Courier New', monospace; padding-bottom: 3px; }
+.a-hl { font-size: 9px; color: #6a5a48; text-align: right; padding-right: 5px; display: flex; align-items: center; justify-content: flex-end; font-family: Georgia, serif; font-style: italic; }
+.a-hc {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  border-radius: 2px;
+}
+
+
+/* ══════════════════════════════════════════════
+   OPTION B — "AMBER INSTRUMENT"
+   Warm parchment · Espresso sidebar · Gold accent
+   Scientific instrument meets trading terminal
+   ══════════════════════════════════════════════ */
+.b-frame { background: #F8F2E4; }
+
+.b-sidebar {
+  width: 52px;
+  min-width: 52px;
+  background: #1A140E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  border-right: 2px solid #D4910A;
+}
+.b-logo-v {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: #D4910A;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+.b-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3px 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5a4a38;
+  transition: background 0.15s;
+}
+.b-icon-btn.active {
+  background: rgba(212,145,10,0.25);
+  color: #D4910A;
+}
+.b-icon-btn:hover { background: rgba(255,255,255,0.06); }
+
+.b-main {
+  flex: 1;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.b-topbar {
+  background: #1A140E;
+  border-bottom: 1px solid #D4910A;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.b-breadcrumb { font-size: 10px; font-family: 'Courier New', monospace; color: #7a6040; }
+.b-breadcrumb span { color: #D4910A; }
+.b-topbar-spacer { flex: 1; }
+.b-status { font-size: 9px; font-family: 'Courier New', monospace; color: #5a8040; }
+.b-status::before { content: '● '; }
+
+.b-content { padding: 14px 16px; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+
+.b-readout-row { display: flex; gap: 8px; }
+.b-readout {
+  flex: 1;
+  background: #1A140E;
+  border: 1px solid #3a2e1e;
+  border-top: 2px solid #D4910A;
+  border-radius: 3px;
+  padding: 8px 10px;
+}
+.b-readout-val { font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace; color: #D4910A; line-height: 1; }
+.b-readout-val.red { color: #E05A2A; }
+.b-readout-label { font-size: 9px; font-family: 'Courier New', monospace; color: #6a5a3a; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.b-panel {
+  background: #FDF8EC;
+  border: 1px solid #DDD0B0;
+  border-radius: 4px;
+  padding: 10px 12px;
+  flex: 1;
+}
+.b-panel-header {
+  font-size: 9px;
+  font-family: 'Courier New', monospace;
+  color: #7a6040;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #DDD0B0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.b-panel-header::before { content: '▣'; color: #D4910A; }
+
+.b-hgrid { display: grid; grid-template-columns: 66px repeat(6, 1fr); gap: 3px; }
+.b-hh { font-size: 8px; font-weight: 700; color: #9a8060; text-align: center; font-family: 'Courier New', monospace; padding-bottom: 4px; }
+.b-hl { font-size: 9px; color: #6a5a38; text-align: right; padding-right: 5px; display: flex; align-items: center; justify-content: flex-end; font-family: 'Courier New', monospace; }
+.b-hc {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  border-radius: 2px;
+  position: relative;
+}
+/* Bottom-bar sigma indicator inside cell */
+.b-hc-inner { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.b-hc-bar { height: 2px; border-radius: 1px; }
+
+
+/* ══════════════════════════════════════════════
+   OPTION C — "WABI DATA"
+   Warm linen · Dark stone sidebar · Terracotta
+   Japanese minimalism meets macro analytics
+   Generous spacing, asymmetric composition
+   ══════════════════════════════════════════════ */
+.c-frame { background: #EDE8DE; }
+
+.c-sidebar {
+  width: 160px;
+  min-width: 160px;
+  background: #1D1A15;
+  padding: 18px 0;
+  display: flex;
+  flex-direction: column;
+}
+.c-mark {
+  padding: 0 18px 18px;
+  border-bottom: 1px solid #2e2a24;
+  margin-bottom: 18px;
+}
+.c-mark-symbol {
+  font-size: 22px;
+  color: #C4623A;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.c-mark-name {
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #5a5245;
+  font-family: 'Courier New', monospace;
+}
+.c-nav-item {
+  padding: 9px 18px;
+  font-size: 11px;
+  color: #5a5245;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 0.15s;
+}
+.c-nav-item.active {
+  color: #EDE8DE;
+}
+.c-nav-dash {
+  width: 12px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.c-nav-item.active .c-nav-dash { background: #C4623A; opacity: 1; width: 18px; }
+
+.c-meta {
+  margin-top: auto;
+  padding: 12px 18px;
+  border-top: 1px solid #2e2a24;
+  font-size: 9px;
+  font-family: 'Courier New', monospace;
+  color: #3d3830;
+  line-height: 1.8;
+}
+.c-meta-val { color: #C4623A; }
+
+.c-main {
+  flex: 1;
+  padding: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.c-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #C4623A;
+  font-family: 'Courier New', monospace;
+}
+.c-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1D1A15;
+  letter-spacing: -0.02em;
+}
+.c-divider {
+  height: 1px;
+  background: #CFC9BC;
+}
+
+.c-signal-list { display: flex; flex-direction: column; gap: 5px; }
+.c-signal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: #F5F1E8;
+  border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
+}
+.c-signal.crit { border-left-color: #B83220; }
+.c-signal.warn { border-left-color: #C8722A; }
+.c-signal.info { border-left-color: #8a9e70; }
+.c-signal-sigma {
+  font-size: 13px;
+  font-weight: 800;
+  font-family: 'Courier New', monospace;
+  color: #1D1A15;
+  width: 44px;
+  flex-shrink: 0;
+}
+.c-signal-sigma.red { color: #B83220; }
+.c-signal-sigma.amber { color: #C8722A; }
+.c-signal-text { font-size: 10px; color: #4a4238; }
+.c-signal-country {
+  margin-left: auto;
+  font-size: 9px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #8a7a68;
+}
+
+.c-hmap-container { flex: 1; }
+.c-hmap-label {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a7a68;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 8px;
+}
+.c-hgrid { display: grid; grid-template-columns: 60px repeat(7, 1fr); gap: 2px; }
+.c-hh { font-size: 8px; font-weight: 700; color: #8a7a68; text-align: center; font-family: 'Courier New', monospace; padding-bottom: 4px; }
+.c-hl { font-size: 9px; color: #6a5a48; text-align: right; padding-right: 5px; display: flex; align-items: center; justify-content: flex-end; font-size: 8px; font-family: 'Courier New', monospace; }
+.c-hc {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+</style>
+<script>
+function pick(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  try { fetch('/__companion/event', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type:'click', choice:el.dataset.choice, text:el.querySelector('.card-name').textContent}) }); } catch(e){}
+}
+</script>
+</head>
+<body>
+<h1>Macro Platform — Three Creative Directions</h1>
+<p class="sub">Warm, non-standard palettes. Click to select. No blue, no purple, no AI slop.</p>
+
+<div class="cards">
+
+  <!-- ═══ A: THE CHRONICLE ═══ -->
+  <div class="card" data-choice="A" onclick="pick(this)">
+    <div class="frame a-frame">
+      <div class="a-sidebar">
+        <div class="a-masthead">
+          <div class="a-masthead-main">Macro</div>
+          <div class="a-masthead-sub">Intelligence · Platform</div>
+        </div>
+        <div class="a-nav-section">Markets</div>
+        <div class="a-nav-item">Overview</div>
+        <div class="a-nav-item">Crawler</div>
+        <div class="a-nav-item active">Anomalies</div>
+        <div class="a-nav-section">Analysis</div>
+        <div class="a-nav-item">Explorer</div>
+        <div class="a-nav-item">Researcher</div>
+        <div class="a-nav-section">Tools</div>
+        <div class="a-nav-item">Chat</div>
+        <div class="a-nav-item">Summaries</div>
+        <div class="a-ticker">
+          US/CPI <span>+5.1σ</span><br>
+          CN/DEBT <span>+5.8σ</span><br>
+          GB/UNEMP <span>+4.2σ</span>
+        </div>
+      </div>
+      <div class="a-main">
+        <div>
+          <div class="a-kicker">
+            Anomaly Detection
+            <div class="a-kicker-rule"></div>
+            <span style="font-size:9px;color:#8a7a68;font-weight:400;letter-spacing:0.05em">June 2026</span>
+          </div>
+          <div class="a-headline" style="margin-top:6px">Macro Deviation<br>Heatmap</div>
+          <div class="a-byline" style="margin-top:4px">47 signals detected · Prophet CI model · 14 indicators</div>
+        </div>
+        <div class="a-stats-row">
+          <div class="a-stat">
+            <div class="a-stat-val red">12</div>
+            <div class="a-stat-label">Critical</div>
+          </div>
+          <div class="a-stat">
+            <div class="a-stat-val amber">23</div>
+            <div class="a-stat-label">Elevated</div>
+          </div>
+          <div class="a-stat">
+            <div class="a-stat-val" style="color:#1A130A">12</div>
+            <div class="a-stat-label">Below trend</div>
+          </div>
+        </div>
+        <div class="a-heatmap-box">
+          <div class="a-hmap-title">Sigma deviation · Worst year per series</div>
+          <div class="a-hgrid">
+            <div class="a-hh"></div>
+            <div class="a-hh">US</div><div class="a-hh">CN</div><div class="a-hh">DE</div>
+            <div class="a-hh">JP</div><div class="a-hh">GB</div><div class="a-hh">IN</div>
+            <div class="a-hl">CPI</div>
+            <div class="a-hc" style="background:#C8512A20;color:#8B2210">+5.1</div>
+            <div class="a-hc" style="background:#C8722A18;color:#7C3210">+2.8</div>
+            <div class="a-hc" style="background:#C8922A10;color:#6B4010">+1.4</div>
+            <div class="a-hc" style="background:#50789018;color:#2A4A5E">−2.1</div>
+            <div class="a-hc" style="background:#DDD5C408;color:#8a7a68">+0.3</div>
+            <div class="a-hc" style="background:#C8512A1E;color:#8B2210">+4.7</div>
+            <div class="a-hl">GDP</div>
+            <div class="a-hc" style="background:#5A7A3018;color:#2A4810">+1.8</div>
+            <div class="a-hc" style="background:#DDD5C408;color:#8a7a68">+0.6</div>
+            <div class="a-hc" style="background:#C8512A1E;color:#8B2210">−3.2</div>
+            <div class="a-hc" style="background:#DDD5C408;color:#8a7a68">−0.9</div>
+            <div class="a-hc" style="background:#50789016;color:#2A4A5E">−1.6</div>
+            <div class="a-hc" style="background:#5A7A3014;color:#2A4810">+2.3</div>
+            <div class="a-hl">Debt%</div>
+            <div class="a-hc" style="background:#C8722A18;color:#7C3210">+3.1</div>
+            <div class="a-hc" style="background:#C8512A22;color:#8B2210">+5.8</div>
+            <div class="a-hc" style="background:#DDD5C406;color:#8a7a68">+0.2</div>
+            <div class="a-hc" style="background:#C8922A0E;color:#6B4010">+1.9</div>
+            <div class="a-hc" style="background:#DDD5C406;color:#8a7a68">−0.4</div>
+            <div class="a-hc" style="background:#50789018;color:#2A4A5E">−2.7</div>
+            <div class="a-hl">Unemploy</div>
+            <div class="a-hc" style="background:#DDD5C406;color:#8a7a68">−0.7</div>
+            <div class="a-hc" style="background:#50789020;color:#2A4A5E">−3.4</div>
+            <div class="a-hc" style="background:#C8722A16;color:#7C3210">+2.6</div>
+            <div class="a-hc" style="background:#DDD5C406;color:#8a7a68">+0.1</div>
+            <div class="a-hc" style="background:#C8512A20;color:#8B2210">+4.2</div>
+            <div class="a-hc" style="background:#DDD5C406;color:#8a7a68">−0.5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-name">A — The Chronicle</div>
+    <div class="card-desc">Newsprint beige · ink sidebar · rust accent · live ticker · serif headers. Financial Times energy.</div>
+  </div>
+
+  <!-- ═══ B: AMBER INSTRUMENT ═══ -->
+  <div class="card" data-choice="B" onclick="pick(this)">
+    <div class="frame b-frame">
+      <div class="b-sidebar">
+        <div class="b-logo-v">Macro</div>
+        <div class="b-icon-btn" title="Overview">◈</div>
+        <div class="b-icon-btn" title="Crawler">⌘</div>
+        <div class="b-icon-btn active" title="Anomalies">⚠</div>
+        <div class="b-icon-btn" title="Explorer">⊞</div>
+        <div class="b-icon-btn" title="Researcher">✦</div>
+        <div class="b-icon-btn" title="Chat">◎</div>
+        <div class="b-icon-btn" title="Summaries">≡</div>
+      </div>
+      <div class="b-main">
+        <div class="b-topbar">
+          <div class="b-breadcrumb">SYS / <span>ANOMALY_SCAN</span></div>
+          <div class="b-topbar-spacer"></div>
+          <div class="b-status">LIVE · 47 signals</div>
+        </div>
+        <div class="b-content">
+          <div class="b-readout-row">
+            <div class="b-readout">
+              <div class="b-readout-val red">012</div>
+              <div class="b-readout-label">CRITICAL &gt;4σ</div>
+            </div>
+            <div class="b-readout">
+              <div class="b-readout-val">023</div>
+              <div class="b-readout-label">ELEVATED 2-4σ</div>
+            </div>
+            <div class="b-readout">
+              <div class="b-readout-val" style="color:#6a8a40">012</div>
+              <div class="b-readout-label">BELOW TREND</div>
+            </div>
+          </div>
+          <div class="b-panel">
+            <div class="b-panel-header">DEVIATION_MATRIX · SIGMA_NORMALIZED</div>
+            <div class="b-hgrid">
+              <div class="b-hh"></div>
+              <div class="b-hh">US</div><div class="b-hh">CN</div><div class="b-hh">DE</div>
+              <div class="b-hh">JP</div><div class="b-hh">GB</div><div class="b-hh">IN</div>
+              <div class="b-hl">CPI</div>
+              <div class="b-hc" style="background:#3A1A0A;color:#E05A2A;border:1px solid #E05A2A44">+5.1σ</div>
+              <div class="b-hc" style="background:#2E1E08;color:#D4910A;border:1px solid #D4910A33">+2.8σ</div>
+              <div class="b-hc" style="background:#261C06;color:#C4A020;border:1px solid #C4A02022">+1.4σ</div>
+              <div class="b-hc" style="background:#0E1E0E;color:#6a8a40;border:1px solid #6a8a4033">−2.1σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">+0.3σ</div>
+              <div class="b-hc" style="background:#3A1A0A;color:#E05A2A;border:1px solid #E05A2A44">+4.7σ</div>
+              <div class="b-hl">GDP</div>
+              <div class="b-hc" style="background:#1A2A0A;color:#8aaa40;border:1px solid #8aaa4033">+1.8σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">+0.6σ</div>
+              <div class="b-hc" style="background:#3A1A0A;color:#E05A2A;border:1px solid #E05A2A44">−3.2σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">−0.9σ</div>
+              <div class="b-hc" style="background:#0E1E0E;color:#6a8a40;border:1px solid #6a8a4033">−1.6σ</div>
+              <div class="b-hc" style="background:#1A2A0A;color:#8aaa40;border:1px solid #8aaa4033">+2.3σ</div>
+              <div class="b-hl">Debt%</div>
+              <div class="b-hc" style="background:#2E1E08;color:#D4910A;border:1px solid #D4910A33">+3.1σ</div>
+              <div class="b-hc" style="background:#3A1A0A;color:#E05A2A;border:1px solid #E05A2A55">+5.8σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">+0.2σ</div>
+              <div class="b-hc" style="background:#261C06;color:#C4A020;border:1px solid #C4A02022">+1.9σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">−0.4σ</div>
+              <div class="b-hc" style="background:#0E1E0E;color:#6a8a40;border:1px solid #6a8a4033">−2.7σ</div>
+              <div class="b-hl">Unemp</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">−0.7σ</div>
+              <div class="b-hc" style="background:#0E1E0E;color:#6a8a40;border:1px solid #6a8a4033">−3.4σ</div>
+              <div class="b-hc" style="background:#2E1E08;color:#D4910A;border:1px solid #D4910A33">+2.6σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">+0.1σ</div>
+              <div class="b-hc" style="background:#3A1A0A;color:#E05A2A;border:1px solid #E05A2A44">+4.2σ</div>
+              <div class="b-hc" style="background:#221c10;color:#5a4a2a;border:1px solid #5a4a2a22">−0.5σ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-name">B — Amber Instrument</div>
+    <div class="card-desc">Parchment bg · icon-only sidebar · dark instrument panels · amber/orange glow · monospace. Cockpit/terminal feel.</div>
+  </div>
+
+  <!-- ═══ C: WABI DATA ═══ -->
+  <div class="card" data-choice="C" onclick="pick(this)">
+    <div class="frame c-frame">
+      <div class="c-sidebar">
+        <div class="c-mark">
+          <div class="c-mark-symbol">⬡</div>
+          <div class="c-mark-name">macro · intel</div>
+        </div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Overview</div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Crawler</div>
+        <div class="c-nav-item active"><div class="c-nav-dash"></div>Anomalies</div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Explorer</div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Researcher</div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Chat</div>
+        <div class="c-nav-item"><div class="c-nav-dash"></div>Summaries</div>
+        <div class="c-meta">
+          SIGNALS<br>
+          <span class="c-meta-val">47</span> active<br>
+          <span class="c-meta-val">12</span> critical
+        </div>
+      </div>
+      <div class="c-main">
+        <div class="c-eyebrow">Anomaly Detection</div>
+        <div class="c-title">Macro Deviation Signals</div>
+        <div class="c-divider"></div>
+        <div class="c-signal-list">
+          <div class="c-signal crit">
+            <div class="c-signal-sigma red">+5.8σ</div>
+            <div class="c-signal-text">Debt / GDP — above Prophet trend</div>
+            <div class="c-signal-country">CN · 2023</div>
+          </div>
+          <div class="c-signal crit">
+            <div class="c-signal-sigma red">+5.1σ</div>
+            <div class="c-signal-text">CPI Inflation — above Prophet trend</div>
+            <div class="c-signal-country">US · 2022</div>
+          </div>
+          <div class="c-signal warn">
+            <div class="c-signal-sigma amber">+4.2σ</div>
+            <div class="c-signal-text">Unemployment — elevated</div>
+            <div class="c-signal-country">GB · 2020</div>
+          </div>
+        </div>
+        <div class="c-hmap-container">
+          <div class="c-hmap-label">Heatmap — sigma by series</div>
+          <div class="c-hgrid">
+            <div class="c-hh"></div>
+            <div class="c-hh">US</div><div class="c-hh">CN</div><div class="c-hh">DE</div>
+            <div class="c-hh">JP</div><div class="c-hh">GB</div><div class="c-hh">IN</div><div class="c-hh">BR</div>
+            <div class="c-hl">CPI</div>
+            <div class="c-hc" style="background:#C4623A30;color:#7A2010;border-radius:3px">+5.1</div>
+            <div class="c-hc" style="background:#C4823A22;color:#7A4010;border-radius:3px">+2.8</div>
+            <div class="c-hc" style="background:#C4A23A12;color:#6A5010;border-radius:3px">+1.4</div>
+            <div class="c-hc" style="background:#5A826018;color:#2A4A20;border-radius:3px">−2.1</div>
+            <div class="c-hc" style="background:#CFC9BC18;color:#6a5a48;border-radius:3px">+0.3</div>
+            <div class="c-hc" style="background:#C4623A28;color:#7A2010;border-radius:3px">+4.7</div>
+            <div class="c-hc" style="background:#C4A23A10;color:#6A5010;border-radius:3px">+1.1</div>
+            <div class="c-hl">GDP</div>
+            <div class="c-hc" style="background:#6A9A3018;color:#2A5010;border-radius:3px">+1.8</div>
+            <div class="c-hc" style="background:#CFC9BC10;color:#6a5a48;border-radius:3px">+0.6</div>
+            <div class="c-hc" style="background:#C4623A28;color:#7A2010;border-radius:3px">−3.2</div>
+            <div class="c-hc" style="background:#CFC9BC10;color:#6a5a48;border-radius:3px">−0.9</div>
+            <div class="c-hc" style="background:#5A826018;color:#2A4A20;border-radius:3px">−1.6</div>
+            <div class="c-hc" style="background:#6A9A3018;color:#2A5010;border-radius:3px">+2.3</div>
+            <div class="c-hc" style="background:#CFC9BC10;color:#6a5a48;border-radius:3px">+0.4</div>
+            <div class="c-hl">Debt%</div>
+            <div class="c-hc" style="background:#C4823A22;color:#7A4010;border-radius:3px">+3.1</div>
+            <div class="c-hc" style="background:#C4623A32;color:#7A2010;border-radius:3px">+5.8</div>
+            <div class="c-hc" style="background:#CFC9BC08;color:#6a5a48;border-radius:3px">+0.2</div>
+            <div class="c-hc" style="background:#C4A23A12;color:#6A5010;border-radius:3px">+1.9</div>
+            <div class="c-hc" style="background:#CFC9BC08;color:#6a5a48;border-radius:3px">−0.4</div>
+            <div class="c-hc" style="background:#5A826018;color:#2A4A20;border-radius:3px">−2.7</div>
+            <div class="c-hc" style="background:#CFC9BC10;color:#6a5a48;border-radius:3px">+0.8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-name">C — Wabi Data</div>
+    <div class="card-desc">Warm linen bg · stone sidebar · terracotta accent · generous spacing · minimal dashes nav. Quiet and precise.</div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;padding:14px 16px;background:#1a1610;border-radius:6px;font-size:11px;color:#6a5a48;line-height:1.8;border-left:3px solid #C8722A">
+  <strong style="color:#D4910A">Palette logic across all three:</strong> No blue. No purple. Above-trend = rust/amber/terracotta. Below-trend = muted sage/olive. Neutral = warm gray. Background = beige/parchment/linen family.
+</div>
+</body>
+</html>

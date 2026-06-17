@@ -8,6 +8,7 @@ from typing import Any, Optional
 
 import httpx
 
+from src.agents.runtime.types import LLMCompletion
 from src.config import MODEL_ROUTES, get_settings
 
 logger = logging.getLogger(__name__)
@@ -168,6 +169,89 @@ class LLMClient:
             f"All models in tier '{tier}' failed:\n" + "\n".join(f"  • {f}" for f in failures)
         ) from last_exc
 
+    async def chat_with_tools(
+        self,
+        messages: list[dict],
+        tools: list[dict],
+        tier: str = "complex",
+        system: Optional[str] = None,
+        tool_choice: str = "auto",
+    ) -> LLMCompletion:
+        """Chat completion with OpenAI-compatible tool calling."""
+        route = MODEL_ROUTES[tier]
+
+        all_messages: list[dict] = []
+        if system:
+            all_messages.append({"role": "system", "content": system})
+        all_messages.extend(messages)
+
+        now = time.monotonic()
+        failures: list[str] = []
+        last_exc: Optional[Exception] = None
+
+        for candidate in route["candidates"]:
+            provider = candidate["provider"]
+            model = candidate["model"]
+
+            if not _has_key(provider):
+                failures.append(f"{provider}/{model}: skipped (API key not set)")
+                continue
+
+            cooldown_until = _provider_cooldown.get(provider, 0)
+            if cooldown_until > now:
+                remaining = int(cooldown_until - now)
+                failures.append(
+                    f"{provider}/{model}: skipped (rate-limited, {remaining}s cooldown remaining)"
+                )
+                continue
+
+            try:
+                message = await self._call_message(
+                    provider=provider,
+                    model=model,
+                    messages=all_messages,
+                    max_tokens=route["max_tokens"],
+                    temperature=route["temperature"],
+                    tools=tools,
+                    tool_choice=tool_choice,
+                )
+                logger.debug(
+                    "LLM tool-call success: provider=%s model=%s tier=%s",
+                    provider, model, tier,
+                )
+                return LLMCompletion(
+                    content=message.get("content"),
+                    tool_calls=message.get("tool_calls") or [],
+                    model_used=f"{provider}/{model}",
+                )
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 429:
+                    cooldown = _cooldown_for_429(exc.response.text)
+                    _provider_cooldown[provider] = time.monotonic() + cooldown
+                    msg = f"{provider}/{model}: 429 — cooling down for {cooldown}s"
+                else:
+                    msg = f"{provider}/{model}: HTTP {exc.response.status_code}"
+                logger.warning("LLM tool-call failed — %s", msg)
+                failures.append(msg)
+                last_exc = exc
+            except httpx.ConnectError as exc:
+                _provider_cooldown[provider] = time.monotonic() + 30
+                msg = f"{provider}/{model}: ConnectError — host unreachable, cooling down"
+                logger.warning("LLM tool-call failed — %s", msg)
+                failures.append(msg)
+                last_exc = exc
+            except Exception as exc:
+                error_str = str(exc) or type(exc).__name__
+                msg = f"{provider}/{model}: {error_str}"
+                logger.warning("LLM tool-call failed — %s", msg)
+                failures.append(msg)
+                last_exc = exc
+
+        raise LLMError(
+            f"All models in tier '{tier}' failed (tools):\n"
+            + "\n".join(f"  • {f}" for f in failures)
+        ) from last_exc
+
     async def _call(
         self,
         provider: str,
@@ -177,6 +261,27 @@ class LLMClient:
         temperature: float,
         response_format: Optional[dict],
     ) -> str:
+        message = await self._call_message(
+            provider=provider,
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            response_format=response_format,
+        )
+        return message.get("content") or ""
+
+    async def _call_message(
+        self,
+        provider: str,
+        model: str,
+        messages: list[dict],
+        max_tokens: int,
+        temperature: float,
+        tools: Optional[list[dict]] = None,
+        tool_choice: Optional[str] = None,
+        response_format: Optional[dict] = None,
+    ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "model": model,
             "messages": messages,
@@ -185,12 +290,13 @@ class LLMClient:
         }
         if response_format:
             payload["response_format"] = response_format
+        if tools:
+            payload["tools"] = tools
+            payload["tool_choice"] = tool_choice or "auto"
 
         base = _base_url(provider)
         full_url = base + "chat/completions"
-        logger.debug("LLM request: %s  model=%s", full_url, model)
 
-        # Fresh client per call — avoids stale TLS connections from the old singleton pattern
         async with httpx.AsyncClient(
             headers=_make_headers(provider),
             timeout=60.0,
@@ -215,12 +321,15 @@ class LLMClient:
                 break
 
         data = resp.json()
-        # Some providers (OpenRouter) return HTTP 200 with {"error": {...}} on quota/model errors
         if "choices" not in data:
             error_info = data.get("error", data)
-            msg = error_info.get("message", str(error_info)) if isinstance(error_info, dict) else str(error_info)
+            msg = (
+                error_info.get("message", str(error_info))
+                if isinstance(error_info, dict)
+                else str(error_info)
+            )
             raise ValueError(f"Provider error: {msg}")
-        return data["choices"][0]["message"]["content"]
+        return data["choices"][0]["message"]
 
     async def extract_json(
         self,

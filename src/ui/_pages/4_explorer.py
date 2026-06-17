@@ -45,9 +45,9 @@ def load_explorer_data(indicators, countries, y_from, y_to, tenant_id):
             q = q.filter(GoldRecord.country_code.in_(countries))
         q = q.filter(
             GoldRecord.period >= str(y_from),
-            GoldRecord.period <= str(y_to),
+            GoldRecord.period < str(y_to + 1),
         )
-        rows = q.order_by(GoldRecord.period).limit(2000).all()
+        rows = q.order_by(GoldRecord.period).limit(10000).all()
         return [
             {
                 "record_id": str(r.record_id),
@@ -86,8 +86,10 @@ if not df.empty and ind_sel:
     # Ensure native pandas for Altair
     chart_df = df.copy()
     
-    # Filter out forecast data before charting
-    chart_df = chart_df[~chart_df["Forecast"]]
+    # Optional: Filter out forecast data if requested (defaulting to showing all as requested)
+    show_forecasts = st.checkbox("Show Forecasts", value=True)
+    if not show_forecasts:
+        chart_df = chart_df[~chart_df["Forecast"]]
     
     for ind in ind_sel:
         ind_df = chart_df[chart_df["Indicator"] == ind].copy()
@@ -104,11 +106,13 @@ if not df.empty and ind_sel:
             x=alt.X("Period:O", axis=alt.Axis(labelAngle=-45, title="Year")),
             y=alt.Y("Value:Q", title=unit, axis=alt.Axis(format=".2s", labelExpr="datum.label")),
             color=alt.Color("Country:N", legend=alt.Legend(orient="bottom", columns=5)),
+            strokeDash=alt.condition(alt.datum.Forecast, alt.value([5, 5]), alt.value([0, 0])),
             opacity=alt.condition(highlight, alt.value(1.0), alt.value(0.15)),
             tooltip=[
                 alt.Tooltip("Country:N"),
                 alt.Tooltip("Period:O", title="Year"),
                 alt.Tooltip("Value:Q", format=".2f"),
+                alt.Tooltip("Forecast:N"),
                 alt.Tooltip("Source:N"),
                 alt.Tooltip("DQ Score:Q", format=".1f"),
             ],

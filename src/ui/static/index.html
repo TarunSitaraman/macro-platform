@@ -898,6 +898,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="lineage-trust-panel" class="lineage-trust-panel hidden"></div>
                         <div id="lineage-placeholder" class="lineage-placeholder">
                             <i data-lucide="git-commit"></i>
                             <p>Enter a verified Gold Record ID above to generate provenance flowchart.</p>
@@ -906,6 +907,19 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- DQ Trust Modal -->
+    <div id="trust-modal-overlay" class="trust-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="trust-modal-title">
+        <div class="trust-modal glass-panel">
+            <div class="trust-modal-header">
+                <h3 id="trust-modal-title">Data Quality &amp; Trust</h3>
+                <button type="button" id="trust-modal-close" class="btn-icon" aria-label="Close">&times;</button>
+            </div>
+            <div id="trust-modal-body" class="trust-modal-body">
+                <div class="loading-cell">Loading trust explanation…</div>
+            </div>
+        </div>
     </div>
 
     <!-- Script Entry Point -->

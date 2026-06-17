@@ -7,7 +7,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from src.agents.chatbot import ChatbotAgent, SUGGESTED_QUESTIONS
@@ -22,6 +22,13 @@ router = APIRouter()
 
 class MessageRequest(BaseModel):
     message: str
+
+    @field_validator("message")
+    @classmethod
+    def message_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("message cannot be empty")
+        return v.strip()
 
 
 class SummaryRequest(BaseModel):
@@ -52,8 +59,37 @@ async def send_message(
     current_user: User = Depends(get_current_user)
 ):
     agent = ChatbotAgent(db, tenant_id=current_user.tenant_id, user_id=current_user.user_id)
-    result = await agent.chat(session_id=session_id, user_message=body.message)
-    return result
+    try:
+        result = await agent.chat(session_id=session_id, user_message=body.message)
+        return result
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="Session access denied")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).error("Chat agent failed: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="The analysis service is temporarily unavailable. Please try again.",
+        )
+
+
+@router.get("/chat/sessions/{session_id}/runs/{run_id}")
+def get_agent_run(
+    session_id: str,
+    run_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Retrieve agent run audit trail (analyst+ roles)."""
+    if current_user.role not in ("admin", "analyst"):
+        raise HTTPException(status_code=403, detail="Analyst role required")
+    agent = ChatbotAgent(db, tenant_id=current_user.tenant_id, user_id=current_user.user_id)
+    run = agent.get_agent_run(session_id, run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Agent run not found")
+    return run
 
 
 @router.get("/chat/sessions/{session_id}/messages")
@@ -111,7 +147,7 @@ def list_summaries(
             "summary_id": str(r.summary_id),
             "country_code": r.country_code,
             "summary_type": r.summary_type,
-            "content": r.content[:500] + "..." if len(r.content) > 500 else r.content,
+            "content": r.content,
             "generated_at": r.generated_at.isoformat(),
             "model_used": r.model_used,
         }

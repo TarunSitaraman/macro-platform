@@ -39,7 +39,7 @@ if summary_type == "COUNTRY_SNAPSHOT":
             max_selections=5,
         )
     with col2:
-        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024)
+        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2025)
 
     ind_focus = st.multiselect(
         "Focus Indicators (leave blank for all)",
@@ -58,7 +58,7 @@ elif summary_type == "INDICATOR_BRIEF":
             format_func=lambda x: INDICATOR_CATALOGUE[x]["name"],
         )
     with col2:
-        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024)
+        year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2025)
 
     countries_sel = st.multiselect(
         "Countries to compare (leave blank for all 20)",
@@ -81,7 +81,7 @@ else:  # SECTOR_ANALYSIS
             "Sector Theme",
             list(SummarizerAgent.SECTOR_INDICATORS.keys()),
         )
-    year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024, key="sector_year")
+    year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2025, key="sector_year")
     indicators_sel = None
 
 st.markdown("---")
@@ -143,7 +143,7 @@ if st.button("✨ Generate Summary", type="primary"):
                 )
                 chart_query = chart_query.filter(GoldRecord.indicator_code.in_(ind_for_chart))
 
-            chart_rows = chart_query.order_by(GoldRecord.period).limit(500).all()
+            chart_rows = chart_query.order_by(GoldRecord.period).limit(2000).all()
             chart_data = [
                 {
                     "Indicator": r.indicator_code,

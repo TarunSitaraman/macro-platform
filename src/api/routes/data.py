@@ -87,7 +87,7 @@ def get_gold_data(
     if year_from:
         q = q.filter(GoldRecord.period >= str(year_from))
     if year_to:
-        q = q.filter(GoldRecord.period <= str(year_to))
+        q = q.filter(GoldRecord.period < str(year_to + 1))
     if actuals_only:
         q = q.filter(GoldRecord.is_forecast == False)
     rows = q.order_by(GoldRecord.period.asc()).limit(limit).all()
@@ -108,6 +108,40 @@ def get_gold_data(
         }
         for r in rows
     ]
+
+
+@router.get("/gold-data/{record_id}/trust")
+def get_gold_trust(
+    record_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Explain how and why a gold record's DQ score makes it trustable."""
+    from src.agents.tools.lineage import build_lineage_explain_response
+
+    result = build_lineage_explain_response(db, current_user.tenant_id, record_id)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return {
+        "record_id": record_id,
+        "gold": result.get("gold"),
+        "trust": result.get("trust"),
+    }
+
+
+@router.get("/gold-data/{record_id}/explain")
+def explain_gold_record(
+    record_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Explain provenance of a gold record through the medallion pipeline."""
+    from src.agents.tools.lineage import build_lineage_explain_response
+
+    result = build_lineage_explain_response(db, current_user.tenant_id, record_id)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
 
 
 @router.get("/gold-data/{record_id}")

@@ -90,6 +90,195 @@ function buildMsgElement(role, content) {
     return wrap;
 }
 
+function appendTrustPanel(messageEl, data) {
+    const hasTrace = data.tool_trace && data.tool_trace.length > 0;
+    const hasCitations = data.citations && data.citations.length > 0;
+    const hasWarnings = data.grounding_warnings && data.grounding_warnings.length > 0;
+    const hasConfidence = data.confidence && data.confidence !== 'high';
+    const hasRecords = data.context_records && data.context_records.length > 0;
+
+    if (!hasTrace && !hasCitations && !hasWarnings && !hasConfidence && !hasRecords) return;
+
+    const panel = document.createElement('details');
+    panel.className = 'trust-panel';
+
+    const confidenceLabel = (data.confidence || 'unknown').toUpperCase();
+    const summary = document.createElement('summary');
+    summary.textContent = `Sources & reasoning (${confidenceLabel} confidence)`;
+    panel.appendChild(summary);
+
+    const body = document.createElement('div');
+    body.className = 'trust-panel-body';
+
+    if (data.confidence) {
+        const confEl = document.createElement('div');
+        confEl.className = `trust-confidence trust-confidence-${data.confidence}`;
+        confEl.textContent = `Confidence: ${confidenceLabel}`;
+        body.appendChild(confEl);
+    }
+
+    if (hasWarnings) {
+        const warnEl = document.createElement('div');
+        warnEl.className = 'trust-warnings';
+        warnEl.innerHTML = '<strong>Grounding warnings</strong><ul></ul>';
+        const ul = warnEl.querySelector('ul');
+        data.grounding_warnings.forEach(w => {
+            const li = document.createElement('li');
+            li.textContent = w;
+            ul.appendChild(li);
+        });
+        body.appendChild(warnEl);
+    }
+
+    if (hasCitations) {
+        const citeEl = document.createElement('div');
+        citeEl.className = 'trust-citations';
+        citeEl.innerHTML = '<strong>Citations</strong><ul></ul>';
+        const ul = citeEl.querySelector('ul');
+        data.citations.forEach(c => {
+            const li = document.createElement('li');
+            li.textContent = `${c.source_name}, ${c.period}`;
+            ul.appendChild(li);
+        });
+        body.appendChild(citeEl);
+    }
+
+    if (hasTrace) {
+        const traceEl = document.createElement('div');
+        traceEl.className = 'trust-trace';
+        traceEl.innerHTML = '<strong>Tool calls</strong><ul></ul>';
+        const ul = traceEl.querySelector('ul');
+        data.tool_trace.forEach(t => {
+            const li = document.createElement('li');
+            const status = t.success ? 'ok' : 'failed';
+            li.textContent = `${t.tool} (${status}) — ${t.record_count || 0} records`;
+            ul.appendChild(li);
+        });
+        body.appendChild(traceEl);
+    }
+
+    if (hasRecords) {
+        const recEl = document.createElement('div');
+        recEl.className = 'trust-records';
+        recEl.innerHTML = '<strong>Data records used</strong><ul></ul>';
+        const ul = recEl.querySelector('ul');
+        data.context_records.slice(0, 6).forEach(id => {
+            const li = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = id.substring(0, 8) + '…';
+            link.title = 'View lineage';
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showRecordLineage(id);
+            });
+            li.appendChild(link);
+            ul.appendChild(li);
+        });
+        body.appendChild(recEl);
+    }
+
+    if (data.run_id && state.currentUser && ['admin', 'analyst'].includes(state.currentUser.role)) {
+        const auditEl = document.createElement('div');
+        auditEl.className = 'trust-audit';
+        auditEl.textContent = `Run ID: ${data.run_id}`;
+        body.appendChild(auditEl);
+    }
+
+    panel.appendChild(body);
+    messageEl.appendChild(panel);
+}
+
+async function showRecordLineage(recordId) {
+    await openTrustModal(recordId);
+}
+
+function closeTrustModal() {
+    const overlay = document.getElementById('trust-modal-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+function renderTrustExplanation(container, data) {
+    const trust = data.trust || {};
+    const gold = data.gold || {};
+    const tier = trust.trust_tier || 'unknown';
+    const score = trust.dq_score ?? gold.dq_score;
+
+    let html = `
+        <span class="trust-tier-badge trust-tier-${tier}">${escHtml(trust.trust_label || tier)}</span>
+        <div class="trust-summary">${escHtml(trust.summary || '')}</div>
+    `;
+
+    if (gold.indicator_code) {
+        html += `<p style="font-size:12px;margin:0 0 12px"><strong>${escHtml(gold.indicator_code)}</strong> · ${escHtml(gold.country_code || '')} · ${escHtml(gold.period || '')} · <strong>${gold.value ?? '—'} ${escHtml(gold.standard_unit || '')}</strong></p>`;
+    }
+
+    if (trust.dimensions && trust.dimensions.length) {
+        html += '<div class="trust-dimensions">';
+        trust.dimensions.forEach(dim => {
+            const pct = dim.score != null ? Math.min(100, dim.score) : 0;
+            html += `
+                <div class="trust-dim-row">
+                    <div class="trust-dim-header">
+                        <span>${escHtml(dim.label)} <small>(${dim.weight_pct}% weight)</small></span>
+                        <strong>${dim.score != null ? dim.score.toFixed(0) + '%' : '—'}</strong>
+                    </div>
+                    <div class="trust-dim-bar"><div class="trust-dim-fill" style="width:${pct}%"></div></div>
+                    <div class="trust-dim-desc">${escHtml(dim.description)}</div>
+                    ${dim.issues && dim.issues.length ? `<ul class="trust-caveats">${dim.issues.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>` : ''}
+                </div>`;
+        });
+        html += '</div>';
+    }
+
+    if (trust.why_trustable && trust.why_trustable.length) {
+        html += `<div class="trust-section"><h4>Why this data is trustable</h4><ul>${trust.why_trustable.map(w => `<li>${escHtml(w)}</li>`).join('')}</ul></div>`;
+    }
+    if (trust.caveats && trust.caveats.length) {
+        html += `<div class="trust-section"><h4>Caveats</h4><ul class="trust-caveats">${trust.caveats.map(c => `<li>${escHtml(c)}</li>`).join('')}</ul></div>`;
+    }
+    if (score != null) {
+        html += `<p style="font-size:11px;color:var(--text-muted);margin-top:12px">Overall DQ: <strong>${Number(score).toFixed(1)}%</strong> · Promotion: ${escHtml(trust.promotion_path || '—')}</p>`;
+    }
+
+    container.innerHTML = html;
+}
+
+async function openTrustModal(recordId) {
+    const overlay = document.getElementById('trust-modal-overlay');
+    const body = document.getElementById('trust-modal-body');
+    if (!overlay || !body) return;
+
+    overlay.classList.remove('hidden');
+    body.innerHTML = '<div class="loading-cell">Loading trust explanation…</div>';
+
+    try {
+        const response = await fetch(`${API_URL}/gold-data/${recordId}/explain`, {
+            headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (!response.ok) {
+            body.innerHTML = '<p class="text-danger">Could not load trust explanation for this record.</p>';
+            return;
+        }
+        const data = await response.json();
+        renderTrustExplanation(body, data);
+    } catch (err) {
+        console.error('Trust fetch failed:', err);
+        body.innerHTML = '<p class="text-danger">Connection error.</p>';
+    }
+}
+
+function renderLineageTrustPanel(data) {
+    const panel = document.getElementById('lineage-trust-panel');
+    if (!panel) return;
+    if (!data || !data.trust) {
+        panel.classList.add('hidden');
+        return;
+    }
+    panel.classList.remove('hidden');
+    renderTrustExplanation(panel, data);
+}
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     if (window.mermaid) {
@@ -102,6 +291,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initLucide();
     setupEventListeners();
     checkAuth();
+
+    const trustClose = document.getElementById('trust-modal-close');
+    const trustOverlay = document.getElementById('trust-modal-overlay');
+    if (trustClose) trustClose.addEventListener('click', closeTrustModal);
+    if (trustOverlay) trustOverlay.addEventListener('click', (e) => {
+        if (e.target === trustOverlay) closeTrustModal();
+    });
 });
 
 function initLucide() {
@@ -1134,7 +1330,7 @@ function renderExplorerTable() {
             <td><strong>${rec.value.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})}</strong></td>
             <td>${escHtml(rec.standard_unit)}</td>
             <td>${forecastTag}</td>
-            <td><strong class="${dqClass}">${rec.dq_score.toFixed(1)}%</strong></td>
+            <td><strong class="${dqClass} dq-link" data-record-id="${escHtml(rec.record_id)}" title="How and why is this trustable?">${rec.dq_score.toFixed(1)}%</strong></td>
             <td><a href="${safeHref(rec.source_url)}" target="_blank" class="table-link">${escHtml(rec.source_name)}</a></td>
             <td>${new Date(rec.promoted_at).toLocaleDateString()}</td>
             <td class="uuid-cell">
@@ -1147,6 +1343,10 @@ function renderExplorerTable() {
             tr.querySelector('.uuid-copy-btn').addEventListener('click', function() {
                 copyToClipboard(rec.record_id, this);
             });
+            const dqLink = tr.querySelector('.dq-link');
+            if (dqLink) {
+                dqLink.addEventListener('click', () => openTrustModal(rec.record_id));
+            }
         }
         tableBody.appendChild(tr);
     });
@@ -1418,6 +1618,7 @@ async function sendChatMessage(e) {
             const contentEl = botMsgDiv.querySelector('.msg-content');
             contentEl.innerHTML = '';
             renderMsgContent(contentEl, data.response);
+            appendTrustPanel(botMsgDiv, data);
         } else {
             botMsgDiv.querySelector('.msg-content').textContent = "I encountered an error querying the RAG vector index. Please try again.";
         }
@@ -1790,21 +1991,29 @@ async function traceLineage() {
     placeholderEl.classList.remove('hidden');
     
     try {
-        const response = await fetch(`${API_URL}/lineage/${recordId}`, {
+        const response = await fetch(`${API_URL}/gold-data/${recordId}/explain`, {
             headers: { 'Authorization': `Bearer ${state.token}` }
         });
         
         if (response.ok) {
-            const lineage = await response.json();
+            const data = await response.json();
+            const gold = data.gold || {};
+            const silver = data.silver || {};
+            const bronze = data.bronze || {};
             
-            document.getElementById('lineage-bronze-id').textContent = lineage.bronze_id || 'N/A';
-            document.getElementById('lineage-source').textContent = `Source Code: ${lineage.source_code || 'N/A'}`;
+            document.getElementById('lineage-bronze-id').textContent = bronze.record_id || 'N/A';
+            document.getElementById('lineage-source').textContent = `Source: ${bronze.source_code || gold.source_name || 'N/A'}`;
             
-            document.getElementById('lineage-silver-id').textContent = lineage.silver_id || 'N/A';
-            document.getElementById('lineage-dq').textContent = `DQ Score: ${lineage.dq_score ? lineage.dq_score.toFixed(1) + '%' : 'N/A'}`;
+            document.getElementById('lineage-silver-id').textContent = silver.record_id || 'N/A';
+            const dqVal = gold.dq_score ?? silver.dq_score;
+            document.getElementById('lineage-dq').textContent = dqVal != null
+                ? `DQ Score: ${Number(dqVal).toFixed(1)}% — click score in Explorer for full breakdown`
+                : 'DQ Score: N/A';
             
-            document.getElementById('lineage-gold-id').textContent = lineage.gold_id || 'N/A';
-            document.getElementById('lineage-value').textContent = `Value: ${lineage.value} ${lineage.standard_unit || ''}`;
+            document.getElementById('lineage-gold-id').textContent = gold.record_id || 'N/A';
+            document.getElementById('lineage-value').textContent = `Value: ${gold.value ?? '—'} ${gold.standard_unit || ''}`;
+            
+            renderLineageTrustPanel(data);
             
             placeholderEl.classList.add('hidden');
             displayEl.classList.remove('hidden');

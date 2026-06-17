@@ -15,6 +15,10 @@ settings = get_settings()
 JINA_ENDPOINT = "https://api.jina.ai/v1/embeddings"
 
 
+class EmbeddingError(Exception):
+    """Raised when embedding generation fails and no valid fallback is available."""
+
+
 def _is_valid_key(key: str) -> bool:
     """Check if the API key is provided and is not a placeholder."""
     if not key:
@@ -175,8 +179,20 @@ async def embed_batch(texts: list[str]) -> tuple[list[list[float]], str]:
             exc
         )
 
-    # Ultimate fallback to zero-vector embeddings
-    dimensions = settings.gemini_embedding_dimensions if provider == "gemini" else settings.jina_embedding_dimensions
+    # Ultimate fallback — fail loudly in production; allow dev zero-vectors for offline work
+    dimensions = (
+        settings.gemini_embedding_dimensions
+        if provider == "gemini"
+        else settings.jina_embedding_dimensions
+    )
+    if settings.app_env == "production":
+        raise EmbeddingError(
+            f"All embedding providers failed for provider={provider}. "
+            "Cannot perform vector search without valid embeddings."
+        )
+    logger.error(
+        "All embedding providers failed — using zero-vector fallback (development only)"
+    )
     return [[0.0] * dimensions for _ in texts], "mock-zero-vector"
 
 

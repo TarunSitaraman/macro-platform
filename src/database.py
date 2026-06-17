@@ -396,6 +396,48 @@ class NewsRecord(Base):
     )
 
 
+class AgentRun(Base):
+    __tablename__ = "agent_runs"
+
+    run_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.tenant_id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
+    session_id = Column(UUID(as_uuid=True), ForeignKey("chat_sessions.session_id"), nullable=True)
+    agent_name = Column(String(100), nullable=False)
+    query = Column(Text, nullable=False)
+    response = Column(Text)
+    model_used = Column(String(100))
+    confidence = Column(String(20))
+    grounding_warnings = Column(JSONB, default=list)
+    context_record_ids = Column(ARRAY(Text))
+    status = Column(String(50), default="running")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime)
+
+    steps = relationship("AgentStep", back_populates="run", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("ix_agent_runs_tenant", "tenant_id"),
+        Index("ix_agent_runs_session", "session_id"),
+        Index("ix_agent_runs_created", "created_at"),
+    )
+
+
+class AgentStep(Base):
+    __tablename__ = "agent_steps"
+
+    step_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = Column(UUID(as_uuid=True), ForeignKey("agent_runs.run_id"), nullable=False)
+    step_index = Column(Integer, nullable=False)
+    step_type = Column(String(50), nullable=False)
+    payload = Column(JSONB, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    run = relationship("AgentRun", back_populates="steps")
+
+    __table_args__ = (Index("ix_agent_steps_run", "run_id"),)
+
+
 def init_db():
     """Create all tables and enable pgvector extension."""
     with engine.connect() as conn:
