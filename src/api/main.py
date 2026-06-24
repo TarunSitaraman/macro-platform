@@ -3,6 +3,9 @@
 import logging
 from contextlib import asynccontextmanager
 
+import nest_asyncio
+nest_asyncio.apply()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,6 +15,8 @@ from src.config import get_settings
 from src.database import engine, init_db
 from src.api.routes import audit, auth, chat, data, pipelines, review
 from src.utils.observability import setup_observability
+from trust import TrustLayer
+from trust.database.migrations import create_trust_tables
 
 logging.basicConfig(level=get_settings().log_level)
 logger = logging.getLogger(__name__)
@@ -21,6 +26,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting Macro Intelligence Platform API")
     init_db()
+    create_trust_tables()
     yield
     logger.info("Shutdown complete")
 
@@ -52,6 +58,9 @@ def create_app() -> FastAPI:
     app.include_router(review.router, prefix="/api/v1", tags=["Review Queue"])
     app.include_router(chat.router, prefix="/api/v1", tags=["Chatbot"])
     app.include_router(audit.router, prefix="/api/v1", tags=["Audit & Lineage"])
+
+    # Mount all nine trust pillars (middleware + routers)
+    TrustLayer.mount(app)
 
     @app.get("/health", tags=["Health"])
     async def health():

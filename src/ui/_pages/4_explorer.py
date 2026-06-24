@@ -47,7 +47,9 @@ def load_explorer_data(indicators, countries, y_from, y_to, tenant_id):
             GoldRecord.period >= str(y_from),
             GoldRecord.period < str(y_to + 1),
         )
-        rows = q.order_by(GoldRecord.period).limit(10000).all()
+        # Increased limit to 100,000 to prevent truncation of recent years
+        # when multiple indicators/countries are selected.
+        rows = q.order_by(GoldRecord.period).limit(100000).all()
         return [
             {
                 "record_id": str(r.record_id),

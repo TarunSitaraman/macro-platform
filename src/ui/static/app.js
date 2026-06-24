@@ -90,6 +90,28 @@ function buildMsgElement(role, content) {
     return wrap;
 }
 
+// Render a citation/context record into a human-readable label. Handles gold
+// data (indicator · country · period — value), news articles (title), and the
+// legacy bare-UUID shape.
+function formatSourceLabel(rec) {
+    if (!rec) return '';
+    if (rec.indicator_code) {
+        const parts = [rec.indicator_code, rec.country_code, rec.period].filter(Boolean).join(' · ');
+        const value = rec.value != null
+            ? ` — ${rec.value}${rec.unit ? ' ' + rec.unit : ''}`
+            : '';
+        const source = rec.source_name ? ` (${rec.source_name})` : '';
+        return `${parts}${value}${source}`;
+    }
+    if (rec.title) {
+        return rec.source_name ? `${rec.title} — ${rec.source_name}` : rec.title;
+    }
+    if (rec.source_name) {
+        return rec.period ? `${rec.source_name}, ${rec.period}` : rec.source_name;
+    }
+    return rec.record_id ? rec.record_id.substring(0, 8) + '…' : 'record';
+}
+
 function appendTrustPanel(messageEl, data) {
     const hasTrace = data.tool_trace && data.tool_trace.length > 0;
     const hasCitations = data.citations && data.citations.length > 0;
@@ -137,7 +159,7 @@ function appendTrustPanel(messageEl, data) {
         const ul = citeEl.querySelector('ul');
         data.citations.forEach(c => {
             const li = document.createElement('li');
-            li.textContent = `${c.source_name}, ${c.period}`;
+            li.textContent = formatSourceLabel(c);
             ul.appendChild(li);
         });
         body.appendChild(citeEl);
@@ -162,17 +184,31 @@ function appendTrustPanel(messageEl, data) {
         recEl.className = 'trust-records';
         recEl.innerHTML = '<strong>Data records used</strong><ul></ul>';
         const ul = recEl.querySelector('ul');
-        data.context_records.slice(0, 6).forEach(id => {
+        data.context_records.slice(0, 6).forEach(raw => {
+            // Tolerate the legacy bare-UUID shape as well as rich record objects.
+            const rec = typeof raw === 'string' ? { record_id: raw, type: 'gold' } : raw;
             const li = document.createElement('li');
-            const link = document.createElement('a');
-            link.href = '#';
-            link.textContent = id.substring(0, 8) + '…';
-            link.title = 'View lineage';
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                showRecordLineage(id);
-            });
-            li.appendChild(link);
+            const label = formatSourceLabel(rec);
+            if (rec.type === 'gold' && rec.record_id) {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = label;
+                link.title = 'View lineage';
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showRecordLineage(rec.record_id);
+                });
+                li.appendChild(link);
+            } else if (rec.source_url) {
+                const link = document.createElement('a');
+                link.href = rec.source_url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = label;
+                li.appendChild(link);
+            } else {
+                li.textContent = label;
+            }
             ul.appendChild(li);
         });
         body.appendChild(recEl);
@@ -432,6 +468,8 @@ function setupEventListeners() {
     // Pipeline Orchestrator Run buttons
     document.getElementById('run-ingestion-btn').addEventListener('click', runIngestionJob);
     document.getElementById('run-embeddings-btn').addEventListener('click', runEmbeddingsRefresher);
+    document.getElementById('run-manual-ingestion-btn').addEventListener('click', runManualIngestion);
+    document.getElementById('repair-unit-scale-btn').addEventListener('click', runUnitScaleRepair);
     
     // Explorer
     document.getElementById('exp-search-btn').addEventListener('click', visualizeExplorer);
@@ -713,6 +751,57 @@ async function runIngestionJob() {
         }
     } catch (err) {
         writeToConsole(`Ingestion execution failed: connection lost.`, 'error');
+    } finally {
+        btn.disabled = false;
+        setPipelineOnline();
+    }
+}
+
+async function runManualIngestion() {
+    const sourceSelect = document.getElementById('manual-source-select');
+    const yearInput = document.getElementById('manual-year-from');
+    const btn = document.getElementById('run-manual-ingestion-btn');
+    
+    if (!sourceSelect || !yearInput || !btn) return;
+    
+    const sourceCode = sourceSelect.value;
+    const yearFrom = parseInt(yearInput.value, 10);
+    
+    btn.disabled = true;
+    writeToConsole(`Triggering manual ingestion for ${sourceCode} from ${yearFrom}...`);
+    setPipelineWorking('Manual Ingestion Running');
+    
+    try {
+        const response = await fetch(`${API_URL}/pipelines/static/${sourceCode}/run`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${state.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ year_from: yearFrom })
+        });
+        
+        if (response.ok) {
+            const res = await response.json();
+            writeToConsole(`Manual ingestion success! Promoted: ${res.records_promoted}, Queued: ${res.records_queued}, Rejected: ${res.records_rejected}`, 'success');
+            
+            // Invalidate the frontend cache so Explorer grabs the new data
+            state.goldDataCache = {};
+            
+            // Refresh stats to show new numbers
+            loadOverviewStats();
+            loadSources();
+            
+            // If the user is currently on the Explorer tab, auto-refresh the visualization
+            if (state.activeTab === 'explorer' && state.selectedIndicators.length > 0) {
+                visualizeExplorer();
+            }
+        } else {
+            const err = await response.json();
+            writeToConsole(`Manual ingestion failed: ${err.detail || "Server Error"}`, 'error');
+        }
+    } catch (err) {
+        writeToConsole(`Manual ingestion failed: connection lost.`, 'error');
     } finally {
         btn.disabled = false;
         setPipelineOnline();

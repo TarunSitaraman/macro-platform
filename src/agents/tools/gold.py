@@ -35,6 +35,23 @@ def _record_to_dict(r: GoldRecord) -> dict[str, Any]:
     }
 
 
+def _record_to_source(r: GoldRecord) -> dict[str, Any]:
+    """Normalized record shape used for citations and rich context records."""
+    return {
+        "record_id": str(r.record_id),
+        "type": "gold",
+        "source_name": r.source_name,
+        "source_url": r.source_url,
+        "indicator_code": r.indicator_code,
+        "country_code": r.country_code,
+        "period": r.period,
+        "value": r.value,
+        "unit": r.standard_unit,
+        "is_forecast": r.is_forecast,
+        "dq_score": r.dq_score,
+    }
+
+
 async def search_gold_records(
     db: Session,
     tenant_id: UUID,
@@ -80,6 +97,7 @@ async def search_gold_records(
             success=True,
             data={"records": data, "fallback": True},
             record_ids=[str(r.record_id) for r in records],
+            records=[_record_to_source(r) for r in records],
         )
 
     if not ids:
@@ -99,6 +117,7 @@ async def search_gold_records(
         success=True,
         data={"records": data},
         record_ids=[str(r.record_id) for r in records],
+        records=[_record_to_source(r) for r in records],
     )
 
 
@@ -133,6 +152,7 @@ async def get_indicator_timeseries(
         success=True,
         data={"records": data, "count": len(data)},
         record_ids=[str(r.record_id) for r in records],
+        records=[_record_to_source(r) for r in records],
     )
 
 
@@ -180,4 +200,5 @@ async def compare_countries(
         success=True,
         data={"comparisons": data},
         record_ids=[str(r.record_id) for r in records],
+        records=[_record_to_source(r) for r in records],
     )

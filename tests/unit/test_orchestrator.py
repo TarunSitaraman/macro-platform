@@ -28,6 +28,16 @@ def simple_registry():
             success=True,
             data={"records": [{"value": 3.2, "source_name": "IMF", "period": "2023"}]},
             record_ids=["rec-1"],
+            records=[{
+                "record_id": "rec-1",
+                "type": "gold",
+                "source_name": "IMF",
+                "indicator_code": "CPI_INFLATION",
+                "country_code": "USA",
+                "period": "2023",
+                "value": 3.2,
+                "unit": "%",
+            }],
         )
 
     registry.register(
@@ -86,6 +96,13 @@ async def test_orchestrator_tool_then_answer(mock_get_client, mock_db, simple_re
     assert "rec-1" in result.context_record_ids
     assert len(result.tool_trace) == 1
     assert client.chat_with_tools.call_count == 2
+    # Citations and rich context records are built from structured tool data,
+    # not parsed from the model's prose.
+    assert len(result.context_records) == 1
+    assert result.context_records[0]["indicator_code"] == "CPI_INFLATION"
+    assert len(result.citations) == 1
+    assert result.citations[0]["source_name"] == "IMF"
+    assert result.citations[0]["record_id"] == "rec-1"
 
 
 @pytest.mark.asyncio

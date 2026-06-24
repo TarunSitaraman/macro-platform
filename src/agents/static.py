@@ -30,9 +30,10 @@ class WorldBankAgent:
         if not wb_code:
             return []
 
+        y_start, y_end = year_range
         url = (
             f"{self.BASE}/country/{country.lower()}/indicator/{wb_code}"
-            f"?format=json&per_page=100"
+            f"?format=json&per_page=100&date={y_start}:{y_end}"
         )
         try:
             async with session.get(url, headers={"User-Agent": _USER_AGENT}) as resp:
@@ -64,7 +65,7 @@ class WorldBankAgent:
             })
         return records
 
-    async def run_all(self, year_from: int = 2015, year_to: Optional[int] = None) -> list[dict]:
+    async def run_all(self, year_from: int = 2010, year_to: Optional[int] = None) -> list[dict]:
         year_to = year_to or datetime.now(timezone.utc).year
         all_records: list[dict] = []
 
@@ -101,7 +102,7 @@ class IMFAgent:
     }
     _PHASE1_SET = set(PHASE1_COUNTRIES)
 
-    def _fetch_indicator_sync(self, indicator_code: str) -> list[dict]:
+    def _fetch_indicator_sync(self, indicator_code: str, year_from: int) -> list[dict]:
         """Fetch one indicator for all countries, return only Phase 1 records."""
         import httpx
         imf_code = IMF_INDICATORS.get(indicator_code)
@@ -125,6 +126,11 @@ class IMFAgent:
             for year, val in year_map.items():
                 if val is None:
                     continue
+                try:
+                    if int(year) < year_from:
+                        continue
+                except (ValueError, TypeError):
+                    continue
                 scaled = float(val) * mult
                 records.append({
                     "indicator_code": indicator_code,
@@ -137,13 +143,13 @@ class IMFAgent:
                 })
         return records
 
-    async def run_all(self) -> list[dict]:
+    async def run_all(self, year_from: int = 2010) -> list[dict]:
         import concurrent.futures
         loop = asyncio.get_event_loop()
         all_records: list[dict] = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
             futures = [
-                loop.run_in_executor(pool, self._fetch_indicator_sync, ind)
+                loop.run_in_executor(pool, self._fetch_indicator_sync, ind, year_from)
                 for ind in IMF_INDICATORS
             ]
             results = await asyncio.gather(*futures, return_exceptions=True)
@@ -162,7 +168,7 @@ class FREDAgent:
     BASE = "https://api.stlouisfed.org/fred"
 
     async def fetch_series(
-        self, session: aiohttp.ClientSession, indicator_code: str
+        self, session: aiohttp.ClientSession, indicator_code: str, year_from: int
     ) -> list[dict]:
         fred_series = FRED_SERIES.get(indicator_code)
         if not fred_series or not settings.fred_api_key:
@@ -171,7 +177,7 @@ class FREDAgent:
         url = (
             f"{self.BASE}/series/observations"
             f"?series_id={fred_series}&api_key={settings.fred_api_key}"
-            f"&file_type=json&frequency=a&observation_start=2010-01-01"
+            f"&file_type=json&frequency=a&observation_start={year_from}-01-01"
         )
         try:
             async with session.get(url, headers={"User-Agent": _USER_AGENT}) as resp:
@@ -200,10 +206,10 @@ class FREDAgent:
             })
         return records
 
-    async def run_all(self) -> list[dict]:
+    async def run_all(self, year_from: int = 2010) -> list[dict]:
         all_records: list[dict] = []
         async with aiohttp.ClientSession() as session:
-            tasks = [self.fetch_series(session, code) for code in FRED_SERIES]
+            tasks = [self.fetch_series(session, code, year_from) for code in FRED_SERIES]
             results = await asyncio.gather(*tasks, return_exceptions=True)
             for r in results:
                 if isinstance(r, list):

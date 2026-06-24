@@ -32,6 +32,9 @@ class ToolResult:
     data: Any
     error: Optional[str] = None
     record_ids: list[str] = field(default_factory=list)
+    # Structured, normalized records backing this result. Used to build
+    # citations and rich context records without re-parsing the LLM's prose.
+    records: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -65,3 +68,6 @@ class AgentRunResult:
     grounding_warnings: list[str]
     run_id: Optional[str] = None
     tool_trace: list[dict[str, Any]] = field(default_factory=list)
+    # Rich, deduplicated metadata for each record used as context (replaces the
+    # bare UUID list for frontends that render source cards).
+    context_records: list[dict[str, Any]] = field(default_factory=list)

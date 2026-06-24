@@ -78,9 +78,25 @@ async def search_news(
         }
         for r in records
     ]
+    sources = [
+        {
+            "record_id": str(r.news_id),
+            "type": "news",
+            "source_name": r.source_name,
+            "source_url": r.url,
+            "indicator_code": None,
+            "country_code": r.country_code,
+            "period": r.published_at.isoformat()[:10] if r.published_at else None,
+            "value": None,
+            "unit": None,
+            "title": r.title,
+        }
+        for r in records
+    ]
     return ToolResult(
         tool_name="search_news",
         success=True,
         data={"articles": data},
         record_ids=[],
+        records=sources,
     )

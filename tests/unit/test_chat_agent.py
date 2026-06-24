@@ -60,6 +60,16 @@ async def test_chat_uses_orchestrator(mock_registry, mock_orchestrator_cls, mock
             grounding_warnings=[],
             run_id="run-123",
             tool_trace=[{"tool": "search_gold_records", "success": True, "record_count": 1}],
+            context_records=[{
+                "record_id": str(uuid4()),
+                "type": "gold",
+                "source_name": "World Bank",
+                "indicator_code": "GDP_GROWTH",
+                "country_code": "USA",
+                "period": "2023",
+                "value": 2.1,
+                "unit": "%",
+            }],
         ))
         mock_orchestrator_cls.return_value = mock_orch
 

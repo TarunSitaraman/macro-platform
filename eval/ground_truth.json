@@ -1,0 +1,6283 @@
+{
+  "metadata": {
+    "description": "Ground-truth answer key for the Macro Intelligence Platform RAG chatbot. Answers are derived from the verified gold data layer (gold_records).",
+    "generated_at": "2026-06-22T11:58:54.249755+00:00",
+    "source_layer": "gold_records",
+    "seed": 42,
+    "min_year": 2000,
+    "max_year": 2024,
+    "authoritative_keys": 4877,
+    "counts": {
+      "point_lookup": 120,
+      "comparison": 40,
+      "superlative_high": 20,
+      "superlative_low": 20,
+      "trend": 40
+    },
+    "total": 240
+  },
+  "items": [
+    {
+      "id": "gt-00001",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Germany in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 0.514426137125456,
+      "unit": "PCT",
+      "expected_answer": "0.51%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "DEU",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "2715c9be-3b83-420f-981f-f39240d7d2ae"
+      ]
+    },
+    {
+      "id": "gt-00002",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Indonesia in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 3.3,
+      "unit": "PCT",
+      "expected_answer": "3.3%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "IDN",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "363431e5-f92b-41fe-85b9-8cc3af99eb5f"
+      ]
+    },
+    {
+      "id": "gt-00003",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Canada in 2009?",
+      "answer_kind": "numeric",
+      "expected_value": 0.3,
+      "unit": "PCT",
+      "expected_answer": "0.3%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "CAN",
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "97821a83-dc5a-48fb-93c9-70add1b61b2a"
+      ]
+    },
+    {
+      "id": "gt-00004",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of the United Kingdom in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 0.36804684232536,
+      "unit": "PCT",
+      "expected_answer": "0.37%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "GBR",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "1f1ad3d5-4d7e-4cf4-9517-548965a8e9b9"
+      ]
+    },
+    {
+      "id": "gt-00005",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Saudi Arabia in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 3.7,
+      "unit": "PCT",
+      "expected_answer": "3.7%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "SAU",
+      "period": "2010",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "c82fdcda-fad1-41a2-94d3-eae4a3713df6"
+      ]
+    },
+    {
+      "id": "gt-00006",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Australia in 2003?",
+      "answer_kind": "numeric",
+      "expected_value": 2.7,
+      "unit": "PCT",
+      "expected_answer": "2.7%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "AUS",
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "ad53d15c-3875-4227-9335-297687ec6322"
+      ]
+    },
+    {
+      "id": "gt-00007",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Saudi Arabia in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": -2.0,
+      "unit": "PCT",
+      "expected_answer": "-2%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "SAU",
+      "period": "2019",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "a437a323-54ba-4fba-ab67-e2b74bfa6baf"
+      ]
+    },
+    {
+      "id": "gt-00008",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of the United States in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 2.94952520485207,
+      "unit": "PCT",
+      "expected_answer": "2.95%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "USA",
+      "period": "2024",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "c62972a0-82eb-462d-b109-442f663e15cd"
+      ]
+    },
+    {
+      "id": "gt-00009",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of China in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 2.41942189457782,
+      "unit": "PCT",
+      "expected_answer": "2.42%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "CHN",
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "06e58828-0fd0-42a0-a739-89227242db3d"
+      ]
+    },
+    {
+      "id": "gt-00010",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of South Africa in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 4.6,
+      "unit": "PCT",
+      "expected_answer": "4.6%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "ZAF",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "6466607b-f75b-4bf0-b2c5-d477d5d73b8b"
+      ]
+    },
+    {
+      "id": "gt-00011",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of South Korea in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 1.5,
+      "unit": "PCT",
+      "expected_answer": "1.5%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "KOR",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "67666e1b-d5ae-4eab-a11c-d6e54e914d9c"
+      ]
+    },
+    {
+      "id": "gt-00012",
+      "question_type": "point_lookup",
+      "question": "What was the CPI Inflation Rate of Indonesia in 2022?",
+      "answer_kind": "numeric",
+      "expected_value": 4.1,
+      "unit": "PCT",
+      "expected_answer": "4.1%",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "IDN",
+      "period": "2022",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "9f6a7852-ebc6-4d60-9aa5-7d3a68ce61d7"
+      ]
+    },
+    {
+      "id": "gt-00013",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of the United Kingdom in 2022?",
+      "answer_kind": "numeric",
+      "expected_value": -2.06737101121871,
+      "unit": "PCT_GDP",
+      "expected_answer": "-2.07 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "GBR",
+      "period": "2022",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "e0309160-944f-42c0-a307-40046bc0e5bc"
+      ]
+    },
+    {
+      "id": "gt-00014",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Australia in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 1.6,
+      "unit": "PCT_GDP",
+      "expected_answer": "1.6 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "AUS",
+      "period": "2020",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "2f3fda7f-0a47-496f-94ed-3d259ec61b72"
+      ]
+    },
+    {
+      "id": "gt-00015",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of South Africa in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": -2.9,
+      "unit": "PCT_GDP",
+      "expected_answer": "-2.9 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "ZAF",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "0fe2f59b-6bf5-4f67-b895-3fb3e959fbbd"
+      ]
+    },
+    {
+      "id": "gt-00016",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Germany in 2021?",
+      "answer_kind": "numeric",
+      "expected_value": 6.9200696637534,
+      "unit": "PCT_GDP",
+      "expected_answer": "6.92 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "DEU",
+      "period": "2021",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "06de8321-3c6f-4483-b400-2941d668b8ae"
+      ]
+    },
+    {
+      "id": "gt-00017",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of the United States in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": -2.57236812074952,
+      "unit": "PCT_GDP",
+      "expected_answer": "-2.57 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "USA",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "66b65507-b77f-470d-b99b-521cf1df1f89"
+      ]
+    },
+    {
+      "id": "gt-00018",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Argentina in 2022?",
+      "answer_kind": "numeric",
+      "expected_value": -0.6,
+      "unit": "PCT_GDP",
+      "expected_answer": "-0.6 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "ARG",
+      "period": "2022",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "29b7d463-2dd6-4bb9-a5f1-fcc2c1221fc9"
+      ]
+    },
+    {
+      "id": "gt-00019",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of China in 2011?",
+      "answer_kind": "numeric",
+      "expected_value": 1.8,
+      "unit": "PCT_GDP",
+      "expected_answer": "1.8 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "CHN",
+      "period": "2011",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "331c3bc3-5635-48c1-8ddf-30d6eb4c21b4"
+      ]
+    },
+    {
+      "id": "gt-00020",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Italy in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 2.5,
+      "unit": "PCT_GDP",
+      "expected_answer": "2.5 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "ITA",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "a65a40b9-8896-4a93-b10a-9b73787bf229"
+      ]
+    },
+    {
+      "id": "gt-00021",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of China in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 1.65930095801393,
+      "unit": "PCT_GDP",
+      "expected_answer": "1.66 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "CHN",
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "490963f3-6c49-4a5b-9acb-e11c38460740"
+      ]
+    },
+    {
+      "id": "gt-00022",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Italy in 2004?",
+      "answer_kind": "numeric",
+      "expected_value": -0.5,
+      "unit": "PCT_GDP",
+      "expected_answer": "-0.5 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "ITA",
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "810ae36f-b31c-46b1-8a24-2c66ff7f3be2"
+      ]
+    },
+    {
+      "id": "gt-00023",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of the United States in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": -2.87064270506825,
+      "unit": "PCT_GDP",
+      "expected_answer": "-2.87 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "USA",
+      "period": "2010",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "58526147-44c4-454a-81bf-499ba10206eb"
+      ]
+    },
+    {
+      "id": "gt-00024",
+      "question_type": "point_lookup",
+      "question": "What was the Current Account Balance (% GDP) of Australia in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": -2.6,
+      "unit": "PCT_GDP",
+      "expected_answer": "-2.6 % of GDP",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "AUS",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "ed47e638-4f2a-430f-ba7c-01f4d8ba2fd7"
+      ]
+    },
+    {
+      "id": "gt-00025",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of Brazil in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 17.9385794398128,
+      "unit": "PCT_GDP",
+      "expected_answer": "17.94 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "BRA",
+      "period": "2024",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "767469f4-7229-4060-80ad-8023918725f0"
+      ]
+    },
+    {
+      "id": "gt-00026",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of Japan in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 17.4367598376529,
+      "unit": "PCT_GDP",
+      "expected_answer": "17.44 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "JPN",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "152ccf53-376a-4b1b-b2f4-869b6c36436f"
+      ]
+    },
+    {
+      "id": "gt-00027",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of South Korea in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": 52.0235312085188,
+      "unit": "PCT_GDP",
+      "expected_answer": "52.02 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "KOR",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9abbe34a-bc54-40ea-9db7-b4367db09ec4"
+      ]
+    },
+    {
+      "id": "gt-00028",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of France in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 32.8895593910847,
+      "unit": "PCT_GDP",
+      "expected_answer": "32.89 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "FRA",
+      "period": "2019",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "20c73c04-dfd6-4b6f-bf6d-59acc89023c0"
+      ]
+    },
+    {
+      "id": "gt-00029",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of Brazil in 2007?",
+      "answer_kind": "numeric",
+      "expected_value": 13.3276751043,
+      "unit": "PCT_GDP",
+      "expected_answer": "13.33 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "BRA",
+      "period": "2007",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "70555609-54bd-4eaa-af7d-766077e0cf0f"
+      ]
+    },
+    {
+      "id": "gt-00030",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of Italy in 2003?",
+      "answer_kind": "numeric",
+      "expected_value": 23.2240496903642,
+      "unit": "PCT_GDP",
+      "expected_answer": "23.22 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "ITA",
+      "period": "2003",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "47b043d1-2504-42bf-978d-02630a38eddf"
+      ]
+    },
+    {
+      "id": "gt-00031",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of China in 2023?",
+      "answer_kind": "numeric",
+      "expected_value": 19.102471716101,
+      "unit": "PCT_GDP",
+      "expected_answer": "19.1 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "CHN",
+      "period": "2023",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9067ae58-ce6e-4f76-b6e3-2e6ba28b2012"
+      ]
+    },
+    {
+      "id": "gt-00032",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of South Korea in 2007?",
+      "answer_kind": "numeric",
+      "expected_value": 36.0414909532161,
+      "unit": "PCT_GDP",
+      "expected_answer": "36.04 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "KOR",
+      "period": "2007",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "df17f89e-25a8-4000-b3b6-9663aae02574"
+      ]
+    },
+    {
+      "id": "gt-00033",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of the United Kingdom in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 30.9841588401688,
+      "unit": "PCT_GDP",
+      "expected_answer": "30.98 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "GBR",
+      "period": "2024",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "a773ddcc-b2ab-435e-a152-52de7eb7f3bc"
+      ]
+    },
+    {
+      "id": "gt-00034",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of China in 2009?",
+      "answer_kind": "numeric",
+      "expected_value": 24.3307718125403,
+      "unit": "PCT_GDP",
+      "expected_answer": "24.33 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "CHN",
+      "period": "2009",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "04e11bbd-f776-4b29-ad38-3ba2ad4bfc62"
+      ]
+    },
+    {
+      "id": "gt-00035",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of the United Kingdom in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 28.7463664387355,
+      "unit": "PCT_GDP",
+      "expected_answer": "28.75 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "GBR",
+      "period": "2010",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "78cd4f7f-7056-49ef-8620-99adec8ba00d"
+      ]
+    },
+    {
+      "id": "gt-00036",
+      "question_type": "point_lookup",
+      "question": "What was the Exports of Goods and Services (% GDP) of Saudi Arabia in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 32.3625378991189,
+      "unit": "PCT_GDP",
+      "expected_answer": "32.36 % of GDP",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "SAU",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "3441773a-5188-4863-b170-d8d3877f3f29"
+      ]
+    },
+    {
+      "id": "gt-00037",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Australia in 2023?",
+      "answer_kind": "numeric",
+      "expected_value": 1748.175,
+      "unit": "USD_BN",
+      "expected_answer": "1,748.17 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "AUS",
+      "period": "2023",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "57d1dee5-7712-4343-aee4-8e794cfaa318"
+      ]
+    },
+    {
+      "id": "gt-00038",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of India in 2002?",
+      "answer_kind": "numeric",
+      "expected_value": 514.938,
+      "unit": "USD_BN",
+      "expected_answer": "514.94 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "IND",
+      "period": "2002",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "09c97b18-c07d-4b0d-b7f6-655cd1872bab"
+      ]
+    },
+    {
+      "id": "gt-00039",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Saudi Arabia in 2023?",
+      "answer_kind": "numeric",
+      "expected_value": 1218.585,
+      "unit": "USD_BN",
+      "expected_answer": "1,218.59 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "SAU",
+      "period": "2023",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "5a1c9ef4-a937-4d61-a6a8-def207b86a1f"
+      ]
+    },
+    {
+      "id": "gt-00040",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Australia in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 1258.45,
+      "unit": "USD_BN",
+      "expected_answer": "1,258.45 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "AUS",
+      "period": "2010",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "7e696fe9-8c69-4836-b0fe-f3bad525a00a"
+      ]
+    },
+    {
+      "id": "gt-00041",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Germany in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 3469.925,
+      "unit": "USD_BN",
+      "expected_answer": "3,469.93 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "DEU",
+      "period": "2010",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "068e4b3d-8f7d-4bc6-83ed-90da893250ee"
+      ]
+    },
+    {
+      "id": "gt-00042",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of India in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 2651.4742627554506,
+      "unit": "USD_BN",
+      "expected_answer": "2,651.47 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "IND",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "1c4271dc-16e6-489c-92d3-8fc8f11584b6"
+      ]
+    },
+    {
+      "id": "gt-00043",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of China in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 12537.5590622829,
+      "unit": "USD_BN",
+      "expected_answer": "12,537.56 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "CHN",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "ae0f8653-3d6a-45b4-b73a-11176134a31e"
+      ]
+    },
+    {
+      "id": "gt-00044",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of India in 2022?",
+      "answer_kind": "numeric",
+      "expected_value": 3346.1072877309302,
+      "unit": "USD_BN",
+      "expected_answer": "3,346.11 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "IND",
+      "period": "2022",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "bd5c1255-98df-41c8-80be-6d8753accd69"
+      ]
+    },
+    {
+      "id": "gt-00045",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Indonesia in 2004?",
+      "answer_kind": "numeric",
+      "expected_value": 279.344,
+      "unit": "USD_BN",
+      "expected_answer": "279.34 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "IDN",
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "e4b523df-6e00-4d9b-a1b2-3303eb52227d"
+      ]
+    },
+    {
+      "id": "gt-00046",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Brazil in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 1802.21199945642,
+      "unit": "USD_BN",
+      "expected_answer": "1,802.21 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "BRA",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "e2aa6880-5987-4d8d-8f85-64e40840bf69"
+      ]
+    },
+    {
+      "id": "gt-00047",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of France in 2023?",
+      "answer_kind": "numeric",
+      "expected_value": 3056.25064813829,
+      "unit": "USD_BN",
+      "expected_answer": "3,056.25 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "FRA",
+      "period": "2023",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "d6eae693-bd25-4f5a-a37d-742ddd50dd64"
+      ]
+    },
+    {
+      "id": "gt-00048",
+      "question_type": "point_lookup",
+      "question": "What was the GDP (Current USD) of Argentina in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 643628393281.364,
+      "unit": "USD_BN",
+      "expected_answer": "643,628,393,281.36 billion USD",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "ARG",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9c422592-2dd1-465b-850d-8149ac7c574b"
+      ]
+    },
+    {
+      "id": "gt-00049",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Japan in 2003?",
+      "answer_kind": "numeric",
+      "expected_value": 1.4,
+      "unit": "PCT",
+      "expected_answer": "1.4%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "JPN",
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "2a54183d-e8fe-4e40-8694-c502f6e6c08a"
+      ]
+    },
+    {
+      "id": "gt-00050",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of South Africa in 2009?",
+      "answer_kind": "numeric",
+      "expected_value": -1.5,
+      "unit": "PCT",
+      "expected_answer": "-1.5%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "ZAF",
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "63bd7dc3-4fc8-4fbd-afef-538cb644084e"
+      ]
+    },
+    {
+      "id": "gt-00051",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Italy in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 0.4,
+      "unit": "PCT",
+      "expected_answer": "0.4%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "ITA",
+      "period": "2019",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "c45988d1-e05d-4658-823b-68ad4e8ed293"
+      ]
+    },
+    {
+      "id": "gt-00052",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Italy in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 1.6,
+      "unit": "PCT",
+      "expected_answer": "1.6%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "ITA",
+      "period": "2017",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "7048e841-3bc7-4ec0-ad7b-ddb0bf972692"
+      ]
+    },
+    {
+      "id": "gt-00053",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Spain in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 4.0,
+      "unit": "PCT",
+      "expected_answer": "4%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "ESP",
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "c74be735-0527-4224-a99a-596bcfdfdc3a"
+      ]
+    },
+    {
+      "id": "gt-00054",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Canada in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 1.9,
+      "unit": "PCT",
+      "expected_answer": "1.9%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "CAN",
+      "period": "2019",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "1037d9b6-3092-4a9f-b9f1-ee46ba2d888a"
+      ]
+    },
+    {
+      "id": "gt-00055",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of China in 2007?",
+      "answer_kind": "numeric",
+      "expected_value": 14.2,
+      "unit": "PCT",
+      "expected_answer": "14.2%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "CHN",
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "73691cb9-7933-4407-968c-c5197d15a078"
+      ]
+    },
+    {
+      "id": "gt-00056",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Germany in 2002?",
+      "answer_kind": "numeric",
+      "expected_value": -0.2,
+      "unit": "PCT",
+      "expected_answer": "-0.2%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "DEU",
+      "period": "2002",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "0b7dad06-181f-437d-9dbd-7e510f3358ca"
+      ]
+    },
+    {
+      "id": "gt-00057",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of the United States in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 2.69519257744442,
+      "unit": "PCT",
+      "expected_answer": "2.7%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "USA",
+      "period": "2010",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "3797d892-9c48-4bb8-9bfe-32299938cffc"
+      ]
+    },
+    {
+      "id": "gt-00058",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Indonesia in 2001?",
+      "answer_kind": "numeric",
+      "expected_value": 3.6,
+      "unit": "PCT",
+      "expected_answer": "3.6%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "IDN",
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "8ab647ef-d22c-45d0-87c0-c316abad21cd"
+      ]
+    },
+    {
+      "id": "gt-00059",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Turkey in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 3.3,
+      "unit": "PCT",
+      "expected_answer": "3.3%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "TUR",
+      "period": "2024",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "691054ff-b8a1-47ff-b915-ace7c0057b4f"
+      ]
+    },
+    {
+      "id": "gt-00060",
+      "question_type": "point_lookup",
+      "question": "What was the GDP Growth Rate of Turkey in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 7.1,
+      "unit": "PCT",
+      "expected_answer": "7.1%",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "TUR",
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "4ab40c45-9f74-44cd-8c69-3f20a3259d37"
+      ]
+    },
+    {
+      "id": "gt-00061",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Saudi Arabia in 2014?",
+      "answer_kind": "numeric",
+      "expected_value": 1.5,
+      "unit": "PCT_GDP",
+      "expected_answer": "1.5 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "SAU",
+      "period": "2014",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "fde1604e-d725-4766-b196-9024b476e79a"
+      ]
+    },
+    {
+      "id": "gt-00062",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Mexico in 2016?",
+      "answer_kind": "numeric",
+      "expected_value": 55.0,
+      "unit": "PCT_GDP",
+      "expected_answer": "55 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "MEX",
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "cef47189-3265-40be-8c07-9264a8bb58eb"
+      ]
+    },
+    {
+      "id": "gt-00063",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Argentina in 2016?",
+      "answer_kind": "numeric",
+      "expected_value": 53.1,
+      "unit": "PCT_GDP",
+      "expected_answer": "53.1 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "ARG",
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "2e42cbb4-8835-4496-bbed-7ec9ed2335f3"
+      ]
+    },
+    {
+      "id": "gt-00064",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of India in 2011?",
+      "answer_kind": "numeric",
+      "expected_value": 68.7,
+      "unit": "PCT_GDP",
+      "expected_answer": "68.7 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "IND",
+      "period": "2011",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "143f0fc9-82d6-474c-9b59-3f5ea0fbe229"
+      ]
+    },
+    {
+      "id": "gt-00065",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Germany in 2008?",
+      "answer_kind": "numeric",
+      "expected_value": 65.2,
+      "unit": "PCT_GDP",
+      "expected_answer": "65.2 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "DEU",
+      "period": "2008",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "e0c4cd72-ab8d-487f-a253-8a532bbec330"
+      ]
+    },
+    {
+      "id": "gt-00066",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Italy in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 134.2,
+      "unit": "PCT_GDP",
+      "expected_answer": "134.2 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "ITA",
+      "period": "2018",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "43edb99d-7177-4b8b-811a-ca4d05ac433d"
+      ]
+    },
+    {
+      "id": "gt-00067",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of China in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 90.4,
+      "unit": "PCT_GDP",
+      "expected_answer": "90.4 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "CHN",
+      "period": "2024",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "be97257e-4ce2-43ea-b0c9-8ab44782b8ed"
+      ]
+    },
+    {
+      "id": "gt-00068",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Brazil in 2004?",
+      "answer_kind": "numeric",
+      "expected_value": 68.0,
+      "unit": "PCT_GDP",
+      "expected_answer": "68 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "BRA",
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "fe6bb62f-a044-40fa-bc6a-e4d288b33416"
+      ]
+    },
+    {
+      "id": "gt-00069",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of the United Kingdom in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 194.682828796265,
+      "unit": "PCT_GDP",
+      "expected_answer": "194.68 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "GBR",
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "cc8589bf-5ac4-491e-924b-9713c6635b5f"
+      ]
+    },
+    {
+      "id": "gt-00070",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of the Netherlands in 2007?",
+      "answer_kind": "numeric",
+      "expected_value": 42.7,
+      "unit": "PCT_GDP",
+      "expected_answer": "42.7 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "NLD",
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "30295b08-c930-4351-ab4a-238ab3a1be57"
+      ]
+    },
+    {
+      "id": "gt-00071",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Japan in 2021?",
+      "answer_kind": "numeric",
+      "expected_value": 222.7,
+      "unit": "PCT_GDP",
+      "expected_answer": "222.7 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "JPN",
+      "period": "2021",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "424fa09f-cdf9-4d1b-917a-48fa99b31ee1"
+      ]
+    },
+    {
+      "id": "gt-00072",
+      "question_type": "point_lookup",
+      "question": "What was the Government Debt (% GDP) of Brazil in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 98.7098819471851,
+      "unit": "PCT_GDP",
+      "expected_answer": "98.71 % of GDP",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "BRA",
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "1029a88b-5fe6-4ff3-b88e-00168dafe326"
+      ]
+    },
+    {
+      "id": "gt-00073",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of the United Kingdom in 2011?",
+      "answer_kind": "numeric",
+      "expected_value": 42.5122983092258,
+      "unit": "PCT_GDP",
+      "expected_answer": "42.51 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "GBR",
+      "period": "2011",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "ea3fb381-b7fe-4a40-a084-069baef65eef"
+      ]
+    },
+    {
+      "id": "gt-00074",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of India in 2005?",
+      "answer_kind": "numeric",
+      "expected_value": 15.1739835903438,
+      "unit": "PCT_GDP",
+      "expected_answer": "15.17 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "IND",
+      "period": "2005",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "8fe64dff-2ae1-46c0-b474-9baeccb67633"
+      ]
+    },
+    {
+      "id": "gt-00075",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of South Africa in 2000?",
+      "answer_kind": "numeric",
+      "expected_value": 24.4358091522258,
+      "unit": "PCT_GDP",
+      "expected_answer": "24.44 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "ZAF",
+      "period": "2000",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "b3961648-65c3-49d7-b403-113bccc6baf8"
+      ]
+    },
+    {
+      "id": "gt-00076",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of Brazil in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": 28.1749993080182,
+      "unit": "PCT_GDP",
+      "expected_answer": "28.17 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "BRA",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "6abee732-e1bd-4672-b4b3-fae0d841440f"
+      ]
+    },
+    {
+      "id": "gt-00077",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of the United States in 2005?",
+      "answer_kind": "numeric",
+      "expected_value": 20.7451029772761,
+      "unit": "PCT_GDP",
+      "expected_answer": "20.75 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "USA",
+      "period": "2005",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "861cb2f9-9c54-40ee-b5dc-1e796a54dbf2"
+      ]
+    },
+    {
+      "id": "gt-00078",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of the United Kingdom in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 38.2133758226073,
+      "unit": "PCT_GDP",
+      "expected_answer": "38.21 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "GBR",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "25fe3453-3744-40fc-b7e0-3aa05e52fd9f"
+      ]
+    },
+    {
+      "id": "gt-00079",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of the Netherlands in 2014?",
+      "answer_kind": "numeric",
+      "expected_value": 41.9474910370498,
+      "unit": "PCT_GDP",
+      "expected_answer": "41.95 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "NLD",
+      "period": "2014",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "dd753ec6-c54b-4df6-9612-a9979bccd639"
+      ]
+    },
+    {
+      "id": "gt-00080",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of Italy in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": 43.4989070049363,
+      "unit": "PCT_GDP",
+      "expected_answer": "43.5 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "ITA",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "55251d30-8b2d-481c-9e03-4ead6b6d13a5"
+      ]
+    },
+    {
+      "id": "gt-00081",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of South Africa in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 34.6532754617872,
+      "unit": "PCT_GDP",
+      "expected_answer": "34.65 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "ZAF",
+      "period": "2019",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "85de078e-a700-4974-9ab1-74e6b7c9562b"
+      ]
+    },
+    {
+      "id": "gt-00082",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of France in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 45.8897902925031,
+      "unit": "PCT_GDP",
+      "expected_answer": "45.89 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "FRA",
+      "period": "2019",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9bf17588-b633-4e2e-90dd-84572f4d27da"
+      ]
+    },
+    {
+      "id": "gt-00083",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of Brazil in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 32.3610510088146,
+      "unit": "PCT_GDP",
+      "expected_answer": "32.36 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "BRA",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "17b2e97c-abb6-40ae-827d-a6afe3925380"
+      ]
+    },
+    {
+      "id": "gt-00084",
+      "question_type": "point_lookup",
+      "question": "What was the General Government Expenditure (% GDP) of Germany in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 27.3644959420855,
+      "unit": "PCT_GDP",
+      "expected_answer": "27.36 % of GDP",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "DEU",
+      "period": "2018",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "ec0b2392-3300-4c3a-9b02-cad119872509"
+      ]
+    },
+    {
+      "id": "gt-00085",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Germany in 2021?",
+      "answer_kind": "numeric",
+      "expected_value": 37.3996969318423,
+      "unit": "PCT_GDP",
+      "expected_answer": "37.4 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "DEU",
+      "period": "2021",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "70e819ad-6a5c-4406-a6cf-cd016239c17f"
+      ]
+    },
+    {
+      "id": "gt-00086",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Canada in 2019?",
+      "answer_kind": "numeric",
+      "expected_value": 33.8187894602395,
+      "unit": "PCT_GDP",
+      "expected_answer": "33.82 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "CAN",
+      "period": "2019",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "5178be1f-8cdf-44ed-bffc-178a591a1eea"
+      ]
+    },
+    {
+      "id": "gt-00087",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of South Korea in 2010?",
+      "answer_kind": "numeric",
+      "expected_value": 42.7560070236169,
+      "unit": "PCT_GDP",
+      "expected_answer": "42.76 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "KOR",
+      "period": "2010",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "62a333e7-020c-459b-8079-c6c981d38948"
+      ]
+    },
+    {
+      "id": "gt-00088",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Turkey in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 31.0972787311468,
+      "unit": "PCT_GDP",
+      "expected_answer": "31.1 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "TUR",
+      "period": "2018",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "97421281-6a49-4b1b-9611-77582a899f9a"
+      ]
+    },
+    {
+      "id": "gt-00089",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of the United Kingdom in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": 31.469331617208,
+      "unit": "PCT_GDP",
+      "expected_answer": "31.47 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "GBR",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "e0bcd3f4-6e66-4666-984b-9dd8007771b8"
+      ]
+    },
+    {
+      "id": "gt-00090",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Argentina in 2024?",
+      "answer_kind": "numeric",
+      "expected_value": 12.6800122564846,
+      "unit": "PCT_GDP",
+      "expected_answer": "12.68 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "ARG",
+      "period": "2024",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "72433eae-90bb-461b-9384-90696a1eb662"
+      ]
+    },
+    {
+      "id": "gt-00091",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Germany in 2023?",
+      "answer_kind": "numeric",
+      "expected_value": 38.9952859590786,
+      "unit": "PCT_GDP",
+      "expected_answer": "39 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "DEU",
+      "period": "2023",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "b47afac7-7e36-447c-8754-4f4dca095cb6"
+      ]
+    },
+    {
+      "id": "gt-00092",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of the United Kingdom in 2009?",
+      "answer_kind": "numeric",
+      "expected_value": 27.9463641581244,
+      "unit": "PCT_GDP",
+      "expected_answer": "27.95 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "GBR",
+      "period": "2009",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9eafb38e-5dfd-469a-8cff-ffab2eb5b166"
+      ]
+    },
+    {
+      "id": "gt-00093",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Canada in 2017?",
+      "answer_kind": "numeric",
+      "expected_value": 33.6466506994867,
+      "unit": "PCT_GDP",
+      "expected_answer": "33.65 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "CAN",
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9507fe65-04e6-4cb8-a8aa-d81665c6ba3f"
+      ]
+    },
+    {
+      "id": "gt-00094",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Spain in 2012?",
+      "answer_kind": "numeric",
+      "expected_value": 29.2542984119139,
+      "unit": "PCT_GDP",
+      "expected_answer": "29.25 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "ESP",
+      "period": "2012",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "f089d7ab-b1ec-4e2a-8844-4d8c7f9e0ae6"
+      ]
+    },
+    {
+      "id": "gt-00095",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of Japan in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 14.3590020520575,
+      "unit": "PCT_GDP",
+      "expected_answer": "14.36 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "JPN",
+      "period": "2006",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "90c473ec-1a93-4add-bee0-586666dc6693"
+      ]
+    },
+    {
+      "id": "gt-00096",
+      "question_type": "point_lookup",
+      "question": "What was the Imports of Goods and Services (% GDP) of India in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 22.1097247094602,
+      "unit": "PCT_GDP",
+      "expected_answer": "22.11 % of GDP",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "IND",
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "a09573d5-8f27-4754-b5f8-8dc14628523a"
+      ]
+    },
+    {
+      "id": "gt-00097",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Saudi Arabia in 2013?",
+      "answer_kind": "numeric",
+      "expected_value": 27.624,
+      "unit": "MILLIONS",
+      "expected_answer": "27.62 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "SAU",
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "2f44ef6d-d8db-494d-bb71-04c560decdd7"
+      ]
+    },
+    {
+      "id": "gt-00098",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Indonesia in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 224.555,
+      "unit": "MILLIONS",
+      "expected_answer": "224.56 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "IDN",
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "11fa55ea-6807-4be0-a0a2-87b50d7dd287"
+      ]
+    },
+    {
+      "id": "gt-00099",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of the United Kingdom in 2014?",
+      "answer_kind": "numeric",
+      "expected_value": 64.61999999999999,
+      "unit": "MILLIONS",
+      "expected_answer": "64.62 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "GBR",
+      "period": "2014",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "5f7973c6-ed6a-404e-96df-1556c029fc04"
+      ]
+    },
+    {
+      "id": "gt-00100",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Indonesia in 2003?",
+      "answer_kind": "numeric",
+      "expected_value": 215.216,
+      "unit": "MILLIONS",
+      "expected_answer": "215.22 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "IDN",
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "f160ea7e-b1fe-41c0-922a-0a5e72c377af"
+      ]
+    },
+    {
+      "id": "gt-00101",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Germany in 2016?",
+      "answer_kind": "numeric",
+      "expected_value": 82.348669,
+      "unit": "MILLIONS",
+      "expected_answer": "82.35 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "DEU",
+      "period": "2016",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "ff7e3913-0f0b-44e8-9274-60fe7a46e9a7"
+      ]
+    },
+    {
+      "id": "gt-00102",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of India in 2001?",
+      "answer_kind": "numeric",
+      "expected_value": 1077.899,
+      "unit": "MILLIONS",
+      "expected_answer": "1,077.9 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "IND",
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "8ac22fd3-0de3-4adf-b133-4e5053646ed5"
+      ]
+    },
+    {
+      "id": "gt-00103",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Italy in 2014?",
+      "answer_kind": "numeric",
+      "expected_value": 60.346,
+      "unit": "MILLIONS",
+      "expected_answer": "60.35 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "ITA",
+      "period": "2014",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "c9186ba4-dcba-41c2-93a8-56bcc66a726a"
+      ]
+    },
+    {
+      "id": "gt-00104",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Turkey in 2007?",
+      "answer_kind": "numeric",
+      "expected_value": 70.158,
+      "unit": "MILLIONS",
+      "expected_answer": "70.16 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "TUR",
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "19c842b4-c4e5-4c4b-bbfe-bad2464f9aba"
+      ]
+    },
+    {
+      "id": "gt-00105",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of India in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 1172.879,
+      "unit": "MILLIONS",
+      "expected_answer": "1,172.88 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "IND",
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "f8be26e8-fdcc-4546-9d92-e4130ceb33d4"
+      ]
+    },
+    {
+      "id": "gt-00106",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Japan in 2004?",
+      "answer_kind": "numeric",
+      "expected_value": 127.734,
+      "unit": "MILLIONS",
+      "expected_answer": "127.73 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "JPN",
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "41cba317-37f2-4399-89e7-8bcf303cae40"
+      ]
+    },
+    {
+      "id": "gt-00107",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of China in 2018?",
+      "answer_kind": "numeric",
+      "expected_value": 1402.76,
+      "unit": "MILLIONS",
+      "expected_answer": "1,402.76 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "CHN",
+      "period": "2018",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "9e581836-5068-454a-ab98-16bbe4f441b9"
+      ]
+    },
+    {
+      "id": "gt-00108",
+      "question_type": "point_lookup",
+      "question": "What was the Population (Total) of Japan in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 126.261,
+      "unit": "MILLIONS",
+      "expected_answer": "126.26 million",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "JPN",
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "c50adff0-5589-45d7-9bf4-e1ac31f74d0a"
+      ]
+    },
+    {
+      "id": "gt-00109",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Spain in 2020?",
+      "answer_kind": "numeric",
+      "expected_value": 15.5,
+      "unit": "PCT",
+      "expected_answer": "15.5%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "ESP",
+      "period": "2020",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "b36f086d-b993-44f5-b160-a2db649b0e9a"
+      ]
+    },
+    {
+      "id": "gt-00110",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of China in 2011?",
+      "answer_kind": "numeric",
+      "expected_value": 4.55,
+      "unit": "PCT",
+      "expected_answer": "4.55%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "CHN",
+      "period": "2011",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "6f586746-022c-40ec-8738-a4274f09b1f8"
+      ]
+    },
+    {
+      "id": "gt-00111",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Turkey in 2003?",
+      "answer_kind": "numeric",
+      "expected_value": 9.9,
+      "unit": "PCT",
+      "expected_answer": "9.9%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "TUR",
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "95765faf-1012-4715-9d45-173cc972fb66"
+      ]
+    },
+    {
+      "id": "gt-00112",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Canada in 2009?",
+      "answer_kind": "numeric",
+      "expected_value": 8.5,
+      "unit": "PCT",
+      "expected_answer": "8.5%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "CAN",
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "89821fc5-35dc-4bac-8068-4ff2c953083d"
+      ]
+    },
+    {
+      "id": "gt-00113",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of China in 2001?",
+      "answer_kind": "numeric",
+      "expected_value": 3.8,
+      "unit": "PCT",
+      "expected_answer": "3.8%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "CHN",
+      "period": "2001",
+      "expected_source": "World Bank Open Data",
+      "gold_record_ids": [
+        "3d2e336c-fb18-4c2d-bb9f-ea163c3f50cf"
+      ]
+    },
+    {
+      "id": "gt-00114",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Italy in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 12.0,
+      "unit": "PCT",
+      "expected_answer": "12%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "ITA",
+      "period": "2015",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "7f582050-4305-4ddd-906c-968747cb152c"
+      ]
+    },
+    {
+      "id": "gt-00115",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Indonesia in 2011?",
+      "answer_kind": "numeric",
+      "expected_value": 6.6,
+      "unit": "PCT",
+      "expected_answer": "6.6%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "IDN",
+      "period": "2011",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "26be7078-a004-422b-b322-7baddad9b863"
+      ]
+    },
+    {
+      "id": "gt-00116",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Canada in 2016?",
+      "answer_kind": "numeric",
+      "expected_value": 7.1,
+      "unit": "PCT",
+      "expected_answer": "7.1%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "CAN",
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "e12ca84f-ace4-48ad-baee-486b1f4b7526"
+      ]
+    },
+    {
+      "id": "gt-00117",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Mexico in 2015?",
+      "answer_kind": "numeric",
+      "expected_value": 4.3,
+      "unit": "PCT",
+      "expected_answer": "4.3%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "MEX",
+      "period": "2015",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "e447b91e-5b51-4d52-8eb5-7f8f97b185af"
+      ]
+    },
+    {
+      "id": "gt-00118",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Italy in 2021?",
+      "answer_kind": "numeric",
+      "expected_value": 9.6,
+      "unit": "PCT",
+      "expected_answer": "9.6%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "ITA",
+      "period": "2021",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "aadf684a-20ac-4889-8dea-5fb64624141f"
+      ]
+    },
+    {
+      "id": "gt-00119",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Australia in 2006?",
+      "answer_kind": "numeric",
+      "expected_value": 4.8,
+      "unit": "PCT",
+      "expected_answer": "4.8%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "AUS",
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "4ce1455f-01ec-4136-9a84-1130009d3b88"
+      ]
+    },
+    {
+      "id": "gt-00120",
+      "question_type": "point_lookup",
+      "question": "What was the Unemployment Rate of Japan in 2001?",
+      "answer_kind": "numeric",
+      "expected_value": 5.0,
+      "unit": "PCT",
+      "expected_answer": "5%",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "JPN",
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "gold_record_ids": [
+        "bdd13aca-eeeb-445f-af30-eb8154f5fb8d"
+      ]
+    },
+    {
+      "id": "gt-00121",
+      "question_type": "comparison",
+      "question": "Which had a higher Government Debt (% GDP) in 2006, Saudi Arabia or Italy?",
+      "answer_kind": "categorical",
+      "expected_answer": "Italy",
+      "expected_country": "ITA",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "SAU",
+        "ITA"
+      ],
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 25.8,
+        "ITA": 106.3
+      },
+      "gold_record_ids": [
+        "05e58089-34be-4e00-a704-8e41e025a71d",
+        "07231fdc-d22d-42a3-b321-dcd0e54ec890"
+      ]
+    },
+    {
+      "id": "gt-00122",
+      "question_type": "comparison",
+      "question": "Which had a higher Unemployment Rate in 2006, India or Indonesia?",
+      "answer_kind": "categorical",
+      "expected_answer": "Indonesia",
+      "expected_country": "IDN",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "IND",
+        "IDN"
+      ],
+      "period": "2006",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "IND": 7.553,
+        "IDN": 10.3
+      },
+      "gold_record_ids": [
+        "b6c35ab7-ce42-412d-9734-08a32143b615",
+        "cfe277db-c5e1-4fdd-85a4-da3a7fe84883"
+      ]
+    },
+    {
+      "id": "gt-00123",
+      "question_type": "comparison",
+      "question": "Which had a higher Population (Total) in 2000, China or the Netherlands?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "CHN",
+        "NLD"
+      ],
+      "period": "2000",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CHN": 1267.43,
+        "NLD": 15.864
+      },
+      "gold_record_ids": [
+        "5522fb1d-7940-4178-9a48-07480e225671",
+        "464a8efa-fb09-4ac2-9045-c13e36d955e1"
+      ]
+    },
+    {
+      "id": "gt-00124",
+      "question_type": "comparison",
+      "question": "Which had a higher Government Debt (% GDP) in 2007, Brazil or the United States?",
+      "answer_kind": "categorical",
+      "expected_answer": "the United States",
+      "expected_country": "USA",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "BRA",
+        "USA"
+      ],
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "BRA": 63.0,
+        "USA": 64.9
+      },
+      "gold_record_ids": [
+        "08f200ee-534e-4264-a5ad-0efc645d7a8a",
+        "dd33be21-5e81-4b81-b22b-6f133caf33f4"
+      ]
+    },
+    {
+      "id": "gt-00125",
+      "question_type": "comparison",
+      "question": "Which had a higher Imports of Goods and Services (% GDP) in 2004, the United States or France?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "USA",
+        "FRA"
+      ],
+      "period": "2004",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 14.8193121829029,
+        "FRA": 26.2116609694066
+      },
+      "gold_record_ids": [
+        "ba158e19-ccaa-4420-8ef6-5f4cd18cc8eb",
+        "e19606c1-494c-437f-891a-b3807e767bf0"
+      ]
+    },
+    {
+      "id": "gt-00126",
+      "question_type": "comparison",
+      "question": "Which had a higher Population (Total) in 2002, Japan or Indonesia?",
+      "answer_kind": "categorical",
+      "expected_answer": "Indonesia",
+      "expected_country": "IDN",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "JPN",
+        "IDN"
+      ],
+      "period": "2002",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "JPN": 127.4,
+        "IDN": 212.19
+      },
+      "gold_record_ids": [
+        "200676c0-da05-4a72-87b2-184687189990",
+        "81fab068-4af9-4635-ac50-3a53d2d9aa14"
+      ]
+    },
+    {
+      "id": "gt-00127",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2001, India or the United Kingdom?",
+      "answer_kind": "categorical",
+      "expected_answer": "India",
+      "expected_country": "IND",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "IND",
+        "GBR"
+      ],
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "IND": 4.8,
+        "GBR": 2.4
+      },
+      "gold_record_ids": [
+        "31e79045-a764-42a1-a971-e2f1794201e4",
+        "cee1d709-97da-49cf-92de-198871a72df8"
+      ]
+    },
+    {
+      "id": "gt-00128",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2007, the United States or India?",
+      "answer_kind": "categorical",
+      "expected_answer": "the United States",
+      "expected_country": "USA",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "USA",
+        "IND"
+      ],
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 14474.25,
+        "IND": 1216.736
+      },
+      "gold_record_ids": [
+        "14dacddf-52e8-4ffa-a88e-87bf3f0425cf",
+        "c9d4ca45-f6db-418d-b935-a12f52b9329b"
+      ]
+    },
+    {
+      "id": "gt-00129",
+      "question_type": "comparison",
+      "question": "Which had a higher General Government Expenditure (% GDP) in 2011, Germany or the United States?",
+      "answer_kind": "categorical",
+      "expected_answer": "Germany",
+      "expected_country": "DEU",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "DEU",
+        "USA"
+      ],
+      "period": "2011",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "DEU": 28.3141784769068,
+        "USA": 25.3457058278502
+      },
+      "gold_record_ids": [
+        "b1a2ce82-11bb-4fc5-9e49-26c8be40cc24",
+        "db85a51e-faf6-4049-92b0-6399eaa3cad9"
+      ]
+    },
+    {
+      "id": "gt-00130",
+      "question_type": "comparison",
+      "question": "Which had a higher Exports of Goods and Services (% GDP) in 2017, Indonesia or Japan?",
+      "answer_kind": "categorical",
+      "expected_answer": "Indonesia",
+      "expected_country": "IDN",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "IDN",
+        "JPN"
+      ],
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "IDN": 20.1773044351106,
+        "JPN": 17.5914391047836
+      },
+      "gold_record_ids": [
+        "0612dd23-65c6-4fde-873c-b7f66460baac",
+        "c67fe253-bed9-4292-b7c6-846ea5a94736"
+      ]
+    },
+    {
+      "id": "gt-00131",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2003, South Korea or Turkey?",
+      "answer_kind": "categorical",
+      "expected_answer": "Turkey",
+      "expected_country": "TUR",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "KOR",
+        "TUR"
+      ],
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "KOR": 3.1,
+        "TUR": 5.8
+      },
+      "gold_record_ids": [
+        "e8387bf1-7ac2-4e63-9c6c-a4e38758aa68",
+        "6d4bad47-d075-4dfa-8e5e-76578a6c489d"
+      ]
+    },
+    {
+      "id": "gt-00132",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2022, Argentina or Turkey?",
+      "answer_kind": "categorical",
+      "expected_answer": "Argentina",
+      "expected_country": "ARG",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "TUR"
+      ],
+      "period": "2022",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ARG": 6.0,
+        "TUR": 5.4
+      },
+      "gold_record_ids": [
+        "d942b602-8cf5-44b5-9472-a091bc32586c",
+        "d1779464-79b3-448c-bdbd-56f7cf919346"
+      ]
+    },
+    {
+      "id": "gt-00133",
+      "question_type": "comparison",
+      "question": "Which had a higher Current Account Balance (% GDP) in 2001, South Africa or France?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "countries": [
+        "ZAF",
+        "FRA"
+      ],
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ZAF": 0.2,
+        "FRA": 1.6
+      },
+      "gold_record_ids": [
+        "2e6b2a4a-491d-4d7d-9e9c-b11a581d9134",
+        "2d9bf8a8-96f9-44b6-a67e-d5a5f6eac8bb"
+      ]
+    },
+    {
+      "id": "gt-00134",
+      "question_type": "comparison",
+      "question": "Which had a higher Government Debt (% GDP) in 2013, Germany or Indonesia?",
+      "answer_kind": "categorical",
+      "expected_answer": "Germany",
+      "expected_country": "DEU",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "DEU",
+        "IDN"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "DEU": 77.5,
+        "IDN": 24.9
+      },
+      "gold_record_ids": [
+        "1865b852-dfe0-4991-8813-1945dd955e19",
+        "fc097fdf-5aed-4a30-a5c1-8c6f98c002fe"
+      ]
+    },
+    {
+      "id": "gt-00135",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2013, Japan or Australia?",
+      "answer_kind": "categorical",
+      "expected_answer": "Australia",
+      "expected_country": "AUS",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "JPN",
+        "AUS"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "JPN": 2.0,
+        "AUS": 2.2
+      },
+      "gold_record_ids": [
+        "03e10d98-86c7-44ab-833c-284968a3f8d5",
+        "4e6ab162-4a38-45ac-a0b2-640b25c7a02b"
+      ]
+    },
+    {
+      "id": "gt-00136",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2017, the United States or Argentina?",
+      "answer_kind": "categorical",
+      "expected_answer": "Argentina",
+      "expected_country": "ARG",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "USA",
+        "ARG"
+      ],
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 19477.336549,
+        "ARG": 643628393281.364
+      },
+      "gold_record_ids": [
+        "d8f00755-3a72-448b-b756-9b259d0939cb",
+        "9c422592-2dd1-465b-850d-8149ac7c574b"
+      ]
+    },
+    {
+      "id": "gt-00137",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2006, Australia or India?",
+      "answer_kind": "categorical",
+      "expected_answer": "India",
+      "expected_country": "IND",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "AUS",
+        "IND"
+      ],
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "AUS": 784.874,
+        "IND": 940.26
+      },
+      "gold_record_ids": [
+        "3ec96c4a-13a1-4a21-be7f-46ef9f02b514",
+        "55267446-3832-481a-ae8c-ddb3a24a536b"
+      ]
+    },
+    {
+      "id": "gt-00138",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2011, South Africa or the United States?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Africa",
+      "expected_country": "ZAF",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ZAF",
+        "USA"
+      ],
+      "period": "2011",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ZAF": 3.2,
+        "USA": 1.56440685763506
+      },
+      "gold_record_ids": [
+        "45d16984-b0b9-4706-b8e6-7771cf76303d",
+        "b258c280-bb23-4a40-bc4b-7f8cac7fa0d9"
+      ]
+    },
+    {
+      "id": "gt-00139",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP Growth Rate in 2019, Mexico or Canada?",
+      "answer_kind": "categorical",
+      "expected_answer": "Canada",
+      "expected_country": "CAN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "MEX",
+        "CAN"
+      ],
+      "period": "2019",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "MEX": -0.4,
+        "CAN": 1.9
+      },
+      "gold_record_ids": [
+        "41414c9e-2245-4083-92f3-aa24fc2e1e47",
+        "1037d9b6-3092-4a9f-b9f1-ee46ba2d888a"
+      ]
+    },
+    {
+      "id": "gt-00140",
+      "question_type": "comparison",
+      "question": "Which had a higher General Government Expenditure (% GDP) in 2018, Germany or South Korea?",
+      "answer_kind": "categorical",
+      "expected_answer": "Germany",
+      "expected_country": "DEU",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "DEU",
+        "KOR"
+      ],
+      "period": "2018",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "DEU": 27.3644959420855,
+        "KOR": 23.5674300593436
+      },
+      "gold_record_ids": [
+        "ec0b2392-3300-4c3a-9b02-cad119872509",
+        "e559a604-46c6-4f48-bab2-2eac7d75fbce"
+      ]
+    },
+    {
+      "id": "gt-00141",
+      "question_type": "comparison",
+      "question": "Which had a higher Current Account Balance (% GDP) in 2008, Indonesia or France?",
+      "answer_kind": "categorical",
+      "expected_answer": "Indonesia",
+      "expected_country": "IDN",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "countries": [
+        "IDN",
+        "FRA"
+      ],
+      "period": "2008",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "IDN": 0.0,
+        "FRA": -0.7
+      },
+      "gold_record_ids": [
+        "7643f4f4-91c8-4279-ba0c-e1009ebfdd93",
+        "f3ff9472-18b1-42e9-a4cf-4ec1cd62f381"
+      ]
+    },
+    {
+      "id": "gt-00142",
+      "question_type": "comparison",
+      "question": "Which had a higher Government Debt (% GDP) in 2001, Canada or Saudi Arabia?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "CAN",
+        "SAU"
+      ],
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CAN": 81.5,
+        "SAU": 93.1
+      },
+      "gold_record_ids": [
+        "67a01b15-74cd-4840-9cbf-54515c6916e3",
+        "06bc4c45-57fe-4a7c-a2f9-19d7d05a2677"
+      ]
+    },
+    {
+      "id": "gt-00143",
+      "question_type": "comparison",
+      "question": "Which had a higher Exports of Goods and Services (% GDP) in 2005, Argentina or Canada?",
+      "answer_kind": "categorical",
+      "expected_answer": "Canada",
+      "expected_country": "CAN",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "CAN"
+      ],
+      "period": "2005",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "ARG": 23.2458767338576,
+        "CAN": 36.8567073235071
+      },
+      "gold_record_ids": [
+        "fd42df1e-b5c7-49cc-8066-3c97c369866c",
+        "c4756708-3af1-4929-9570-09abd8f85846"
+      ]
+    },
+    {
+      "id": "gt-00144",
+      "question_type": "comparison",
+      "question": "Which had a higher CPI Inflation Rate in 2009, Germany or Argentina?",
+      "answer_kind": "categorical",
+      "expected_answer": "Argentina",
+      "expected_country": "ARG",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "DEU",
+        "ARG"
+      ],
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "DEU": 0.2,
+        "ARG": 6.3
+      },
+      "gold_record_ids": [
+        "f5c28042-2b5a-4e8f-9a6c-a385b18ae12d",
+        "84fb0203-a2ee-4758-b033-563f336eb02e"
+      ]
+    },
+    {
+      "id": "gt-00145",
+      "question_type": "comparison",
+      "question": "Which had a higher Imports of Goods and Services (% GDP) in 2006, China or the Netherlands?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "CHN",
+        "NLD"
+      ],
+      "period": "2006",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "CHN": 28.0427329939926,
+        "NLD": 59.0498839038274
+      },
+      "gold_record_ids": [
+        "f934d434-0e71-44b0-8568-62bdb2d2765a",
+        "b583859e-751b-4a60-8fd0-67acce384b5c"
+      ]
+    },
+    {
+      "id": "gt-00146",
+      "question_type": "comparison",
+      "question": "Which had a higher CPI Inflation Rate in 2008, Canada or France?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "CAN",
+        "FRA"
+      ],
+      "period": "2008",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CAN": 2.4,
+        "FRA": 3.2
+      },
+      "gold_record_ids": [
+        "25ecd881-fe53-4208-8a6f-e2e38a0bb9d0",
+        "04721e84-0505-4408-83be-6bd566d3274a"
+      ]
+    },
+    {
+      "id": "gt-00147",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2010, Spain or Mexico?",
+      "answer_kind": "categorical",
+      "expected_answer": "Spain",
+      "expected_country": "ESP",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "ESP",
+        "MEX"
+      ],
+      "period": "2010",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ESP": 1429.155,
+        "MEX": 1105.424
+      },
+      "gold_record_ids": [
+        "6e8cc6f8-e56d-4c0c-9303-17362f972719",
+        "2d8b33f6-4d97-4681-9205-4a235d76f766"
+      ]
+    },
+    {
+      "id": "gt-00148",
+      "question_type": "comparison",
+      "question": "Which had a higher Unemployment Rate in 2004, Saudi Arabia or Germany?",
+      "answer_kind": "categorical",
+      "expected_answer": "Germany",
+      "expected_country": "DEU",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "SAU",
+        "DEU"
+      ],
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 5.8,
+        "DEU": 10.3
+      },
+      "gold_record_ids": [
+        "d9491fd0-88bd-49eb-b49a-b4cfd00b3bc0",
+        "5a5cb090-9833-481c-a4c1-0dae9e6aa41b"
+      ]
+    },
+    {
+      "id": "gt-00149",
+      "question_type": "comparison",
+      "question": "Which had a higher General Government Expenditure (% GDP) in 2019, Australia or the United Kingdom?",
+      "answer_kind": "categorical",
+      "expected_answer": "the United Kingdom",
+      "expected_country": "GBR",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "AUS",
+        "GBR"
+      ],
+      "period": "2019",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "AUS": 26.0711901942783,
+        "GBR": 36.4058676559426
+      },
+      "gold_record_ids": [
+        "8a10dd6e-d852-46b5-bd6b-975e788a44e9",
+        "94778c7e-c194-49ae-bfc4-dc65422e8276"
+      ]
+    },
+    {
+      "id": "gt-00150",
+      "question_type": "comparison",
+      "question": "Which had a higher Imports of Goods and Services (% GDP) in 2014, Saudi Arabia or the Netherlands?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "SAU",
+        "NLD"
+      ],
+      "period": "2014",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "SAU": 32.9042652949498,
+        "NLD": 70.3336295196036
+      },
+      "gold_record_ids": [
+        "886d2581-74e2-4215-92ea-afa1cd684dfd",
+        "269ffa72-84dd-4482-8b2a-239466fae118"
+      ]
+    },
+    {
+      "id": "gt-00151",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2013, France or South Korea?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "FRA",
+        "KOR"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "FRA": 2816.119,
+        "KOR": 1434.67
+      },
+      "gold_record_ids": [
+        "b27b8c65-eef0-4c61-9523-ee7b7919a85a",
+        "bd00d967-50d8-496b-b8c5-f27ca0838852"
+      ]
+    },
+    {
+      "id": "gt-00152",
+      "question_type": "comparison",
+      "question": "Which had a higher Unemployment Rate in 2003, Mexico or Canada?",
+      "answer_kind": "categorical",
+      "expected_answer": "Canada",
+      "expected_country": "CAN",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "MEX",
+        "CAN"
+      ],
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "MEX": 3.4,
+        "CAN": 7.6
+      },
+      "gold_record_ids": [
+        "96184460-3985-499a-9011-40aa222af031",
+        "1270ffb3-c515-4787-b8cc-87fa4abbc6de"
+      ]
+    },
+    {
+      "id": "gt-00153",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2016, the United Kingdom or Germany?",
+      "answer_kind": "categorical",
+      "expected_answer": "Germany",
+      "expected_country": "DEU",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "GBR",
+        "DEU"
+      ],
+      "period": "2016",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "GBR": 2706.80760653873,
+        "DEU": 3536.7878951790003
+      },
+      "gold_record_ids": [
+        "67d4e17d-03b2-4b72-8554-c94c69f063d4",
+        "5e956983-94a6-4a07-ae8d-c8317c65cb39"
+      ]
+    },
+    {
+      "id": "gt-00154",
+      "question_type": "comparison",
+      "question": "Which had a higher GDP (Current USD) in 2009, the Netherlands or China?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "NLD",
+        "CHN"
+      ],
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "NLD": 878.0,
+        "CHN": 5176.499
+      },
+      "gold_record_ids": [
+        "2f41bf19-fe93-40dc-9410-294a9c1eb1bb",
+        "49bfdaff-ab45-45fc-aacf-130b0db4e81f"
+      ]
+    },
+    {
+      "id": "gt-00155",
+      "question_type": "comparison",
+      "question": "Which had a higher General Government Expenditure (% GDP) in 2001, France or Japan?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "FRA",
+        "JPN"
+      ],
+      "period": "2001",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "FRA": 45.1259611564405,
+        "JPN": 16.2333992095233
+      },
+      "gold_record_ids": [
+        "e3784fb6-aa45-44b2-aba1-1ace10dc29c9",
+        "c3ee3b66-b0d9-4e50-a60a-1f0f64925b6d"
+      ]
+    },
+    {
+      "id": "gt-00156",
+      "question_type": "comparison",
+      "question": "Which had a higher Exports of Goods and Services (% GDP) in 2010, Mexico or the United States?",
+      "answer_kind": "categorical",
+      "expected_answer": "Mexico",
+      "expected_country": "MEX",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "MEX",
+        "USA"
+      ],
+      "period": "2010",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "MEX": 29.0174601154993,
+        "USA": 12.3413608086534
+      },
+      "gold_record_ids": [
+        "141c3638-8d05-41f7-8ddd-f48bedc3d2a5",
+        "0bf16246-4ddd-4cc3-a8d1-970536dfbf34"
+      ]
+    },
+    {
+      "id": "gt-00157",
+      "question_type": "comparison",
+      "question": "Which had a higher Exports of Goods and Services (% GDP) in 2015, Australia or China?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "AUS",
+        "CHN"
+      ],
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "AUS": 19.9846454503255,
+        "CHN": 20.9390642234326
+      },
+      "gold_record_ids": [
+        "f3671bcb-3ba3-46b9-916d-503ed3049d5e",
+        "2ea33436-0596-4971-a5a3-3758e84fa79b"
+      ]
+    },
+    {
+      "id": "gt-00158",
+      "question_type": "comparison",
+      "question": "Which had a higher Unemployment Rate in 2017, Saudi Arabia or Spain?",
+      "answer_kind": "categorical",
+      "expected_answer": "Spain",
+      "expected_country": "ESP",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "SAU",
+        "ESP"
+      ],
+      "period": "2017",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 5.9,
+        "ESP": 17.2
+      },
+      "gold_record_ids": [
+        "83c2911f-2804-44f6-ab83-ded39bd69455",
+        "a826a0e9-5b18-45a9-ad53-2fc11929e54b"
+      ]
+    },
+    {
+      "id": "gt-00159",
+      "question_type": "comparison",
+      "question": "Which had a higher Imports of Goods and Services (% GDP) in 2017, Italy or Argentina?",
+      "answer_kind": "categorical",
+      "expected_answer": "Italy",
+      "expected_country": "ITA",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "ITA",
+        "ARG"
+      ],
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "ITA": 27.4431081122137,
+        "ARG": 13.9693177780045
+      },
+      "gold_record_ids": [
+        "9c0b4777-d7ae-43a0-aaf7-f0366ed9d392",
+        "4b7ac89b-dcf7-4082-8176-1c37c830509b"
+      ]
+    },
+    {
+      "id": "gt-00160",
+      "question_type": "comparison",
+      "question": "Which had a higher CPI Inflation Rate in 2007, Saudi Arabia or Spain?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "SAU",
+        "ESP"
+      ],
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 5.0,
+        "ESP": 2.8
+      },
+      "gold_record_ids": [
+        "cf86c617-34e5-4794-8cb0-b46f74f588a0",
+        "305427c3-0538-4b1a-b6bb-6fd0602ff476"
+      ]
+    },
+    {
+      "id": "gt-00161",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2000?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Korea",
+      "expected_country": "KOR",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2000",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ESP": 5.1,
+        "IDN": 5.0,
+        "KOR": 9.2,
+        "DEU": 2.9,
+        "USA": 4.1,
+        "JPN": 3.0,
+        "ZAF": 4.2,
+        "NLD": 4.2,
+        "GBR": 4.5,
+        "SAU": 4.7,
+        "FRA": 4.4,
+        "CHN": 8.6,
+        "IND": 3.8,
+        "BRA": 4.4,
+        "TUR": 7.0,
+        "ARG": -0.8,
+        "CAN": 5.1,
+        "AUS": 3.1,
+        "MEX": 5.0,
+        "ITA": 3.9
+      },
+      "gold_record_ids": [
+        "e4bef097-6bfa-4406-9e7f-9ed937813591"
+      ]
+    },
+    {
+      "id": "gt-00162",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest CPI Inflation Rate in 2000?",
+      "answer_kind": "categorical",
+      "expected_answer": "Turkey",
+      "expected_country": "TUR",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2000",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "TUR": 55.0,
+        "AUS": 4.5,
+        "FRA": 1.8,
+        "ESP": 3.5,
+        "NLD": 2.3,
+        "GBR": 0.8,
+        "USA": 3.4,
+        "DEU": 1.4,
+        "JPN": -0.7,
+        "CHN": 0.4,
+        "IND": 3.8,
+        "BRA": 7.0,
+        "SAU": -1.0,
+        "ARG": -0.9,
+        "ITA": 2.6,
+        "IDN": 3.7,
+        "CAN": 2.7,
+        "KOR": 2.3,
+        "MEX": 9.5,
+        "ZAF": 5.3
+      },
+      "gold_record_ids": [
+        "6f87f1a3-79f6-4bde-8e6a-4156d63905db"
+      ]
+    },
+    {
+      "id": "gt-00163",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2002?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2002",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "DEU": -0.2,
+        "ARG": -10.9,
+        "MEX": -0.2,
+        "USA": 1.7,
+        "KOR": 7.7,
+        "BRA": 3.1,
+        "NLD": 0.2,
+        "TUR": 6.4,
+        "CHN": 9.2,
+        "GBR": 1.7,
+        "IND": 3.8,
+        "FRA": 1.1,
+        "JPN": 0.1,
+        "CAN": 3.0,
+        "IDN": 4.5,
+        "ESP": 2.8,
+        "ITA": 0.3,
+        "ZAF": 3.7,
+        "AUS": 4.1,
+        "SAU": -0.7
+      },
+      "gold_record_ids": [
+        "05205630-ea6a-448a-858b-0d61df706978"
+      ]
+    },
+    {
+      "id": "gt-00164",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Population (Total) in 2004?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2004",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 293.389,
+        "GBR": 59.95,
+        "DEU": 81.457,
+        "FRA": 62.251,
+        "JPN": 127.734,
+        "CHN": 1299.88,
+        "IND": 1135.992,
+        "BRA": 183.47,
+        "CAN": 31.899,
+        "AUS": 20.046,
+        "KOR": 48.083,
+        "MEX": 104.971,
+        "ITA": 57.612,
+        "ESP": 43.296,
+        "NLD": 16.258,
+        "SAU": 20.071,
+        "ZAF": 47.505,
+        "ARG": 38.226,
+        "IDN": 218.285,
+        "TUR": 67.599
+      },
+      "gold_record_ids": [
+        "d14e6bbf-9116-41b8-a950-f85da57851d3"
+      ]
+    },
+    {
+      "id": "gt-00165",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Government Debt (% GDP) in 2005?",
+      "answer_kind": "categorical",
+      "expected_answer": "Japan",
+      "expected_country": "JPN",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2005",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CAN": 70.6,
+        "ITA": 106.2,
+        "AUS": 10.8,
+        "GBR": 40.9,
+        "ESP": 42.4,
+        "FRA": 68.2,
+        "JPN": 153.4,
+        "CHN": 25.9,
+        "USA": 65.8,
+        "IND": 82.4,
+        "NLD": 49.6,
+        "TUR": 50.2,
+        "IDN": 42.6,
+        "KOR": 24.9,
+        "DEU": 67.1,
+        "ZAF": 29.6,
+        "ARG": 80.3,
+        "BRA": 67.0,
+        "MEX": 36.8,
+        "SAU": 37.3
+      },
+      "gold_record_ids": [
+        "7e5621ee-8853-4ba1-9a59-c4161619883f"
+      ]
+    },
+    {
+      "id": "gt-00166",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2013?",
+      "answer_kind": "categorical",
+      "expected_answer": "Turkey",
+      "expected_country": "TUR",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "IND": 6.4,
+        "MEX": 0.9,
+        "JPN": 2.0,
+        "AUS": 2.2,
+        "KOR": 3.3,
+        "DEU": 0.4,
+        "ESP": -1.4,
+        "TUR": 8.5,
+        "GBR": 1.71846961308464,
+        "ITA": -1.8,
+        "USA": 2.11783009790057,
+        "ARG": 2.4,
+        "FRA": 0.9,
+        "CAN": 2.3,
+        "NLD": 0.0,
+        "CHN": 7.8,
+        "BRA": 3.0,
+        "SAU": 2.9,
+        "ZAF": 2.5,
+        "IDN": 5.6
+      },
+      "gold_record_ids": [
+        "7a07b084-d54b-4ac6-87f0-f6e187d9d00a"
+      ]
+    },
+    {
+      "id": "gt-00167",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2001?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ESP": 3.9,
+        "IND": 4.8,
+        "IDN": 3.6,
+        "ZAF": 2.7,
+        "CHN": 8.3,
+        "BRA": 1.4,
+        "GBR": 2.4,
+        "ITA": 2.0,
+        "USA": 1.0,
+        "DEU": 1.6,
+        "FRA": 1.8,
+        "JPN": 0.3,
+        "CAN": 1.9,
+        "SAU": 0.3,
+        "TUR": -5.5,
+        "AUS": 2.6,
+        "KOR": 4.7,
+        "NLD": 2.3,
+        "MEX": -0.5,
+        "ARG": -4.4
+      },
+      "gold_record_ids": [
+        "076a0a8f-024e-481f-98d7-468b357330e2"
+      ]
+    },
+    {
+      "id": "gt-00168",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2020?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "NLD": -3.9,
+        "MEX": -8.4,
+        "ITA": -8.9,
+        "ZAF": -6.2,
+        "ESP": -10.9,
+        "IND": -5.77772470686801,
+        "GBR": -10.047896637362,
+        "CAN": -5.0,
+        "USA": -2.16302914036166,
+        "DEU": -4.13191443239947,
+        "FRA": -7.44064589948231,
+        "JPN": -4.16876457146743,
+        "CHN": 2.34018843078414,
+        "BRA": -3.27675879612903,
+        "KOR": -0.7,
+        "ARG": -9.9,
+        "TUR": 1.8,
+        "AUS": -2.0,
+        "SAU": -3.8,
+        "IDN": -2.1
+      },
+      "gold_record_ids": [
+        "8a33b7da-beac-4174-99ed-280da958c41e"
+      ]
+    },
+    {
+      "id": "gt-00169",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest CPI Inflation Rate in 2017?",
+      "answer_kind": "categorical",
+      "expected_answer": "Argentina",
+      "expected_country": "ARG",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2017",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "DEU": 1.50949485109628,
+        "BRA": 3.44637335032669,
+        "IND": 3.32817337461298,
+        "ITA": 1.3,
+        "ARG": 25.7,
+        "TUR": 11.2,
+        "FRA": 1.03228275064681,
+        "CHN": 1.59313600071435,
+        "USA": 2.13011000365961,
+        "GBR": 2.55775577557747,
+        "JPN": 0.484199796126385,
+        "SAU": -0.9,
+        "AUS": 2.0,
+        "ESP": 2.0,
+        "KOR": 1.9,
+        "CAN": 1.6,
+        "MEX": 6.0,
+        "NLD": 1.3,
+        "ZAF": 5.3,
+        "IDN": 3.8
+      },
+      "gold_record_ids": [
+        "795de4d7-2dfd-4aa8-b60c-9b54dd72dd1e"
+      ]
+    },
+    {
+      "id": "gt-00170",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Population (Total) in 2011?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2011",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 311.839461,
+        "GBR": 63.25881,
+        "DEU": 80.276,
+        "FRA": 64.933,
+        "JPN": 127.831,
+        "CHN": 1349.16,
+        "IND": 1261.225,
+        "BRA": 196.159,
+        "CAN": 34.299,
+        "AUS": 22.522,
+        "KOR": 49.937,
+        "MEX": 116.446,
+        "ITA": 59.948,
+        "ESP": 46.818,
+        "NLD": 16.656,
+        "SAU": 25.092,
+        "ZAF": 52.285,
+        "ARG": 41.261,
+        "IDN": 241.991,
+        "TUR": 74.224
+      },
+      "gold_record_ids": [
+        "ebc3162a-0a2b-4ab1-ac25-94eb1354745e"
+      ]
+    },
+    {
+      "id": "gt-00171",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Population (Total) in 2007?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 301.903,
+        "GBR": 61.319,
+        "DEU": 80.993,
+        "FRA": 63.601,
+        "JPN": 127.757,
+        "CHN": 1321.29,
+        "IND": 1190.676,
+        "BRA": 189.459,
+        "CAN": 32.849,
+        "AUS": 21.016,
+        "KOR": 48.684,
+        "MEX": 109.539,
+        "ITA": 58.511,
+        "ESP": 45.669,
+        "NLD": 16.358,
+        "SAU": 21.655,
+        "ZAF": 49.373,
+        "ARG": 39.356,
+        "IDN": 227.758,
+        "TUR": 70.158
+      },
+      "gold_record_ids": [
+        "fdd31a13-3f8d-4ce4-9b14-3f7b5da90398"
+      ]
+    },
+    {
+      "id": "gt-00172",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Exports of Goods and Services (% GDP) in 2004?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2004",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 9.62875008142275,
+        "GBR": 23.9845291728171,
+        "DEU": 33.9352126434777,
+        "FRA": 27.5381038597962,
+        "JPN": 12.7862646247862,
+        "CHN": 30.6097162464404,
+        "IND": 17.8591249630479,
+        "BRA": 16.5457615138976,
+        "CAN": 37.3277713060483,
+        "AUS": 17.1350628732794,
+        "KOR": 35.6099304973786,
+        "MEX": 25.1033560080055,
+        "ITA": 23.9268409466402,
+        "ESP": 25.3882582473993,
+        "NLD": 62.5959181523516,
+        "SAU": 50.9853310838178,
+        "ZAF": 22.7575187856654,
+        "ARG": 23.8476194239892,
+        "IDN": 32.2166946182599,
+        "TUR": 23.8544386839448
+      },
+      "gold_record_ids": [
+        "8b60d582-5728-49f2-b96f-6eecacd61853"
+      ]
+    },
+    {
+      "id": "gt-00173",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Imports of Goods and Services (% GDP) in 2009?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2009",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 13.8273105496213,
+        "GBR": 27.9463641581244,
+        "DEU": 30.6846112824132,
+        "FRA": 26.3181640716005,
+        "JPN": 11.9706007858756,
+        "CHN": 20.0889926205716,
+        "IND": 25.8723502685274,
+        "BRA": 11.2546044710328,
+        "CAN": 29.9585575059154,
+        "AUS": 22.6567049778154,
+        "KOR": 39.6139903792344,
+        "MEX": 28.0784724080616,
+        "ITA": 22.8643169766079,
+        "ESP": 23.8512940474748,
+        "NLD": 53.507846258091,
+        "SAU": 37.7697209090451,
+        "ZAF": 24.6047888395564,
+        "ARG": 14.4961418494061,
+        "IDN": 21.3530017000775,
+        "TUR": 23.2812790453404
+      },
+      "gold_record_ids": [
+        "aff4669e-3a98-4170-a0e2-7b0a19b8e2c8"
+      ]
+    },
+    {
+      "id": "gt-00174",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Current Account Balance (% GDP) in 2009?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "GBR": -3.1,
+        "DEU": 5.8,
+        "CHN": 4.7,
+        "BRA": -1.8,
+        "SAU": 6.6,
+        "ITA": -1.8,
+        "IND": -2.9,
+        "CAN": -2.9,
+        "TUR": -1.7,
+        "IDN": 1.8,
+        "ZAF": -2.4,
+        "USA": -2.6,
+        "FRA": -0.6,
+        "JPN": 2.7,
+        "KOR": 3.4,
+        "MEX": -0.8,
+        "NLD": 3.3,
+        "ARG": 2.2,
+        "AUS": -4.5,
+        "ESP": -4.0
+      },
+      "gold_record_ids": [
+        "ed5b75c8-a05a-4846-b76a-a3855e5f686c"
+      ]
+    },
+    {
+      "id": "gt-00175",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest CPI Inflation Rate in 2012?",
+      "answer_kind": "categorical",
+      "expected_answer": "India",
+      "expected_country": "IND",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2012",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ITA": 3.3,
+        "DEU": 2.1,
+        "CAN": 1.5,
+        "IDN": 4.0,
+        "GBR": 2.5732347965453,
+        "NLD": 2.8,
+        "ESP": 2.4,
+        "KOR": 2.2,
+        "BRA": 5.4,
+        "USA": 2.06933726526067,
+        "FRA": 2.2,
+        "JPN": 0.0,
+        "CHN": 2.6,
+        "IND": 10.0,
+        "ZAF": 5.7,
+        "AUS": 1.7,
+        "TUR": 8.9,
+        "ARG": 10.0,
+        "MEX": 4.1,
+        "SAU": 2.9
+      },
+      "gold_record_ids": [
+        "f00441e3-7492-4c3f-9939-3391a481fb34"
+      ]
+    },
+    {
+      "id": "gt-00176",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest General Government Expenditure (% GDP) in 2017?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2017",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 22.2938931566746,
+        "GBR": 36.8434052284403,
+        "DEU": 27.5226740191593,
+        "FRA": 48.466341621356,
+        "JPN": 16.1953485344611,
+        "IND": 15.6141099220983,
+        "BRA": 32.3610510088146,
+        "CAN": 17.6065954076372,
+        "AUS": 26.5276169849373,
+        "KOR": 22.7421323345571,
+        "MEX": 19.8664920928197,
+        "ITA": 42.9465753087,
+        "ESP": 31.3619207811122,
+        "NLD": 38.2852485346822,
+        "SAU": 25.9809738148926,
+        "ZAF": 33.2518124768773,
+        "ARG": 24.2825320419979,
+        "TUR": 31.5527664341113
+      },
+      "gold_record_ids": [
+        "2cb87c99-0ece-435e-9ef6-bfd02fee6bb8"
+      ]
+    },
+    {
+      "id": "gt-00177",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest General Government Expenditure (% GDP) in 2020?",
+      "answer_kind": "categorical",
+      "expected_answer": "France",
+      "expected_country": "FRA",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 32.2719048246125,
+        "GBR": 47.5326631273768,
+        "DEU": 32.1505946585061,
+        "FRA": 51.9636314257982,
+        "JPN": 23.6059009054084,
+        "BRA": 34.9119748287171,
+        "CAN": 28.5714736058033,
+        "AUS": 30.1434988129749,
+        "KOR": 28.0256629437299,
+        "MEX": 21.6980704238964,
+        "ITA": 50.3444915572159,
+        "ESP": 40.3694073931071,
+        "NLD": 43.0242399226909,
+        "SAU": 31.9689061537757,
+        "ZAF": 37.8354162011745,
+        "ARG": 25.8405452538391,
+        "TUR": 33.4510950281809
+      },
+      "gold_record_ids": [
+        "7b88b660-5057-4fe5-8481-e09d2099a1e8"
+      ]
+    },
+    {
+      "id": "gt-00178",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Government Debt (% GDP) in 2019?",
+      "answer_kind": "categorical",
+      "expected_answer": "Japan",
+      "expected_country": "JPN",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2019",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "BRA": 92.5652531951269,
+        "MEX": 51.9,
+        "USA": 100.979786328903,
+        "DEU": 58.7,
+        "ARG": 89.8,
+        "NLD": 47.7,
+        "CHN": 59.8,
+        "TUR": 31.2,
+        "GBR": 158.972569875821,
+        "KOR": 39.7,
+        "IDN": 30.6,
+        "AUS": 46.5,
+        "FRA": 98.2,
+        "ITA": 133.9,
+        "IND": 76.7,
+        "SAU": 20.3,
+        "CAN": 90.1,
+        "ESP": 97.6,
+        "ZAF": 56.1,
+        "JPN": 206.3
+      },
+      "gold_record_ids": [
+        "ec57c4cd-1b5b-4f4b-8dde-84f0b36927fd"
+      ]
+    },
+    {
+      "id": "gt-00179",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest Current Account Balance (% GDP) in 2007?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2007",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ZAF": -4.8,
+        "MEX": -0.8,
+        "BRA": -0.2,
+        "JPN": 4.6,
+        "AUS": -6.7,
+        "IDN": 1.4,
+        "IND": -1.3,
+        "CAN": 0.8,
+        "CHN": 9.8,
+        "KOR": 0.9,
+        "USA": -5.1,
+        "GBR": -3.7,
+        "DEU": 6.7,
+        "FRA": -0.1,
+        "ARG": 2.1,
+        "TUR": -5.4,
+        "ITA": -1.4,
+        "NLD": 5.3,
+        "ESP": -9.4,
+        "SAU": 23.9
+      },
+      "gold_record_ids": [
+        "6ad42abe-96d9-46e5-9fec-c5b142c8f7dc"
+      ]
+    },
+    {
+      "id": "gt-00180",
+      "question_type": "superlative_high",
+      "question": "Among the tracked countries, which had the highest GDP Growth Rate in 2009?",
+      "answer_kind": "categorical",
+      "expected_answer": "China",
+      "expected_country": "CHN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2009",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "FRA": -2.7,
+        "CHN": 9.4,
+        "DEU": -5.6,
+        "ZAF": -1.5,
+        "KOR": 0.8,
+        "JPN": -5.9,
+        "CAN": -2.9,
+        "TUR": -4.9,
+        "BRA": -0.1,
+        "USA": -2.6,
+        "GBR": -4.6,
+        "IND": 7.9,
+        "AUS": 2.0,
+        "MEX": -6.3,
+        "IDN": 4.7,
+        "ESP": -3.8,
+        "SAU": -1.1,
+        "ARG": -5.9,
+        "NLD": -3.7,
+        "ITA": -5.3
+      },
+      "gold_record_ids": [
+        "2c004050-d3dc-4484-99c9-b69e05150ada"
+      ]
+    },
+    {
+      "id": "gt-00181",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Unemployment Rate in 2020?",
+      "answer_kind": "categorical",
+      "expected_answer": "Japan",
+      "expected_country": "JPN",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2020",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "BRA": 13.697,
+        "KOR": 4.0,
+        "MEX": 4.4,
+        "ZAF": 29.2,
+        "IDN": 7.1,
+        "CHN": 5.0,
+        "NLD": 4.9,
+        "USA": 8.055,
+        "GBR": 4.472,
+        "DEU": 3.881,
+        "FRA": 8.009,
+        "JPN": 2.809,
+        "IND": 7.859,
+        "ESP": 15.5,
+        "TUR": 13.1,
+        "CAN": 9.7,
+        "AUS": 6.5,
+        "SAU": 7.7,
+        "ITA": 9.3,
+        "ARG": 11.6
+      },
+      "gold_record_ids": [
+        "58579e40-bede-47c6-a277-30b7b70b831a"
+      ]
+    },
+    {
+      "id": "gt-00182",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP Growth Rate in 2022?",
+      "answer_kind": "categorical",
+      "expected_answer": "Japan",
+      "expected_country": "JPN",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2022",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "GBR": 5.14970388522993,
+        "CHN": 3.1341888719577,
+        "FRA": 2.71676264185913,
+        "USA": 2.51237531986017,
+        "JPN": 0.941998775483285,
+        "SAU": 12.0,
+        "NLD": 5.0,
+        "CAN": 4.7,
+        "MEX": 3.7,
+        "TUR": 5.4,
+        "DEU": 1.8092581243061,
+        "IND": 7.60936497768895,
+        "BRA": 3.01669435408112,
+        "ITA": 4.8,
+        "ARG": 6.0,
+        "IDN": 5.3,
+        "KOR": 2.7,
+        "AUS": 4.2,
+        "ESP": 6.4,
+        "ZAF": 2.1
+      },
+      "gold_record_ids": [
+        "9ab0a70f-5908-484c-8ca8-3438d771fe1e"
+      ]
+    },
+    {
+      "id": "gt-00183",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP (Current USD) in 2015?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Africa",
+      "expected_country": "ZAF",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2015",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "KOR": 1539.212,
+        "USA": 18206.020741,
+        "ARG": 594749285413.212,
+        "ZAF": 346.663,
+        "ITA": 1845.615,
+        "BRA": 1802.21199945642,
+        "TUR": 868.204,
+        "GBR": 2945.57989025846,
+        "DEU": 3425.09957874609,
+        "ESP": 1206.287,
+        "FRA": 2442.4834526425,
+        "JPN": 4444.93065196418,
+        "CAN": 1556508816217.14,
+        "CHN": 11280.8147874689,
+        "IND": 2103.58836004494,
+        "AUS": 1238.863,
+        "NLD": 775.822,
+        "SAU": 693.415,
+        "MEX": 1213.294,
+        "IDN": 860.854
+      },
+      "gold_record_ids": [
+        "3d94f220-502d-45db-a247-369e7c211b36"
+      ]
+    },
+    {
+      "id": "gt-00184",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Population (Total) in 2013?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 316.72628199999997,
+        "GBR": 64.139,
+        "DEU": 80.518,
+        "FRA": 65.565,
+        "JPN": 127.333,
+        "CHN": 1367.26,
+        "IND": 1295.83,
+        "BRA": 199.227,
+        "CAN": 35.032,
+        "AUS": 23.298,
+        "KOR": 50.429,
+        "MEX": 119.598,
+        "ITA": 60.277,
+        "ESP": 46.496,
+        "NLD": 16.78,
+        "SAU": 27.624,
+        "ZAF": 53.961,
+        "ARG": 42.203,
+        "IDN": 248.818,
+        "TUR": 76.148
+      },
+      "gold_record_ids": [
+        "ddc188e9-6289-4c36-9cb8-ac8a9bf059a0"
+      ]
+    },
+    {
+      "id": "gt-00185",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Government Debt (% GDP) in 2016?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 12.2,
+        "TUR": 27.0,
+        "JPN": 202.1,
+        "MEX": 55.0,
+        "GBR": 155.581504971929,
+        "USA": 98.6931939368279,
+        "IND": 47.6337555915272,
+        "BRA": 73.4188038019563,
+        "ZAF": 47.1,
+        "CAN": 92.5,
+        "ARG": 53.1,
+        "CHN": 50.0,
+        "DEU": 68.3,
+        "IDN": 28.0,
+        "AUS": 40.5,
+        "KOR": 39.1,
+        "ESP": 102.0,
+        "FRA": 98.1,
+        "ITA": 134.2,
+        "NLD": 60.9
+      },
+      "gold_record_ids": [
+        "4f67bf0f-bee0-46ea-9fd5-f32f65cb8e6c"
+      ]
+    },
+    {
+      "id": "gt-00186",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Population (Total) in 2001?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2001",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 285.216,
+        "GBR": 59.113,
+        "DEU": 81.518,
+        "FRA": 60.941,
+        "JPN": 127.132,
+        "CHN": 1276.27,
+        "IND": 1077.899,
+        "BRA": 177.004,
+        "CAN": 30.971,
+        "AUS": 19.386,
+        "KOR": 47.37,
+        "MEX": 100.739,
+        "ITA": 56.961,
+        "ESP": 41.035,
+        "NLD": 15.987,
+        "SAU": 18.603,
+        "ZAF": 45.724,
+        "ARG": 37.156,
+        "IDN": 209.206,
+        "TUR": 65.166
+      },
+      "gold_record_ids": [
+        "4164141e-86f1-4ae1-ad2a-7e3f7d2c3ea0"
+      ]
+    },
+    {
+      "id": "gt-00187",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Unemployment Rate in 2006?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Korea",
+      "expected_country": "KOR",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2006",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "ZAF": 23.6,
+        "SAU": 6.3,
+        "TUR": 8.7,
+        "CAN": 6.5,
+        "IDN": 10.3,
+        "ESP": 8.5,
+        "AUS": 4.8,
+        "JPN": 4.1,
+        "USA": 4.6,
+        "GBR": 5.4,
+        "DEU": 10.0,
+        "FRA": 8.8,
+        "CHN": 4.43,
+        "IND": 7.553,
+        "BRA": 9.7,
+        "ITA": 6.9,
+        "KOR": 3.5,
+        "MEX": 3.6,
+        "ARG": 10.2,
+        "NLD": 6.1
+      },
+      "gold_record_ids": [
+        "f98982f6-f45d-44aa-a833-6e23c97db69a"
+      ]
+    },
+    {
+      "id": "gt-00188",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest General Government Expenditure (% GDP) in 2011?",
+      "answer_kind": "categorical",
+      "expected_answer": "India",
+      "expected_country": "IND",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "countries": [
+        "AUS",
+        "BRA",
+        "CAN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2011",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 25.3457058278502,
+        "GBR": 42.5122983092258,
+        "DEU": 28.3141784769068,
+        "FRA": 47.927974289251,
+        "JPN": 18.5956788727445,
+        "IND": 14.4898394030493,
+        "BRA": 28.6625216779187,
+        "CAN": 17.8502680006291,
+        "AUS": 25.9163709195685,
+        "KOR": 17.3891183173319,
+        "MEX": 20.8740737970003,
+        "ITA": 41.8281531942746,
+        "ESP": 31.1937980143915,
+        "NLD": 41.8898710848718,
+        "SAU": 22.8756134235045,
+        "ZAF": 31.0619734464171,
+        "TUR": 30.1444408136135
+      },
+      "gold_record_ids": [
+        "d5c6eca5-0101-44e9-b73a-e839c00248ae"
+      ]
+    },
+    {
+      "id": "gt-00189",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Government Debt (% GDP) in 2005?",
+      "answer_kind": "categorical",
+      "expected_answer": "Australia",
+      "expected_country": "AUS",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2005",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CAN": 70.6,
+        "ITA": 106.2,
+        "AUS": 10.8,
+        "GBR": 40.9,
+        "ESP": 42.4,
+        "FRA": 68.2,
+        "JPN": 153.4,
+        "CHN": 25.9,
+        "USA": 65.8,
+        "IND": 82.4,
+        "NLD": 49.6,
+        "TUR": 50.2,
+        "IDN": 42.6,
+        "KOR": 24.9,
+        "DEU": 67.1,
+        "ZAF": 29.6,
+        "ARG": 80.3,
+        "BRA": 67.0,
+        "MEX": 36.8,
+        "SAU": 37.3
+      },
+      "gold_record_ids": [
+        "8d0f67ff-5748-477f-8862-1a2f28d485ed"
+      ]
+    },
+    {
+      "id": "gt-00190",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest CPI Inflation Rate in 2016?",
+      "answer_kind": "categorical",
+      "expected_answer": "Spain",
+      "expected_country": "ESP",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "countries": [
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "KOR": 1.0,
+        "ZAF": 6.3,
+        "USA": 1.26158320570536,
+        "MEX": 2.8,
+        "DEU": 0.491747008445174,
+        "JPN": -0.127258844489754,
+        "AUS": 1.3,
+        "ITA": -0.1,
+        "IDN": 3.5,
+        "GBR": 1.0084173681141,
+        "FRA": 0.183334861123764,
+        "CHN": 2.00000182191943,
+        "IND": 4.94821634062141,
+        "BRA": 8.73914352329393,
+        "TUR": 7.8,
+        "CAN": 1.4,
+        "ESP": -0.3,
+        "SAU": 2.9,
+        "NLD": 0.1
+      },
+      "gold_record_ids": [
+        "ed08dacb-ad99-4dc8-90e1-580c70fda8ee"
+      ]
+    },
+    {
+      "id": "gt-00191",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP Growth Rate in 2013?",
+      "answer_kind": "categorical",
+      "expected_answer": "Italy",
+      "expected_country": "ITA",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "IND": 6.4,
+        "MEX": 0.9,
+        "JPN": 2.0,
+        "AUS": 2.2,
+        "KOR": 3.3,
+        "DEU": 0.4,
+        "ESP": -1.4,
+        "TUR": 8.5,
+        "GBR": 1.71846961308464,
+        "ITA": -1.8,
+        "USA": 2.11783009790057,
+        "ARG": 2.4,
+        "FRA": 0.9,
+        "CAN": 2.3,
+        "NLD": 0.0,
+        "CHN": 7.8,
+        "BRA": 3.0,
+        "SAU": 2.9,
+        "ZAF": 2.5,
+        "IDN": 5.6
+      },
+      "gold_record_ids": [
+        "b5afd05d-edc6-49f8-9139-32d965588b00"
+      ]
+    },
+    {
+      "id": "gt-00192",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Exports of Goods and Services (% GDP) in 2002?",
+      "answer_kind": "categorical",
+      "expected_answer": "the United States",
+      "expected_country": "USA",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2002",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 9.131381513844,
+        "GBR": 24.4315052325124,
+        "DEU": 31.1904504893495,
+        "FRA": 28.7307017592768,
+        "JPN": 10.8554456072287,
+        "CHN": 22.3518233715808,
+        "IND": 14.2643839243147,
+        "BRA": 14.2305902741157,
+        "CAN": 40.0586585930818,
+        "AUS": 20.6927681028396,
+        "KOR": 28.869081069037,
+        "MEX": 21.8517619236376,
+        "ITA": 24.3126948188163,
+        "ESP": 26.5642672698948,
+        "NLD": 60.1048715353519,
+        "SAU": 40.94880327191,
+        "ZAF": 28.4311672176802,
+        "ARG": 28.3825969991682,
+        "IDN": 32.6876208878375,
+        "TUR": 25.2651261294128
+      },
+      "gold_record_ids": [
+        "dc9acd2d-73a8-4b6a-8064-ff16d148c3ee"
+      ]
+    },
+    {
+      "id": "gt-00193",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Imports of Goods and Services (% GDP) in 2015?",
+      "answer_kind": "categorical",
+      "expected_answer": "Argentina",
+      "expected_country": "ARG",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2015",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 15.351745665684,
+        "GBR": 29.2459709877926,
+        "DEU": 35.1711839535087,
+        "FRA": 31.8111924693795,
+        "JPN": 17.990648516827,
+        "CHN": 17.7581206128298,
+        "IND": 22.1097247094602,
+        "BRA": 14.0534345185884,
+        "CAN": 34.3149411035338,
+        "AUS": 21.5101052436646,
+        "KOR": 34.4200460024725,
+        "MEX": 36.2502019889402,
+        "ITA": 26.2915747622901,
+        "ESP": 30.2833562687193,
+        "NLD": 76.3339650302142,
+        "SAU": 35.6651376146789,
+        "ZAF": 29.0130377322327,
+        "ARG": 11.7805740385254,
+        "IDN": 20.7774609817235,
+        "TUR": 26.5941406789482
+      },
+      "gold_record_ids": [
+        "f1de1cb6-202e-4adf-b3b6-c56daab5dadc"
+      ]
+    },
+    {
+      "id": "gt-00194",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Government Debt (% GDP) in 2015?",
+      "answer_kind": "categorical",
+      "expected_answer": "Saudi Arabia",
+      "expected_country": "SAU",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2015",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CAN": 92.3,
+        "KOR": 38.8,
+        "BRA": 67.5375540307946,
+        "GBR": 147.063146778865,
+        "USA": 96.6110565851958,
+        "IND": 49.9647183856551,
+        "FRA": 97.0,
+        "ARG": 52.6,
+        "MEX": 51.0,
+        "ZAF": 45.2,
+        "ESP": 102.4,
+        "AUS": 37.6,
+        "JPN": 200.1,
+        "TUR": 26.5,
+        "CHN": 40.8,
+        "DEU": 71.2,
+        "IDN": 27.0,
+        "ITA": 134.8,
+        "NLD": 63.8,
+        "SAU": 5.5
+      },
+      "gold_record_ids": [
+        "38163751-dea0-4c2f-b1dc-09ad286baedd"
+      ]
+    },
+    {
+      "id": "gt-00195",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Population (Total) in 2024?",
+      "answer_kind": "categorical",
+      "expected_answer": "the Netherlands",
+      "expected_country": "NLD",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2024",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "USA": 340.11098799999996,
+        "GBR": 69.226,
+        "DEU": 83.516593,
+        "FRA": 68.551653,
+        "JPN": 123.975371,
+        "CHN": 1408.975,
+        "IND": 1450.9357909999999,
+        "BRA": 211.998573,
+        "CAN": 41.118,
+        "AUS": 27.388,
+        "KOR": 51.751,
+        "MEX": 132.274,
+        "ITA": 58.971,
+        "ESP": 49.078,
+        "NLD": 17.943,
+        "SAU": 35.3,
+        "ZAF": 62.329,
+        "ARG": 47.068,
+        "IDN": 281.604,
+        "TUR": 85.518
+      },
+      "gold_record_ids": [
+        "86954d71-41d3-43ae-9d91-6602de3a6fb6"
+      ]
+    },
+    {
+      "id": "gt-00196",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Current Account Balance (% GDP) in 2003?",
+      "answer_kind": "categorical",
+      "expected_answer": "Australia",
+      "expected_country": "AUS",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2003",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "IND": 2.3,
+        "SAU": 13.0,
+        "TUR": -2.4,
+        "NLD": 5.1,
+        "JPN": 3.0,
+        "BRA": 0.4,
+        "IDN": 3.2,
+        "MEX": -0.5,
+        "FRA": 0.8,
+        "USA": -4.6,
+        "GBR": -1.8,
+        "DEU": 1.5,
+        "CHN": 2.6,
+        "ITA": -0.8,
+        "ARG": 5.6,
+        "CAN": 1.2,
+        "AUS": -5.3,
+        "KOR": 1.6,
+        "ESP": -3.8,
+        "ZAF": -0.7
+      },
+      "gold_record_ids": [
+        "1ce3c3a4-57a4-4b79-b159-4aa940455da1"
+      ]
+    },
+    {
+      "id": "gt-00197",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP (Current USD) in 2005?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Africa",
+      "expected_country": "ZAF",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2005",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "TUR": 506.794,
+        "CAN": 1173108598778.68,
+        "ITA": 1866.013,
+        "SAU": 328.205,
+        "NLD": 688.514,
+        "USA": 13039.2,
+        "CHN": 2326.577,
+        "GBR": 2554.229,
+        "BRA": 891633826625.407,
+        "DEU": 2894.992,
+        "FRA": 2193.358,
+        "JPN": 4875.649,
+        "IND": 820.385,
+        "AUS": 737.709,
+        "MEX": 917.572,
+        "KOR": 971.54,
+        "IDN": 310.92,
+        "ARG": 198737095012.282,
+        "ZAF": 288.749,
+        "ESP": 1155.306
+      },
+      "gold_record_ids": [
+        "33321f75-56fa-49bb-af06-a23d85ae6ecd"
+      ]
+    },
+    {
+      "id": "gt-00198",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP (Current USD) in 2016?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Africa",
+      "expected_country": "ZAF",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2016",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "SAU": 689.279,
+        "ESP": 1242.673,
+        "IND": 2294.79688566316,
+        "KOR": 1578.816,
+        "MEX": 1112.233,
+        "GBR": 2706.80760653873,
+        "IDN": 931.877,
+        "CAN": 1527994741907.43,
+        "USA": 18695.110842000002,
+        "DEU": 3536.7878951790003,
+        "BRA": 1795.6932659990402,
+        "FRA": 2470.40761977713,
+        "JPN": 5003.677627544241,
+        "CHN": 11456.024084962,
+        "ITA": 1886.59,
+        "NLD": 796.944,
+        "ARG": 557532320662.955,
+        "TUR": 870.339,
+        "AUS": 1267.66,
+        "ZAF": 323.493
+      },
+      "gold_record_ids": [
+        "3fd7d7a8-7d6d-46dc-8865-616ebdb311fe"
+      ]
+    },
+    {
+      "id": "gt-00199",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest Imports of Goods and Services (% GDP) in 2002?",
+      "answer_kind": "categorical",
+      "expected_answer": "Japan",
+      "expected_country": "JPN",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2002",
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "USA": 13.1549925956457,
+        "GBR": 26.8046768666199,
+        "DEU": 27.1421182354634,
+        "FRA": 26.4018230910334,
+        "JPN": 9.5916764589296,
+        "CHN": 19.8426189671605,
+        "IND": 15.2442790107467,
+        "BRA": 13.3877671336016,
+        "CAN": 35.6483734848415,
+        "AUS": 20.6885447118526,
+        "KOR": 27.7997957269903,
+        "MEX": 23.3580673360145,
+        "ITA": 23.5586238603378,
+        "ESP": 28.5378742610811,
+        "NLD": 52.6451528233191,
+        "SAU": 23.6439941380154,
+        "ZAF": 25.0343344117566,
+        "ARG": 13.370127359396,
+        "IDN": 26.3918408785348,
+        "TUR": 22.8374839940274
+      },
+      "gold_record_ids": [
+        "608e1e02-b3fa-4b7c-84ea-222c7cbc13e4"
+      ]
+    },
+    {
+      "id": "gt-00200",
+      "question_type": "superlative_low",
+      "question": "Among the tracked countries, which had the lowest GDP (Current USD) in 2013?",
+      "answer_kind": "categorical",
+      "expected_answer": "South Africa",
+      "expected_country": "ZAF",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "countries": [
+        "ARG",
+        "AUS",
+        "BRA",
+        "CAN",
+        "CHN",
+        "DEU",
+        "ESP",
+        "FRA",
+        "GBR",
+        "IDN",
+        "IND",
+        "ITA",
+        "JPN",
+        "KOR",
+        "MEX",
+        "NLD",
+        "SAU",
+        "TUR",
+        "USA",
+        "ZAF"
+      ],
+      "period": "2013",
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "CHN": 9787.51,
+        "TUR": 962.457,
+        "USA": 16843.190993,
+        "NLD": 883.964,
+        "DEU": 3807.079,
+        "SAU": 769.755,
+        "ESP": 1362.207,
+        "ITA": 2153.257,
+        "AUS": 1526.608,
+        "BRA": 2472819362043.74,
+        "GBR": 2796.90833328339,
+        "FRA": 2816.119,
+        "JPN": 5272.297,
+        "CAN": 1846597421834.98,
+        "IND": 1847.019,
+        "IDN": 912.524,
+        "ARG": 552025140252.246,
+        "KOR": 1434.67,
+        "ZAF": 400.877,
+        "MEX": 1327.436
+      },
+      "gold_record_ids": [
+        "3a36e0b0-bd68-456a-8299-ee6585517bd0"
+      ]
+    },
+    {
+      "id": "gt-00201",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of the Netherlands increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "NLD",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 66.4429411465509,
+        "2005": 65.5858924432585
+      },
+      "gold_record_ids": [
+        "1f74a643-f052-408e-ba23-30952f2f67fc",
+        "01c2caf2-b55d-4979-9f29-95eeb7d4a53f"
+      ]
+    },
+    {
+      "id": "gt-00202",
+      "question_type": "trend",
+      "question": "Did the General Government Expenditure (% GDP) of India increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "IND",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 15.4104025952684,
+        "2005": 15.1739835903438
+      },
+      "gold_record_ids": [
+        "1c3a53d7-a498-44d3-bd2a-ccde84492a9e",
+        "8fe64dff-2ae1-46c0-b474-9baeccb67633"
+      ]
+    },
+    {
+      "id": "gt-00203",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of Germany increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "DEU",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 8.0,
+        "2005": 11.0
+      },
+      "gold_record_ids": [
+        "ba8bc8ab-ac4b-4635-abf5-cce7e655377c",
+        "9d41fd90-5107-4eb7-a34c-1c1096c1c11d"
+      ]
+    },
+    {
+      "id": "gt-00204",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of the United States increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "USA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 282.296,
+        "2005": 296.115
+      },
+      "gold_record_ids": [
+        "5967eba0-cf71-48a0-8144-8f577ec119ab",
+        "5837726b-95a0-4685-ac2a-67f4dbd8e35b"
+      ]
+    },
+    {
+      "id": "gt-00205",
+      "question_type": "trend",
+      "question": "Did the GDP (Current USD) of Canada increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "CAN",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 744773415931.587,
+        "2005": 1173108598778.68
+      },
+      "gold_record_ids": [
+        "060080ba-6b81-4da8-a46c-f762f39c76df",
+        "768bb3e2-49cd-4997-8359-08d26cf9fb7a"
+      ]
+    },
+    {
+      "id": "gt-00206",
+      "question_type": "trend",
+      "question": "Did the GDP Growth Rate of the United States increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "USA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 4.1,
+        "2005": 3.5
+      },
+      "gold_record_ids": [
+        "ba1309c3-ea94-4cef-8e08-662b3687211a",
+        "076b34f3-63b2-461c-adac-58adbf55ff13"
+      ]
+    },
+    {
+      "id": "gt-00207",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of India increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "IND",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 1057.923,
+        "2005": 1154.676
+      },
+      "gold_record_ids": [
+        "be724972-06aa-46a2-b073-205d4f3ac3f1",
+        "c77d7cce-56a2-414a-abff-dfb164d64221"
+      ]
+    },
+    {
+      "id": "gt-00208",
+      "question_type": "trend",
+      "question": "Did the Current Account Balance (% GDP) of Italy increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "ITA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": -0.3,
+        "2005": -0.9
+      },
+      "gold_record_ids": [
+        "5b160f40-360e-4bd0-821d-ecd7c7034fbb",
+        "aaa86b8f-e2be-41d0-bec3-8bc3c336621a"
+      ]
+    },
+    {
+      "id": "gt-00209",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of Australia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "AUS",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 19.356082688226,
+        "2005": 18.1951172148922
+      },
+      "gold_record_ids": [
+        "4eb46834-1c77-4643-8e02-9ebe91ecca8e",
+        "1f891e71-6feb-45aa-b076-819d5b76103f"
+      ]
+    },
+    {
+      "id": "gt-00210",
+      "question_type": "trend",
+      "question": "Did the General Government Expenditure (% GDP) of Germany increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "DEU",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 31.0107716724735,
+        "2005": 30.0041707693565
+      },
+      "gold_record_ids": [
+        "227a1d2d-586d-4f7c-9213-9903cb419656",
+        "64ebc64e-1d1c-4c15-b41c-c612acaff916"
+      ]
+    },
+    {
+      "id": "gt-00211",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of the United Kingdom increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "GBR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 25.5563430576261,
+        "2005": 25.2070017509366
+      },
+      "gold_record_ids": [
+        "d03de14d-5ea9-4d17-a9c1-ca37b7054178",
+        "ed9a240d-5bd4-4c42-a09d-00958427d2be"
+      ]
+    },
+    {
+      "id": "gt-00212",
+      "question_type": "trend",
+      "question": "Did the GDP Growth Rate of Japan increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GDP_GROWTH",
+      "indicator_name": "GDP Growth Rate",
+      "country_code": "JPN",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 3.0,
+        "2005": 1.8
+      },
+      "gold_record_ids": [
+        "4f7b2f20-d7a1-424c-a1a1-fa78399ffe8b",
+        "8c4a1285-e0de-4732-9f0e-5e5ead56481e"
+      ]
+    },
+    {
+      "id": "gt-00213",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of Brazil increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "BRA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 174.696,
+        "2005": 185.518
+      },
+      "gold_record_ids": [
+        "cf42dd6c-71ef-4439-814c-252c8d316eb7",
+        "19fe147a-0828-401f-83c4-55600c277c31"
+      ]
+    },
+    {
+      "id": "gt-00214",
+      "question_type": "trend",
+      "question": "Did the GDP (Current USD) of Turkey increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "TUR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 273.57,
+        "2005": 506.794
+      },
+      "gold_record_ids": [
+        "c7bbd690-1fcc-419a-8d43-a5ae016e8658",
+        "b503f308-170e-40a6-87eb-ac6bb5057d8f"
+      ]
+    },
+    {
+      "id": "gt-00215",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of Spain increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "ESP",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 13.9,
+        "2005": 9.2
+      },
+      "gold_record_ids": [
+        "d08f3e02-5d06-4ad4-ba7d-86a53cbeac37",
+        "8760cb4d-b4cc-4de7-93e1-babf4a9a0324"
+      ]
+    },
+    {
+      "id": "gt-00216",
+      "question_type": "trend",
+      "question": "Did the Government Debt (% GDP) of Mexico increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "MEX",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 38.5,
+        "2005": 36.8
+      },
+      "gold_record_ids": [
+        "fb6b51e1-5231-4d58-be44-f7fe7b19120d",
+        "8a194a9b-fe18-4f56-b17d-69369a57da47"
+      ]
+    },
+    {
+      "id": "gt-00217",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of the United Kingdom increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "GBR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 58.886,
+        "2005": 60.413
+      },
+      "gold_record_ids": [
+        "8291b815-d3d3-4e9e-8add-50bb926a8274",
+        "bd2ce468-1434-4f5a-bbdf-394cfa73d949"
+      ]
+    },
+    {
+      "id": "gt-00218",
+      "question_type": "trend",
+      "question": "Did the CPI Inflation Rate of Germany increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "DEU",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 1.4,
+        "2005": 2.0
+      },
+      "gold_record_ids": [
+        "1ee6c2b5-2daa-4856-8486-5be2e8a8dbe7",
+        "09a9ddcd-4629-4fec-84f2-a0d7b7f937b7"
+      ]
+    },
+    {
+      "id": "gt-00219",
+      "question_type": "trend",
+      "question": "Did the Imports of Goods and Services (% GDP) of India increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "IND",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 13.9036865990995,
+        "2005": 22.3964229200356
+      },
+      "gold_record_ids": [
+        "025091f6-26a6-47c8-8130-f30945a9ea5f",
+        "dcafa5c7-18b5-4c5e-80d7-15bd5b6888c8"
+      ]
+    },
+    {
+      "id": "gt-00220",
+      "question_type": "trend",
+      "question": "Did the Imports of Goods and Services (% GDP) of the Netherlands increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "NLD",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 59.22408893587,
+        "2005": 56.6699570799932
+      },
+      "gold_record_ids": [
+        "6ab0b97b-c73a-43e2-9786-c18e208bdc3d",
+        "c492d2a5-b94c-48e7-823c-d29488d51a15"
+      ]
+    },
+    {
+      "id": "gt-00221",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of Canada increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "CAN",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 30.647,
+        "2005": 32.203
+      },
+      "gold_record_ids": [
+        "452fd457-7a05-41fe-97dc-63d302886524",
+        "c40a0f98-5d3e-46f7-8fb9-8d1c8b0c5570"
+      ]
+    },
+    {
+      "id": "gt-00222",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of Australia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "AUS",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 6.3,
+        "2005": 5.0
+      },
+      "gold_record_ids": [
+        "f2efca8e-2439-41df-be61-6699685125ee",
+        "eb0b01ce-6cde-4320-88c8-28b339affa75"
+      ]
+    },
+    {
+      "id": "gt-00223",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of France increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "FRA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 29.7580489893129,
+        "2005": 28.1635565257399
+      },
+      "gold_record_ids": [
+        "d91013b5-23f9-4e82-9e5b-6d571d97c2f9",
+        "ccde54d3-e263-4441-be0e-cc5eb8dc2160"
+      ]
+    },
+    {
+      "id": "gt-00224",
+      "question_type": "trend",
+      "question": "Did the Government Debt (% GDP) of the United Kingdom increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "GBR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 37.5,
+        "2005": 40.9
+      },
+      "gold_record_ids": [
+        "da73888d-d083-4489-920c-e9b20792cfc1",
+        "e48d8d02-a9af-44b3-9d65-980d2f9b22a7"
+      ]
+    },
+    {
+      "id": "gt-00225",
+      "question_type": "trend",
+      "question": "Did the Government Debt (% GDP) of South Africa increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "GOVT_DEBT_PCT_GDP",
+      "indicator_name": "Government Debt (% GDP)",
+      "country_code": "ZAF",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 37.9,
+        "2005": 29.6
+      },
+      "gold_record_ids": [
+        "cd32bc0f-d21d-419d-80d1-f86ecd95d881",
+        "348e99f5-8f75-429f-b6b2-54247ec1ab91"
+      ]
+    },
+    {
+      "id": "gt-00226",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of Turkey increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "TUR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 64.269,
+        "2005": 68.435
+      },
+      "gold_record_ids": [
+        "6a9a96c2-229c-42d2-b9c7-7cde09de0459",
+        "29fd0c6f-c46e-492b-aa67-f8c0369142fe"
+      ]
+    },
+    {
+      "id": "gt-00227",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of Italy increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "ITA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 25.5611956255751,
+        "2005": 24.5118533579183
+      },
+      "gold_record_ids": [
+        "3b84eed0-ed2e-4005-ad35-0cb546fe02ec",
+        "7178e61c-c218-407f-a93d-ea0ef189a994"
+      ]
+    },
+    {
+      "id": "gt-00228",
+      "question_type": "trend",
+      "question": "Did the Current Account Balance (% GDP) of Australia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "AUS",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": -4.0,
+        "2005": -6.0
+      },
+      "gold_record_ids": [
+        "9b01739f-ee11-496c-a020-f93c4c752f51",
+        "8784839f-0326-4057-a370-c03ff9d7f188"
+      ]
+    },
+    {
+      "id": "gt-00229",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of China increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "CHN",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 3.26,
+        "2005": 4.52
+      },
+      "gold_record_ids": [
+        "36a6d789-3871-40d3-a24b-581dbf2605b0",
+        "942c9746-3e9d-4bc0-aea7-e02d7c86a4f3"
+      ]
+    },
+    {
+      "id": "gt-00230",
+      "question_type": "trend",
+      "question": "Did the General Government Expenditure (% GDP) of France increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "GOVT_EXPENDITURE_PCT_GDP",
+      "indicator_name": "General Government Expenditure (% GDP)",
+      "country_code": "FRA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 44.7395900950739,
+        "2005": 45.7486480076561
+      },
+      "gold_record_ids": [
+        "64aba3d3-d30c-49dd-b596-d0f5343c57af",
+        "b057ed87-6e22-4781-80d2-65389c80ef16"
+      ]
+    },
+    {
+      "id": "gt-00231",
+      "question_type": "trend",
+      "question": "Did the Population (Total) of South Korea increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "POPULATION",
+      "indicator_name": "Population (Total)",
+      "country_code": "KOR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 47.008,
+        "2005": 48.185
+      },
+      "gold_record_ids": [
+        "5fcfd678-1264-4ff0-9d18-67c2423940eb",
+        "61bfe02c-9511-4011-ab31-aee446dd3cdc"
+      ]
+    },
+    {
+      "id": "gt-00232",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of Saudi Arabia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "SAU",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 4.6,
+        "2005": 6.1
+      },
+      "gold_record_ids": [
+        "2f8b363b-914c-467c-8e9b-a05410a577c7",
+        "de0a4f76-4287-43e1-8fbd-f3f78d9653a1"
+      ]
+    },
+    {
+      "id": "gt-00233",
+      "question_type": "trend",
+      "question": "Did the Imports of Goods and Services (% GDP) of the United States increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "USA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 14.4102184542572,
+        "2005": 15.65649830011
+      },
+      "gold_record_ids": [
+        "9599ad9f-3d10-4dbd-9fa9-50b5c677b777",
+        "e9d11c5a-4cc3-4e6b-b7fb-f80c8467c4a3"
+      ]
+    },
+    {
+      "id": "gt-00234",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of Turkey increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "TUR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 6.0,
+        "2005": 9.2
+      },
+      "gold_record_ids": [
+        "42f1449e-f8e7-4f28-bcb5-c8d8a64ec47a",
+        "6167021c-befd-4c66-9594-f6c68c19ba3f"
+      ]
+    },
+    {
+      "id": "gt-00235",
+      "question_type": "trend",
+      "question": "Did the Unemployment Rate of France increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "UNEMPLOYMENT_RATE",
+      "indicator_name": "Unemployment Rate",
+      "country_code": "FRA",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 9.2,
+        "2005": 8.9
+      },
+      "gold_record_ids": [
+        "44087d2d-7779-43c7-b147-a6cb5a12c15a",
+        "e0ad7530-5309-4a3a-86e3-f6ec0cfa1fe8"
+      ]
+    },
+    {
+      "id": "gt-00236",
+      "question_type": "trend",
+      "question": "Did the GDP (Current USD) of Mexico increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "GDP_CURRENT_USD",
+      "indicator_name": "GDP (Current USD)",
+      "country_code": "MEX",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 742.061,
+        "2005": 917.572
+      },
+      "gold_record_ids": [
+        "5a6744ab-c520-4eb8-aa4c-4cd95489a591",
+        "fda5de58-e070-49cf-947c-6feb44dba3ab"
+      ]
+    },
+    {
+      "id": "gt-00237",
+      "question_type": "trend",
+      "question": "Did the Exports of Goods and Services (% GDP) of Turkey increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "EXPORTS_PCT_GDP",
+      "indicator_name": "Exports of Goods and Services (% GDP)",
+      "country_code": "TUR",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 19.9334162657424,
+        "2005": 22.118798245903
+      },
+      "gold_record_ids": [
+        "576acb59-1221-4c64-a146-9d1d952aa63b",
+        "711c82d2-ae7c-42c9-9054-283d952029d4"
+      ]
+    },
+    {
+      "id": "gt-00238",
+      "question_type": "trend",
+      "question": "Did the Current Account Balance (% GDP) of Saudi Arabia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "increased",
+      "indicator_code": "CURRENT_ACCOUNT_PCT_GDP",
+      "indicator_name": "Current Account Balance (% GDP)",
+      "country_code": "SAU",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 7.6,
+        "2005": 28.1
+      },
+      "gold_record_ids": [
+        "4a3d2e62-92ae-48a2-8848-ad50a233e21a",
+        "d371ed2c-0196-4b78-8f10-4777aaf8d86e"
+      ]
+    },
+    {
+      "id": "gt-00239",
+      "question_type": "trend",
+      "question": "Did the Imports of Goods and Services (% GDP) of Indonesia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "IMPORTS_PCT_GDP",
+      "indicator_name": "Imports of Goods and Services (% GDP)",
+      "country_code": "IDN",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "World Bank Open Data",
+      "supporting_values": {
+        "2000": 30.4595674435027,
+        "2005": 29.9206682408643
+      },
+      "gold_record_ids": [
+        "a6f114d4-77fb-48ef-9a4a-4cfa87b9a6b0",
+        "44a89f5b-24a8-43ef-993b-183e34103123"
+      ]
+    },
+    {
+      "id": "gt-00240",
+      "question_type": "trend",
+      "question": "Did the CPI Inflation Rate of Australia increase or decrease between 2000 and 2005?",
+      "answer_kind": "direction",
+      "expected_answer": "decreased",
+      "indicator_code": "CPI_INFLATION",
+      "indicator_name": "CPI Inflation Rate",
+      "country_code": "AUS",
+      "periods": [
+        "2000",
+        "2005"
+      ],
+      "expected_source": "IMF World Economic Outlook",
+      "supporting_values": {
+        "2000": 4.5,
+        "2005": 2.7
+      },
+      "gold_record_ids": [
+        "5568fdfa-ea53-428f-a02c-2a58e52dca3a",
+        "30b8de34-db19-4687-b33f-b8a2dc618beb"
+      ]
+    }
+  ]
+}

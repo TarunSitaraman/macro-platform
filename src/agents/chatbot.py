@@ -152,7 +152,7 @@ class ChatbotAgent:
         return {
             "session_id": str(sess.session_id),
             "response": result.response,
-            "context_records": result.context_record_ids,
+            "context_records": result.context_records,
             "model_used": result.model_used,
             "guardrail_triggered": False,
             "suggested_questions": SUGGESTED_QUESTIONS[:3],

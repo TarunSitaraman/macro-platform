@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from src.agents.llm_client import LLMError, get_llm_client
+from src.agents.runtime.citations import build_citations, dedupe_records
 from src.agents.runtime.registry import ToolRegistry
 from src.agents.runtime.tracer import AgentTracer
 from src.agents.runtime.types import AgentRunResult, AgentStep, ToolResult
@@ -66,6 +67,7 @@ class AgentOrchestrator:
         tool_results: list[ToolResult] = []
         tool_trace: list[dict[str, Any]] = []
         context_record_ids: list[str] = []
+        context_records: list[dict[str, Any]] = []
         client = get_llm_client()
 
         messages: list[dict[str, Any]] = list(history or [])
@@ -129,6 +131,7 @@ class AgentOrchestrator:
 
                         tool_results.append(result)
                         context_record_ids.extend(result.record_ids)
+                        context_records.extend(result.records)
                         tool_trace.append({
                             "tool": tool_name,
                             "arguments": args,
@@ -177,7 +180,10 @@ class AgentOrchestrator:
                     "Please try a more specific question."
                 )
 
-            confidence, warnings, citations = self.verifier.verify(
+            # Verifier handles grounding (confidence + warnings) only; citations
+            # are built from the structured retrieved records below, not parsed
+            # from the model's prose.
+            confidence, warnings, _ = self.verifier.verify(
                 final_response, tool_results
             )
 
@@ -187,7 +193,7 @@ class AgentOrchestrator:
                 )
                 if revised:
                     final_response = revised
-                    confidence, warnings, citations = self.verifier.verify(
+                    confidence, warnings, _ = self.verifier.verify(
                         final_response, tool_results
                     )
                     self.tracer.record_step(AgentStep(
@@ -208,6 +214,8 @@ class AgentOrchestrator:
             ))
 
             unique_ids = list(dict.fromkeys(context_record_ids))
+            unique_records = dedupe_records(context_records)
+            citations = build_citations(unique_records)
             self.tracer.complete_run(
                 response=final_response,
                 model_used=model_used,
@@ -227,6 +235,7 @@ class AgentOrchestrator:
             grounding_warnings=warnings,
             run_id=str(run_id),
             tool_trace=tool_trace,
+            context_records=unique_records,
         )
 
     async def _pseudo_tool_completion(self, messages, client):

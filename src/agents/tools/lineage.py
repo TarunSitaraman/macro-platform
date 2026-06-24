@@ -127,6 +127,18 @@ async def explain_data_lineage(
         success=True,
         data=data,
         record_ids=[str(gold.record_id)],
+        records=[{
+            "record_id": str(gold.record_id),
+            "type": "gold",
+            "source_name": gold.source_name,
+            "source_url": gold.source_url,
+            "indicator_code": gold.indicator_code,
+            "country_code": gold.country_code,
+            "period": gold.period,
+            "value": gold.value,
+            "unit": gold.standard_unit,
+            "dq_score": gold.dq_score,
+        }],
     )
 
 

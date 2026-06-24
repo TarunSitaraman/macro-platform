@@ -83,15 +83,19 @@ class IngestResult(BaseModel):
     completed_at: str
 
 
-async def _run_static_source(source_code: str, db: Session, tenant_id: uuid.UUID) -> IngestResult:
+class StaticIngestRequest(BaseModel):
+    year_from: Optional[int] = 2010
+
+
+async def _run_static_source(source_code: str, db: Session, tenant_id: uuid.UUID, year_from: int = 2010) -> IngestResult:
     started = datetime.now(timezone.utc)
 
     if source_code == "WORLD_BANK":
-        raw_records = await WorldBankAgent().run_all()
+        raw_records = await WorldBankAgent().run_all(year_from=year_from)
     elif source_code == "IMF_WEO":
-        raw_records = await IMFAgent().run_all()
+        raw_records = await IMFAgent().run_all(year_from=year_from)
     elif source_code == "FRED":
-        raw_records = await FREDAgent().run_all()
+        raw_records = await FREDAgent().run_all(year_from=year_from)
     else:
         raise ValueError(f"Unknown static source: {source_code}")
 
@@ -152,6 +156,7 @@ async def _run_static_source(source_code: str, db: Session, tenant_id: uuid.UUID
 @router.post("/pipelines/static/{source_code}/run")
 async def run_static_pipeline(
     source_code: str,
+    body: StaticIngestRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(check_role(["admin", "analyst"]))
@@ -160,7 +165,7 @@ async def run_static_pipeline(
     if source_code not in valid_sources:
         raise HTTPException(status_code=400, detail=f"Valid sources: {valid_sources}")
 
-    result = await _run_static_source(source_code, db, tenant_id=current_user.tenant_id)
+    result = await _run_static_source(source_code, db, tenant_id=current_user.tenant_id, year_from=body.year_from)
     # Trigger background anomalies refresh
     background_tasks.add_task(AnomalyCacheManager.calculate_and_cache, SessionLocal, current_user.tenant_id)
     return result

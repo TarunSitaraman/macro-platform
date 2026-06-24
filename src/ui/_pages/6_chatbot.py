@@ -10,6 +10,24 @@ from src.database import SessionLocal
 st.title("💬 Macro AI Chatbot")
 st.caption("Ask questions about macroeconomic indicators — all answers cited from gold data")
 
+
+def _format_record_caption(rec) -> str:
+    """Render a context record (rich dict or legacy id string) for display."""
+    if isinstance(rec, str):
+        return f"Record: {rec}"
+    if rec.get("indicator_code"):
+        parts = " · ".join(
+            str(p) for p in (rec.get("indicator_code"), rec.get("country_code"), rec.get("period")) if p
+        )
+        value = ""
+        if rec.get("value") is not None:
+            value = f" — {rec['value']} {rec.get('unit') or ''}".rstrip()
+        source = f" ({rec['source_name']})" if rec.get("source_name") else ""
+        return f"{parts}{value}{source}"
+    if rec.get("title"):
+        return f"{rec['title']} — {rec.get('source_name', '')}"
+    return f"Record: {rec.get('record_id', '')}"
+
 # ── Session management ─────────────────────────────────────────────────────────
 if "chat_session_id" not in st.session_state:
     st.session_state.chat_session_id = None
@@ -36,8 +54,8 @@ for msg in st.session_state.chat_history:
         st.markdown(msg["content"])
         if msg.get("context_records"):
             with st.expander(f"📚 {len(msg['context_records'])} source records used"):
-                for rid in msg["context_records"]:
-                    st.caption(f"Gold record: {rid}")
+                for rec in msg["context_records"]:
+                    st.caption(_format_record_caption(rec))
 
 # ── Input ───────────────────────────────────────────────────────────────────────
 pending = st.session_state.pop("_pending_message", None)
@@ -72,8 +90,8 @@ if user_input:
 
         if result.get("context_records"):
             with st.expander(f"📚 {len(result['context_records'])} gold records used as context"):
-                for rid in result["context_records"]:
-                    st.caption(f"Record: {rid}")
+                for rec in result["context_records"]:
+                    st.caption(_format_record_caption(rec))
 
         model_label = f"*Model: {result.get('model_used', 'unknown')}*"
         st.caption(model_label)

@@ -357,7 +357,7 @@
                                     <strong>Repair Unit-Scale Violations</strong>
                                     <span>Fix gold records ingested in raw units instead of the standard unit (e.g. absolute USD stored as USD_BN)</span>
                                 </div>
-                                <button id="repair-unit-scale-btn" class="btn btn-secondary" onclick="runUnitScaleRepair()">
+                                <button id="repair-unit-scale-btn" class="btn btn-secondary">
                                     <i data-lucide="wrench"></i>
                                     <span>Repair Scales</span>
                                 </button>
@@ -369,6 +369,32 @@
                             <span id="orchestrator-status-text">Running pipeline…</span>
                         </div>
                         <div id="orchestrator-result" class="orchestrator-result hidden"></div>
+                    </div>
+                    
+                    <!-- Manual Ingestion -->
+                    <div class="glass-panel main-info-card margin-top">
+                        <h3>Manual Ingestion</h3>
+                        <p class="section-desc">Trigger a specific static source connector for a given year range.</p>
+
+                        <div class="orchestration-actions">
+                            <div class="action-row">
+                                <div class="action-info">
+                                    <strong>Source & Range</strong>
+                                    <div style="display:flex; gap:10px; margin-top:8px;">
+                                        <select id="manual-source-select" class="btn-secondary" style="flex:1;">
+                                            <option value="WORLD_BANK">World Bank Open Data</option>
+                                            <option value="IMF_WEO">IMF World Economic Outlook</option>
+                                            <option value="FRED">FRED (US Federal Reserve)</option>
+                                        </select>
+                                        <input type="number" id="manual-year-from" class="btn-secondary" style="width:100px; padding:8px;" value="2010" min="1960" max="2030">
+                                    </div>
+                                </div>
+                                <button id="run-manual-ingestion-btn" class="btn btn-primary">
+                                    <i data-lucide="play"></i>
+                                    <span>Run Manual Ingestion</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

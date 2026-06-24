@@ -27,7 +27,7 @@ with col1:
         }[x],
     )
 with col2:
-    year_from = st.number_input("From Year", value=2018, min_value=2000, max_value=2024)
+    year_from = st.number_input("From Year", value=2010, min_value=2000, max_value=2024)
 
 if st.button("Run Ingestion Pipeline", type="primary"):
     db = SessionLocal()
