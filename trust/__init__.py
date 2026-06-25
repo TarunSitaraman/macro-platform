@@ -39,7 +39,7 @@ from trust.safety.guardrails import GuardrailEngine
 from trust.safety.output_validator import OutputValidator
 
 # ── Pillar 4 — Privacy ────────────────────────────────────────────────────────
-from trust.privacy.pii_scanner import router as privacy_router
+from trust.privacy.data_retention import router as privacy_router
 from trust.privacy.consent_manager import router as consent_router
 
 # ── Pillar 5 — Sustainability ─────────────────────────────────────────────────
