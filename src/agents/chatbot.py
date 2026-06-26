@@ -11,6 +11,10 @@ from src.agents.runtime.orchestrator import AgentOrchestrator
 from src.agents.tools.chat_registry import build_chat_tool_registry
 from src.database import AgentRun, AgentStep as AgentStepModel, ChatMessage, ChatSession
 
+from trust.privacy.pii_scanner import QuerySanitizer
+from trust.safety.guardrails import ScopeFilter, GuardrailEngine, INVESTMENT_REFUSAL
+from trust.safety.output_validator import OutputValidator
+
 logger = logging.getLogger(__name__)
 
 # Guardrail keyword sets
@@ -43,18 +47,18 @@ class ChatbotAgent:
 
     def _check_guardrails(self, query: str) -> Optional[str]:
         """Return a refusal message if the query violates guardrails, else None."""
+        # 1. Scope Filter check from Pillar 3 - Safety
+        scope_res = ScopeFilter().check(query, "")
+        if not scope_res.passed:
+            return scope_res.modified_response
+
+        # 2. Local check against INVESTMENT_ADVICE_TRIGGERS on query
         q = query.lower()
         for phrase in INVESTMENT_ADVICE_TRIGGERS:
             if phrase in q:
                 return (
                     "I'm a macroeconomic data assistant and cannot provide personalized "
                     "investment advice. For financial decisions, please consult a qualified advisor."
-                )
-        for phrase in OUT_OF_SCOPE_TRIGGERS:
-            if phrase in q:
-                return (
-                    "That topic is outside my scope. I specialise in macroeconomic indicators "
-                    "(GDP, inflation, unemployment, trade, fiscal data). How can I help with those?"
                 )
         return None
 
@@ -95,9 +99,13 @@ class ChatbotAgent:
 
         sess = await self.get_or_create_session(session_id)
 
-        refusal = self._check_guardrails(user_message)
+        # ── Pillar 4 — Privacy: PII Redaction/Scrubbing ─────────────────────
+        sanitized_message = QuerySanitizer(self.db).sanitize(user_message)
+
+        # ── Pillar 3 — Safety: Query Guardrails check ───────────────────────
+        refusal = self._check_guardrails(sanitized_message)
         if refusal:
-            self._save_message(sess.session_id, "user", user_message)
+            self._save_message(sess.session_id, "user", sanitized_message)
             self._save_message(sess.session_id, "assistant", refusal)
             self.db.commit()
             return {
@@ -137,29 +145,64 @@ class ChatbotAgent:
             agent_name="ChatbotAgent",
         )
 
-        result = await orchestrator.run(user_message, history=messages)
+        result = await orchestrator.run(sanitized_message, history=messages)
 
-        self._save_message(sess.session_id, "user", user_message)
+        # ── Pillar 3 — Safety: Post-Response Guardrail & Output Validator ─────
+        # 1. Safety Guardrail Engine check (for investment advice in response & forecast disclaimer injection)
+        guard_result = GuardrailEngine(self.db).process(sanitized_message, result.response)
+        final_response = guard_result.modified_response
+        guardrail_triggered = not guard_result.passed
+
+        if guardrail_triggered:
+            self._save_message(sess.session_id, "user", sanitized_message)
+            self._save_message(sess.session_id, "assistant", final_response)
+            self.db.commit()
+            return {
+                "session_id": str(sess.session_id),
+                "response": final_response,
+                "context_records": [],
+                "model_used": "guardrail",
+                "guardrail_triggered": True,
+                "citations": [],
+                "tool_trace": [],
+                "confidence": "high",
+                "grounding_warnings": [],
+                "run_id": None,
+            }
+
+        # 2. Output Validator check (length, citation presence, and gold cross-check confidence)
+        val_result = OutputValidator(self.db).validate(final_response)
+
+        grounding_warnings = list(result.grounding_warnings)
+        if val_result.issues:
+            grounding_warnings.extend(val_result.issues)
+
+        # Merge model confidence with output validator gold layer verification confidence
+        orig_conf = 1.0 if result.confidence == "high" else (0.5 if result.confidence == "medium" else 0.2)
+        combined_conf = min(orig_conf, val_result.confidence)
+        final_confidence = "high" if combined_conf >= 0.8 else ("medium" if combined_conf >= 0.5 else "low")
+
+        self._save_message(sess.session_id, "user", sanitized_message)
         ctx_uuids = self._parse_record_uuids(result.context_record_ids)
         self._save_message(
             sess.session_id,
             "assistant",
-            result.response,
+            final_response,
             context_record_ids=ctx_uuids,
         )
         self.db.commit()
 
         return {
             "session_id": str(sess.session_id),
-            "response": result.response,
+            "response": final_response,
             "context_records": result.context_records,
             "model_used": result.model_used,
             "guardrail_triggered": False,
             "suggested_questions": SUGGESTED_QUESTIONS[:3],
             "citations": result.citations,
             "tool_trace": result.tool_trace,
-            "confidence": result.confidence,
-            "grounding_warnings": result.grounding_warnings,
+            "confidence": final_confidence,
+            "grounding_warnings": grounding_warnings,
             "run_id": result.run_id,
         }
 

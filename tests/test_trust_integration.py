@@ -31,6 +31,7 @@ def mock_db():
     db.refresh = MagicMock()
     db.query.return_value.filter.return_value.first.return_value = None
     db.query.return_value.filter.return_value.scalar.return_value = None
+    db.query.return_value.filter_by.return_value.first.return_value = None
     db.query.return_value.scalar.return_value = None
     return db
 
@@ -544,7 +545,7 @@ class TestPillar9Fairness:
 
         gate = HumanOversightGate(db=mock_db)
         decision = gate.evaluate(
-            silver_record_id="silver-001",
+            silver_record_id="11111111-1111-1111-1111-111111111111",
             dq_score=95.0,
             indicator_code="GDP_GROWTH",
             country_code="USA",
@@ -558,7 +559,7 @@ class TestPillar9Fairness:
 
         gate = HumanOversightGate(db=mock_db)
         decision = gate.evaluate(
-            silver_record_id="silver-002",
+            silver_record_id="22222222-2222-2222-2222-222222222222",
             dq_score=80.0,
             indicator_code="GDP_GROWTH",
             country_code="DEU",
@@ -572,7 +573,7 @@ class TestPillar9Fairness:
 
         gate = HumanOversightGate(db=mock_db)
         decision = gate.evaluate(
-            silver_record_id="silver-003",
+            silver_record_id="33333333-3333-3333-3333-333333333333",
             dq_score=45.0,
             indicator_code="GDP_GROWTH",
             country_code="ZWE",
